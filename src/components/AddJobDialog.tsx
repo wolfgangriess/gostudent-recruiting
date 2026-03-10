@@ -70,7 +70,15 @@ const AddJobDialog = ({ open, onOpenChange }: Props) => {
     const now = new Date().toISOString();
     addJob({
       id: `job-${Date.now()}`,
-      ...values,
+      name: values.name,
+      department: values.department,
+      location: values.location,
+      workplaceType: values.workplaceType,
+      employmentType: values.employmentType,
+      numberOfOpenings: values.numberOfOpenings,
+      description: values.description,
+      requirements: values.requirements,
+      hiringManager: values.hiringManager,
       recruiters: [],
       status: "open",
       createdAt: now,
