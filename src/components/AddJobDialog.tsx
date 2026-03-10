@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -74,6 +75,7 @@ const defaultStages: StageConfig[] = PIPELINE_STAGES.map((name, i) => ({
 }));
 
 const AddJobDialog = ({ open, onOpenChange }: Props) => {
+  const navigate = useNavigate();
   const { addJob, addStage, setStageOwner } = useATSStore();
   const [hiringTeamIds, setHiringTeamIds] = useState<string[]>([]);
   const [visibilityIds, setVisibilityIds] = useState<string[]>([]);
@@ -150,6 +152,7 @@ const AddJobDialog = ({ open, onOpenChange }: Props) => {
     setVisibilityIds([]);
     setStageConfigs(defaultStages);
     onOpenChange(false);
+    navigate(`/jobs/${jobId}/post`);
   };
 
   return (
