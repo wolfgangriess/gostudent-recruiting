@@ -181,6 +181,7 @@ const JobDetail = () => {
           </div>
         </TabsContent>
       </Tabs>
+      {job && <EditJobDialog open={editOpen} onOpenChange={setEditOpen} job={job} />}
     </div>
   );
 };
