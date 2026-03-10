@@ -1,16 +1,22 @@
 import { useMemo, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, CheckCircle2, ClipboardList, ChevronRight, Star } from "lucide-react";
+import { Calendar, CheckCircle2, ClipboardList, ChevronRight, Star, TrendingUp, ArrowUp } from "lucide-react";
 import { useATSStore } from "@/lib/ats-store";
 import { Candidate } from "@/lib/types";
 import { CandidateDetailDialog } from "@/components/CandidateDetailDialog";
+import {
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+} from "recharts";
 
 const CURRENT_USER_ID = "user-1";
 
 const MyOverviewPage = () => {
-  const { candidates, jobs, stages } = useATSStore();
+  const { candidates, jobs, stages, users } = useATSStore();
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
+
+  const currentUser = users.find((u) => u.id === CURRENT_USER_ID);
+  const isRecruiter = jobs.some((j) => j.recruiters.includes(CURRENT_USER_ID));
 
   const myInterviews = useMemo(() => {
     const myStageIds = stages
@@ -52,6 +58,49 @@ const MyOverviewPage = () => {
       { label: "Take Home Tests to Send", count: 0 },
     ];
   }, [candidates, jobs, stages]);
+
+  // Performance data (recruiter only)
+  const performanceData = useMemo(() => {
+    if (!isRecruiter) return null;
+    const myJobIds = jobs.filter((j) => j.recruiters.includes(CURRENT_USER_ID)).map((j) => j.id);
+    const myCandidates = candidates.filter((c) => myJobIds.includes(c.jobId));
+
+    const screened = myCandidates.filter((c) => {
+      const stage = stages.find((s) => s.id === c.currentStageId);
+      return stage && stage.name !== "Applied";
+    }).length;
+
+    const offerStageIds = stages.filter((s) => s.name === "Offer" || s.name === "Hired").map((s) => s.id);
+    const offersCreated = myCandidates.filter((c) => offerStageIds.includes(c.currentStageId)).length;
+
+    const hiredStageIds = stages.filter((s) => s.name === "Hired").map((s) => s.id);
+    const offersAccepted = myCandidates.filter((c) => hiredStageIds.includes(c.currentStageId)).length;
+
+    // Generate weekly trend data
+    const weeks: { week: string; offers: number; accepted: number }[] = [];
+    const now = new Date();
+    for (let i = 11; i >= 0; i--) {
+      const weekStart = new Date(now);
+      weekStart.setDate(weekStart.getDate() - i * 7);
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekEnd.getDate() + 7);
+      const weekOffers = myCandidates.filter((c) => {
+        const d = new Date(c.appliedAt);
+        return offerStageIds.includes(c.currentStageId) && d >= weekStart && d < weekEnd;
+      }).length;
+      const weekAccepted = myCandidates.filter((c) => {
+        const d = new Date(c.appliedAt);
+        return hiredStageIds.includes(c.currentStageId) && d >= weekStart && d < weekEnd;
+      }).length;
+      weeks.push({
+        week: weekStart.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+        offers: weekOffers,
+        accepted: weekAccepted,
+      });
+    }
+
+    return { screened, offersCreated, offersAccepted, trendData: weeks };
+  }, [isRecruiter, candidates, jobs, stages]);
 
   const getJobName = (jobId: string) => jobs.find((j) => j.id === jobId)?.name ?? "—";
   const getStageName = (stageId: string) => stages.find((s) => s.id === stageId)?.name ?? "—";
@@ -161,6 +210,56 @@ const MyOverviewPage = () => {
             )}
           </CardContent>
         </Card>
+
+
+        {/* My Performance - Recruiters only */}
+        {isRecruiter && performanceData && (
+          <Card className="lg:col-span-3">
+            <CardContent className="pt-5 pb-5 px-5">
+              <div className="flex items-center gap-2 mb-5">
+                <TrendingUp className="h-4.5 w-4.5 text-primary" />
+                <h2 className="text-base font-bold text-foreground">My Performance</h2>
+              </div>
+
+              {/* Metric cards */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div className="rounded-xl border border-border p-4 text-center">
+                  <p className="text-xs text-muted-foreground mb-1">Candidates Screened</p>
+                  <p className="text-2xl font-bold text-foreground">{performanceData.screened}</p>
+                </div>
+                <div className="rounded-xl border border-border p-4 text-center">
+                  <p className="text-xs text-muted-foreground mb-1">Offers Created</p>
+                  <p className="text-2xl font-bold text-foreground">{performanceData.offersCreated}</p>
+                </div>
+                <div className="rounded-xl border border-border p-4 text-center">
+                  <p className="text-xs text-muted-foreground mb-1">Offers Accepted</p>
+                  <p className="text-2xl font-bold text-foreground">{performanceData.offersAccepted}</p>
+                </div>
+              </div>
+
+              {/* Chart */}
+              <div className="h-[200px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={performanceData.trendData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis dataKey="week" tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground))" tickLine={false} axisLine={false} />
+                    <YAxis tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground))" tickLine={false} axisLine={false} />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "hsl(var(--card))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: "8px",
+                        fontSize: "12px",
+                      }}
+                    />
+                    <Line type="monotone" dataKey="offers" name="Offers Created" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
+                    <Line type="monotone" dataKey="accepted" name="Offers Accepted" stroke="hsl(var(--secondary))" strokeWidth={2} dot={false} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       {selectedCandidate && (

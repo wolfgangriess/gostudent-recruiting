@@ -41,7 +41,7 @@ export const initialJobs: Job[] = [
     description: "We're looking for a senior frontend engineer to lead our design system.",
     requirements: "5+ years React, TypeScript, CSS-in-JS",
     hiringManager: "user-1",
-    recruiters: ["user-2"],
+    recruiters: ["user-1", "user-2"],
     hiringTeamIds: ["user-1", "user-4", "user-7"],
     visibilityIds: ["user-9", "user-11"],
     status: "open",
