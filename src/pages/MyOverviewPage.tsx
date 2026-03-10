@@ -71,11 +71,27 @@ const MyOverviewPage = () => {
     ];
   }, [candidates, jobs, stages]);
 
+  const myRecruiterJobs = useMemo(
+    () => jobs.filter((j) => j.recruiters.includes(CURRENT_USER_ID)),
+    [jobs]
+  );
+
   // Performance data (recruiter only)
   const performanceData = useMemo(() => {
     if (!isRecruiter) return null;
-    const myJobIds = jobs.filter((j) => j.recruiters.includes(CURRENT_USER_ID)).map((j) => j.id);
-    const myCandidates = candidates.filter((c) => myJobIds.includes(c.jobId));
+    const periodDays = parseInt(perfPeriod);
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - periodDays);
+
+    const myJobIds = perfJob === "all"
+      ? myRecruiterJobs.map((j) => j.id)
+      : [perfJob];
+
+    const myCandidates = candidates.filter((c) =>
+      myJobIds.includes(c.jobId) && new Date(c.appliedAt) >= cutoff
+    );
+
+    const applications = myCandidates.length;
 
     const screened = myCandidates.filter((c) => {
       const stage = stages.find((s) => s.id === c.currentStageId);
@@ -88,10 +104,10 @@ const MyOverviewPage = () => {
     const hiredStageIds = stages.filter((s) => s.name === "Hired").map((s) => s.id);
     const offersAccepted = myCandidates.filter((c) => hiredStageIds.includes(c.currentStageId)).length;
 
-    // Generate weekly trend data
+    const weeksCount = Math.ceil(periodDays / 7);
     const weeks: { week: string; offers: number; accepted: number }[] = [];
     const now = new Date();
-    for (let i = 11; i >= 0; i--) {
+    for (let i = weeksCount - 1; i >= 0; i--) {
       const weekStart = new Date(now);
       weekStart.setDate(weekStart.getDate() - i * 7);
       const weekEnd = new Date(weekStart);
@@ -111,8 +127,8 @@ const MyOverviewPage = () => {
       });
     }
 
-    return { screened, offersCreated, offersAccepted, trendData: weeks };
-  }, [isRecruiter, candidates, jobs, stages]);
+    return { applications, screened, offersCreated, offersAccepted, trendData: weeks };
+  }, [isRecruiter, candidates, jobs, stages, perfPeriod, perfJob, myRecruiterJobs]);
 
   const getJobName = (jobId: string) => jobs.find((j) => j.id === jobId)?.name ?? "—";
   const getStageName = (stageId: string) => stages.find((s) => s.id === stageId)?.name ?? "—";
