@@ -12,6 +12,10 @@ interface ATSStore {
   getCandidatesForStage: (stageId: string) => Candidate[];
   getNewCandidatesCount: (jobId: string) => number;
   getTotalCandidatesCount: (jobId: string) => number;
+  addStage: (jobId: string, name: string) => void;
+  removeStage: (stageId: string) => void;
+  renameStage: (stageId: string, name: string) => void;
+  reorderStages: (jobId: string, orderedIds: string[]) => void;
 }
 
 export const useATSStore = create<ATSStore>((set, get) => ({
