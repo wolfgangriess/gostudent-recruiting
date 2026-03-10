@@ -93,6 +93,7 @@ const AddJobDialog = ({ open, onOpenChange }: Props) => {
       department: values.department,
       location: values.location,
       workplaceType: values.workplaceType,
+      workerType: values.workerType,
       employmentType: values.employmentType,
       numberOfOpenings: values.numberOfOpenings,
       description: values.description,
