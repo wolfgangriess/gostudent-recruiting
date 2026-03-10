@@ -1,115 +1,168 @@
+import { useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { HelpCircle, ChevronRight } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Calendar, CheckCircle2, ClipboardList, ChevronRight, Star } from "lucide-react";
+import { useATSStore } from "@/lib/ats-store";
 
-const TASKS_MY = [
-  { label: "Needs Decision", count: "-" },
-  { label: "Forms To Send", count: "-" },
-  { label: "Candidates to Schedule", count: "-" },
-  { label: "Take Home Tests to Send", count: "-" },
-  { label: "Offers", count: "-" },
-  { label: "Kickoff Form Tasks", count: "-" },
-  { label: "Interviewer training to review", count: "-" },
-];
+const CURRENT_USER_ID = "user-1";
 
 const MyOverviewPage = () => {
-  const dateRange = "Feb 23 - Mar 9, 2026";
+  const navigate = useNavigate();
+  const { candidates, jobs, stages } = useATSStore();
+
+  // My interviews: candidates in stages where I'm the owner and stage is "Interview" or "Phone Screen"
+  const myInterviews = useMemo(() => {
+    const myStageIds = stages
+      .filter((s) => s.ownerId === CURRENT_USER_ID && (s.name === "Interview" || s.name === "Phone Screen"))
+      .map((s) => s.id);
+    return candidates.filter((c) => myStageIds.includes(c.currentStageId));
+  }, [candidates, stages]);
+
+  // My approvals: candidates in "Offer" stage for jobs where I'm the hiring manager
+  const myApprovals = useMemo(() => {
+    const myJobIds = jobs.filter((j) => j.hiringManager === CURRENT_USER_ID).map((j) => j.id);
+    const offerStageIds = stages.filter((s) => s.name === "Offer").map((s) => s.id);
+    return candidates.filter((c) => myJobIds.includes(c.jobId) && offerStageIds.includes(c.currentStageId));
+  }, [candidates, jobs, stages]);
+
+  // My tasks derived from data
+  const taskCounts = useMemo(() => {
+    const myJobIds = jobs.filter((j) => j.hiringManager === CURRENT_USER_ID || j.recruiters.includes(CURRENT_USER_ID)).map((j) => j.id);
+    const myCandidates = candidates.filter((c) => myJobIds.includes(c.jobId));
+
+    const needsDecision = myCandidates.filter((c) => {
+      const stage = stages.find((s) => s.id === c.currentStageId);
+      return stage?.name === "Interview";
+    }).length;
+
+    const toSchedule = myCandidates.filter((c) => {
+      const stage = stages.find((s) => s.id === c.currentStageId);
+      return stage?.name === "Phone Screen";
+    }).length;
+
+    const offers = myCandidates.filter((c) => {
+      const stage = stages.find((s) => s.id === c.currentStageId);
+      return stage?.name === "Offer";
+    }).length;
+
+    return [
+      { label: "Needs Decision", count: needsDecision },
+      { label: "Candidates to Schedule", count: toSchedule },
+      { label: "Offers", count: offers },
+      { label: "Forms To Send", count: 0 },
+      { label: "Take Home Tests to Send", count: 0 },
+    ];
+  }, [candidates, jobs, stages]);
+
+  const getJobName = (jobId: string) => jobs.find((j) => j.id === jobId)?.name ?? "—";
+  const getStageName = (stageId: string) => stages.find((s) => s.id === stageId)?.name ?? "—";
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
       <h1 className="text-3xl font-extrabold tracking-tight text-foreground mb-6">My Dashboard</h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
-        {/* Left column */}
-        <div className="space-y-5">
-          {/* Company goals */}
-          <Card>
-            <CardContent className="pt-5 pb-5 px-5">
-              <div className="flex items-center justify-between mb-1">
-                <h2 className="text-base font-bold text-foreground">Company goals</h2>
-                <button className="text-sm font-medium text-primary hover:underline">See goal dashboard</button>
-              </div>
-              <p className="text-xs text-muted-foreground mb-4">Your averages and attainments from {dateRange}</p>
-
-              <Card className="border border-border shadow-none">
-                <CardContent className="pt-4 pb-4 px-4">
-                  <div className="flex items-center gap-1.5 mb-3">
-                    <span className="text-sm font-medium text-foreground">Time to submit scorecards</span>
-                    <HelpCircle className="h-3.5 w-3.5 text-muted-foreground" />
-                  </div>
-                  <div className="space-y-1 text-sm">
-                    <p className="font-semibold text-foreground">Target: 24 hrs</p>
-                    <p className="text-muted-foreground">My average: -</p>
-                    <p className="text-muted-foreground">My attainment: -</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </CardContent>
-          </Card>
-
-          {/* My goals */}
-          <Card>
-            <CardContent className="pt-5 pb-5 px-5">
-              <div className="flex items-center justify-between mb-1">
-                <h2 className="text-base font-bold text-foreground">My goals</h2>
-                <button className="text-sm font-medium text-primary hover:underline flex items-center gap-0.5">
-                  Create goal <ChevronRight className="h-3.5 w-3.5" />
-                </button>
-              </div>
-              <p className="text-sm text-muted-foreground">You have no individual goals.</p>
-              <p className="text-xs text-muted-foreground">Goals are used to track progress on an activity.</p>
-            </CardContent>
-          </Card>
-
-          {/* My interviews */}
-          <Card>
-            <CardContent className="pt-5 pb-5 px-5">
-              <div className="flex items-center justify-between mb-1">
-                <h2 className="text-base font-bold text-foreground">My interviews</h2>
-                <button className="text-sm font-medium text-primary hover:underline flex items-center gap-0.5">
-                  See past interviews <ChevronRight className="h-3.5 w-3.5" />
-                </button>
-              </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* My Interviews */}
+        <Card className="lg:col-span-2">
+          <CardContent className="pt-5 pb-5 px-5">
+            <div className="flex items-center gap-2 mb-4">
+              <Calendar className="h-4.5 w-4.5 text-primary" />
+              <h2 className="text-base font-bold text-foreground">My Interviews</h2>
+              <Badge variant="secondary" className="ml-1 text-xs">{myInterviews.length}</Badge>
+            </div>
+            {myInterviews.length === 0 ? (
               <p className="text-sm text-muted-foreground">You have no upcoming interviews.</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Right column */}
-        <div className="space-y-5">
-          {/* My Tasks */}
-          <Card>
-            <CardContent className="pt-0 pb-4 px-0">
-              <div className="flex border-b border-border">
-                <button className="flex-1 py-3 text-sm font-semibold text-foreground border-b-2 border-primary text-center">
-                  My Tasks
-                </button>
-                <button className="flex-1 py-3 text-sm font-semibold text-muted-foreground text-center hover:text-foreground">
-                  All Tasks
-                </button>
-              </div>
+            ) : (
               <div className="divide-y divide-border">
-                {TASKS_MY.map((task) => (
-                  <div key={task.label} className="flex items-center justify-between px-4 py-2.5">
-                    <span className="text-sm text-primary font-medium">{task.label}</span>
-                    <span className="text-sm text-muted-foreground">{task.count}</span>
+                {myInterviews.map((c) => (
+                  <div
+                    key={c.id}
+                    onClick={() => navigate("/candidates")}
+                    className="flex items-center justify-between py-3 cursor-pointer hover:bg-muted/50 -mx-2 px-2 rounded-lg transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+                        {c.firstName[0]}{c.lastName[0]}
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-foreground">{c.firstName} {c.lastName}</p>
+                        <p className="text-xs text-muted-foreground">{getJobName(c.jobId)}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Badge variant="outline" className="text-xs">{getStageName(c.currentStageId)}</Badge>
+                      <div className="flex gap-0.5">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <Star key={i} className={`h-3 w-3 ${i < c.rating ? "fill-secondary text-secondary" : "text-muted-foreground/20"}`} />
+                        ))}
+                      </div>
+                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                    </div>
                   </div>
                 ))}
               </div>
-            </CardContent>
-          </Card>
+            )}
+          </CardContent>
+        </Card>
 
-          {/* My approvals */}
-          <Card>
-            <CardContent className="pt-5 pb-5 px-5">
-              <div className="flex items-center justify-between">
-                <h2 className="text-base font-bold text-foreground">My approvals</h2>
-                <ChevronRight className="h-4 w-4 text-muted-foreground" />
+        {/* My Tasks */}
+        <Card>
+          <CardContent className="pt-0 pb-4 px-0">
+            <div className="flex items-center gap-2 px-5 pt-5 pb-3">
+              <ClipboardList className="h-4.5 w-4.5 text-primary" />
+              <h2 className="text-base font-bold text-foreground">My Tasks</h2>
+            </div>
+            <div className="divide-y divide-border">
+              {taskCounts.map((task) => (
+                <div key={task.label} className="flex items-center justify-between px-5 py-2.5">
+                  <span className="text-sm text-foreground">{task.label}</span>
+                  <Badge variant={task.count > 0 ? "default" : "secondary"} className="text-xs min-w-[24px] justify-center">
+                    {task.count}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* My Approvals */}
+        <Card className="lg:col-span-3">
+          <CardContent className="pt-5 pb-5 px-5">
+            <div className="flex items-center gap-2 mb-4">
+              <CheckCircle2 className="h-4.5 w-4.5 text-primary" />
+              <h2 className="text-base font-bold text-foreground">My Approvals</h2>
+              <Badge variant="secondary" className="ml-1 text-xs">{myApprovals.length}</Badge>
+            </div>
+            {myApprovals.length === 0 ? (
+              <p className="text-sm text-muted-foreground">You have no jobs or offers to approve.</p>
+            ) : (
+              <div className="divide-y divide-border">
+                {myApprovals.map((c) => (
+                  <div
+                    key={c.id}
+                    onClick={() => navigate("/candidates")}
+                    className="flex items-center justify-between py-3 cursor-pointer hover:bg-muted/50 -mx-2 px-2 rounded-lg transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+                        {c.firstName[0]}{c.lastName[0]}
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-foreground">{c.firstName} {c.lastName}</p>
+                        <p className="text-xs text-muted-foreground">{getJobName(c.jobId)} — Offer pending approval</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="text-xs border-secondary text-secondary">Offer</Badge>
+                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                  </div>
+                ))}
               </div>
-              <p className="text-sm text-muted-foreground mt-1">You have no jobs or offers to approve.</p>
-            </CardContent>
-          </Card>
-        </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
