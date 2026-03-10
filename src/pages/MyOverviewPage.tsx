@@ -1,15 +1,25 @@
 import { useMemo, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, CheckCircle2, ClipboardList, ChevronRight, Star, TrendingUp, ArrowUp } from "lucide-react";
+import { Calendar, CheckCircle2, ClipboardList, ChevronRight, Star, TrendingUp } from "lucide-react";
 import { useATSStore } from "@/lib/ats-store";
 import { Candidate } from "@/lib/types";
 import { CandidateDetailDialog } from "@/components/CandidateDetailDialog";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
 
 const CURRENT_USER_ID = "user-1";
+
+const TIME_PERIODS = [
+  { value: "30", label: "Last 30 days" },
+  { value: "90", label: "Last 90 days" },
+  { value: "180", label: "Last 6 months" },
+  { value: "365", label: "Last 12 months" },
+];
 
 const MyOverviewPage = () => {
   const { candidates, jobs, stages, users } = useATSStore();
