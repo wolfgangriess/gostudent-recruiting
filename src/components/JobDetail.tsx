@@ -1,6 +1,8 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ChevronRight, Users, TrendingUp, BarChart3 } from "lucide-react";
+import { ChevronRight, Users, TrendingUp, BarChart3, Pencil } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import EditJobDialog from "@/components/EditJobDialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -21,6 +23,7 @@ import {
 const JobDetail = () => {
   const { jobId } = useParams<{ jobId: string }>();
   const { jobs, candidates, stages, users } = useATSStore();
+  const [editOpen, setEditOpen] = useState(false);
   const job = jobs.find((j) => j.id === jobId);
 
   const trendData = useMemo(
@@ -63,14 +66,19 @@ const JobDetail = () => {
 
       {/* Header */}
       <div className="mb-8 flex items-start justify-between">
-        <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-foreground">{job.name}</h1>
-          <div className="mt-2 flex flex-wrap items-center gap-2">
-            <Badge className="rounded-lg bg-accent/30 text-accent-foreground border-0 font-medium">{job.department}</Badge>
-            <span className="text-sm text-muted-foreground">{job.location}</span>
-            <span className="text-sm text-muted-foreground">·</span>
-            <span className="text-sm text-muted-foreground capitalize">{job.workplaceType}</span>
+        <div className="flex items-center gap-3">
+          <div>
+            <h1 className="text-3xl font-extrabold tracking-tight text-foreground">{job.name}</h1>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <Badge className="rounded-lg bg-accent/30 text-accent-foreground border-0 font-medium">{job.department}</Badge>
+              <span className="text-sm text-muted-foreground">{job.location}</span>
+              <span className="text-sm text-muted-foreground">·</span>
+              <span className="text-sm text-muted-foreground capitalize">{job.workplaceType}</span>
+            </div>
           </div>
+          <Button variant="outline" size="sm" className="ml-2 gap-1.5" onClick={() => setEditOpen(true)}>
+            <Pencil className="h-3.5 w-3.5" /> Edit
+          </Button>
         </div>
 
         {/* Hiring Team Avatars */}
@@ -173,6 +181,7 @@ const JobDetail = () => {
           </div>
         </TabsContent>
       </Tabs>
+      {job && <EditJobDialog open={editOpen} onOpenChange={setEditOpen} job={job} />}
     </div>
   );
 };
