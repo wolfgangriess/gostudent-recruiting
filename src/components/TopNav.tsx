@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Briefcase, Users, BarChart3, ChevronDown, Plus, UserPlus, Share2 } from "lucide-react";
+import { Briefcase, Users, BarChart3, ChevronDown, Plus, UserPlus, Share2, LayoutDashboard } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,7 +13,8 @@ import AddCandidateDialog from "@/components/AddCandidateDialog";
 import AddReferralDialog from "@/components/AddReferralDialog";
 
 const navItems = [
-  { to: "/", label: "Jobs", icon: Briefcase },
+  { to: "/overview", label: "My Overview", icon: LayoutDashboard },
+  { to: "/jobs", label: "Jobs", icon: Briefcase },
   { to: "/candidates", label: "Candidates", icon: Users },
   { to: "/reports", label: "Reports", icon: BarChart3 },
 ];
@@ -36,10 +37,7 @@ const TopNav = () => {
           </Link>
           <nav className="flex items-center gap-1">
             {navItems.map((item) => {
-              const active =
-                item.to === "/"
-                  ? location.pathname === "/" || location.pathname.startsWith("/jobs")
-                  : location.pathname.startsWith(item.to);
+              const active = location.pathname.startsWith(item.to);
               return (
                 <Link
                   key={item.to}

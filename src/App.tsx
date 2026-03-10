@@ -8,6 +8,7 @@ import Index from "./pages/Index.tsx";
 import CandidatesPage from "./pages/CandidatesPage.tsx";
 import ReportsPage from "./pages/ReportsPage.tsx";
 import JobPostPage from "./pages/JobPostPage.tsx";
+import MyOverviewPage from "./pages/MyOverviewPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -20,7 +21,9 @@ const App = () => (
       <BrowserRouter>
         <TopNav />
         <Routes>
-          <Route path="/" element={<Index />} />
+          <Route path="/" element={<MyOverviewPage />} />
+          <Route path="/overview" element={<MyOverviewPage />} />
+          <Route path="/jobs" element={<Index />} />
           <Route path="/jobs/:jobId" element={<Index />} />
           <Route path="/jobs/:jobId/post" element={<JobPostPage />} />
           <Route path="/candidates" element={<CandidatesPage />} />
