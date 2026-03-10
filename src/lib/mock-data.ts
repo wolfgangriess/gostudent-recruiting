@@ -129,7 +129,7 @@ export const initialJobs: Job[] = [
 export const initialStages: PipelineStage[] = [
   ...makeStages("job-1", ["user-1", "user-1", "user-1", "user-1", "user-1"]),
   ...makeStages("job-2", ["user-2", "user-3", "user-3", "user-2", "user-2"]),
-  ...makeStages("job-3", ["user-1", "user-4", "user-4", "user-1", "user-1"]),
+  ...makeStages("job-3", ["user-1", "user-1", "user-1", "user-1", "user-1"]),
   ...makeStages("job-4", ["user-2", "user-5", "user-5", "user-2", "user-2"]),
   ...makeStages("job-5", ["user-2", "user-6", "user-6", "user-2", "user-2"]),
 ];
