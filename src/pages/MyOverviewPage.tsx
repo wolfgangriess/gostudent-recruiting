@@ -210,6 +210,56 @@ const MyOverviewPage = () => {
             )}
           </CardContent>
         </Card>
+
+
+        {/* My Performance - Recruiters only */}
+        {isRecruiter && performanceData && (
+          <Card className="lg:col-span-3">
+            <CardContent className="pt-5 pb-5 px-5">
+              <div className="flex items-center gap-2 mb-5">
+                <TrendingUp className="h-4.5 w-4.5 text-primary" />
+                <h2 className="text-base font-bold text-foreground">My Performance</h2>
+              </div>
+
+              {/* Metric cards */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div className="rounded-xl border border-border p-4 text-center">
+                  <p className="text-xs text-muted-foreground mb-1">Candidates Screened</p>
+                  <p className="text-2xl font-bold text-foreground">{performanceData.screened}</p>
+                </div>
+                <div className="rounded-xl border border-border p-4 text-center">
+                  <p className="text-xs text-muted-foreground mb-1">Offers Created</p>
+                  <p className="text-2xl font-bold text-foreground">{performanceData.offersCreated}</p>
+                </div>
+                <div className="rounded-xl border border-border p-4 text-center">
+                  <p className="text-xs text-muted-foreground mb-1">Offers Accepted</p>
+                  <p className="text-2xl font-bold text-foreground">{performanceData.offersAccepted}</p>
+                </div>
+              </div>
+
+              {/* Chart */}
+              <div className="h-[200px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={performanceData.trendData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis dataKey="week" tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground))" tickLine={false} axisLine={false} />
+                    <YAxis tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground))" tickLine={false} axisLine={false} />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "hsl(var(--card))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: "8px",
+                        fontSize: "12px",
+                      }}
+                    />
+                    <Line type="monotone" dataKey="offers" name="Offers Created" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
+                    <Line type="monotone" dataKey="accepted" name="Offers Accepted" stroke="hsl(var(--secondary))" strokeWidth={2} dot={false} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       {selectedCandidate && (
