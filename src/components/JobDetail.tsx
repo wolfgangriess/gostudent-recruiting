@@ -23,6 +23,7 @@ import {
 const JobDetail = () => {
   const { jobId } = useParams<{ jobId: string }>();
   const { jobs, candidates, stages, users } = useATSStore();
+  const [editOpen, setEditOpen] = useState(false);
   const job = jobs.find((j) => j.id === jobId);
 
   const trendData = useMemo(
