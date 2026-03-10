@@ -12,8 +12,11 @@ import {
 const CURRENT_USER_ID = "user-1";
 
 const MyOverviewPage = () => {
-  const { candidates, jobs, stages } = useATSStore();
+  const { candidates, jobs, stages, users } = useATSStore();
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
+
+  const currentUser = users.find((u) => u.id === CURRENT_USER_ID);
+  const isRecruiter = jobs.some((j) => j.recruiters.includes(CURRENT_USER_ID));
 
   const myInterviews = useMemo(() => {
     const myStageIds = stages
@@ -55,6 +58,49 @@ const MyOverviewPage = () => {
       { label: "Take Home Tests to Send", count: 0 },
     ];
   }, [candidates, jobs, stages]);
+
+  // Performance data (recruiter only)
+  const performanceData = useMemo(() => {
+    if (!isRecruiter) return null;
+    const myJobIds = jobs.filter((j) => j.recruiters.includes(CURRENT_USER_ID)).map((j) => j.id);
+    const myCandidates = candidates.filter((c) => myJobIds.includes(c.jobId));
+
+    const screened = myCandidates.filter((c) => {
+      const stage = stages.find((s) => s.id === c.currentStageId);
+      return stage && stage.name !== "Applied";
+    }).length;
+
+    const offerStageIds = stages.filter((s) => s.name === "Offer" || s.name === "Hired").map((s) => s.id);
+    const offersCreated = myCandidates.filter((c) => offerStageIds.includes(c.currentStageId)).length;
+
+    const hiredStageIds = stages.filter((s) => s.name === "Hired").map((s) => s.id);
+    const offersAccepted = myCandidates.filter((c) => hiredStageIds.includes(c.currentStageId)).length;
+
+    // Generate weekly trend data
+    const weeks: { week: string; offers: number; accepted: number }[] = [];
+    const now = new Date();
+    for (let i = 11; i >= 0; i--) {
+      const weekStart = new Date(now);
+      weekStart.setDate(weekStart.getDate() - i * 7);
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekEnd.getDate() + 7);
+      const weekOffers = myCandidates.filter((c) => {
+        const d = new Date(c.appliedAt);
+        return offerStageIds.includes(c.currentStageId) && d >= weekStart && d < weekEnd;
+      }).length;
+      const weekAccepted = myCandidates.filter((c) => {
+        const d = new Date(c.appliedAt);
+        return hiredStageIds.includes(c.currentStageId) && d >= weekStart && d < weekEnd;
+      }).length;
+      weeks.push({
+        week: weekStart.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+        offers: weekOffers,
+        accepted: weekAccepted,
+      });
+    }
+
+    return { screened, offersCreated, offersAccepted, trendData: weeks };
+  }, [isRecruiter, candidates, jobs, stages]);
 
   const getJobName = (jobId: string) => jobs.find((j) => j.id === jobId)?.name ?? "—";
   const getStageName = (stageId: string) => stages.find((s) => s.id === stageId)?.name ?? "—";
