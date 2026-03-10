@@ -173,7 +173,7 @@ const AddJobDialog = ({ open, onOpenChange }: Props) => {
                 )}
               />
             </div>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="workplaceType"
@@ -191,6 +191,26 @@ const AddJobDialog = ({ open, onOpenChange }: Props) => {
                   </FormItem>
                 )}
               />
+              <FormField
+                control={form.control}
+                name="workerType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Worker Type</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                      <SelectContent>
+                        <SelectItem value="regular">Regular</SelectItem>
+                        <SelectItem value="internship_trainee">Internship/Trainee</SelectItem>
+                        <SelectItem value="fixed_term">Fixed Term</SelectItem>
+                        <SelectItem value="freelancer">Freelancer</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormItem>
+                )}
+              />
+            </div>
+            <div className="grid grid-cols-3 gap-4">
               <FormField
                 control={form.control}
                 name="employmentType"

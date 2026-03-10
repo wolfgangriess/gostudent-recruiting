@@ -111,6 +111,7 @@ export const initialJobs: Job[] = [
     department: "Sales",
     location: "New York, NY",
     workplaceType: "onsite",
+    workerType: "freelancer",
     employmentType: "full-time",
     numberOfOpenings: 3,
     description: "Drive outbound sales pipeline growth.",
