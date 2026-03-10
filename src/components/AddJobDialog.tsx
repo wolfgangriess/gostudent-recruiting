@@ -160,53 +160,240 @@ const AddJobDialog = ({ open, onOpenChange }: Props) => {
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-            {/* Basic Info */}
+            {/* Internal Job Name */}
             <FormField
               control={form.control}
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Job Name *</FormLabel>
+                  <FormLabel>Internal Job Name *</FormLabel>
                   <FormControl><Input placeholder="e.g. Senior Frontend Engineer" {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <div className="grid grid-cols-2 gap-4">
+            {/* External Job Name */}
+            <FormField
+              control={form.control}
+              name="externalName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>External Job Name (appears on job boards)</FormLabel>
+                  <FormControl><Input placeholder="e.g. Senior Frontend Engineer (all genders)" {...field} /></FormControl>
+                </FormItem>
+              )}
+            />
+            {/* Department */}
+            <FormField
+              control={form.control}
+              name="department"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Department *</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger></FormControl>
+                    <SelectContent>
+                      {DEPARTMENTS.map((d) => <SelectItem key={d} value={d}>{d}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {/* Office */}
+            <FormField
+              control={form.control}
+              name="office"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Office</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value || ""}>
+                    <FormControl><SelectTrigger><SelectValue placeholder="Select office" /></SelectTrigger></FormControl>
+                    <SelectContent>
+                      {LOCATIONS.map((l) => <SelectItem key={l} value={l}>{l}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </FormItem>
+              )}
+            />
+            {/* Requisition ID */}
+            <div className="grid grid-cols-[1fr_auto] gap-2 items-end">
               <FormField
                 control={form.control}
-                name="department"
+                name="requisitionId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Department *</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger></FormControl>
-                      <SelectContent>
-                        {DEPARTMENTS.map((d) => <SelectItem key={d} value={d}>{d}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
+                    <FormLabel>Requisition ID</FormLabel>
+                    <FormControl><Input placeholder="" {...field} /></FormControl>
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="location"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Location *</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger></FormControl>
-                      <SelectContent>
-                        {LOCATIONS.map((l) => <SelectItem key={l} value={l}>{l}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <Button
+                type="button"
+                variant="outline"
+                className="h-10"
+                onClick={() => form.setValue("requisitionId", `REQ-${Date.now().toString().slice(-6)}`)}
+              >
+                Generate Requisition ID
+              </Button>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            {/* Worker Type */}
+            <FormField
+              control={form.control}
+              name="workerType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Worker Type *</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                    <SelectContent>
+                      <SelectItem value="regular">Regular</SelectItem>
+                      <SelectItem value="internship_trainee">Internship/Trainee</SelectItem>
+                      <SelectItem value="fixed_term">Fixed Term</SelectItem>
+                      <SelectItem value="freelancer">Freelancer</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormItem>
+              )}
+            />
+            {/* Work Schedule */}
+            <FormField
+              control={form.control}
+              name="workSchedule"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Work Schedule *</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value || "full_time"}>
+                    <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                    <SelectContent>
+                      <SelectItem value="full_time">Full Time</SelectItem>
+                      <SelectItem value="part_time">Part Time</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormItem>
+              )}
+            />
+            {/* Location */}
+            <FormField
+              control={form.control}
+              name="location"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Location *</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger></FormControl>
+                    <SelectContent>
+                      {LOCATIONS.map((l) => <SelectItem key={l} value={l}>{l}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {/* Reports To */}
+            <FormField
+              control={form.control}
+              name="reportsTo"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Reports To *</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value || ""}>
+                    <FormControl><SelectTrigger><SelectValue placeholder="Select manager" /></SelectTrigger></FormControl>
+                    <SelectContent>
+                      {useATSStore.getState().users.map((u) => (
+                        <SelectItem key={u.id} value={u.id}>{u.firstName} {u.lastName}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormItem>
+              )}
+            />
+            {/* Gross Annual Salary Range */}
+            <FormItem>
+              <FormLabel>Gross Annual Salary Range</FormLabel>
+              <div className="grid grid-cols-[100px_1fr_auto_1fr] gap-2 items-center">
+                <FormField
+                  control={form.control}
+                  name="salaryCurrency"
+                  render={({ field }) => (
+                    <Select onValueChange={field.onChange} value={field.value || "EUR"}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="EUR">EUR</SelectItem>
+                        <SelectItem value="USD">USD</SelectItem>
+                        <SelectItem value="GBP">GBP</SelectItem>
+                        <SelectItem value="CHF">CHF</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="salaryMin"
+                  render={({ field }) => (
+                    <FormControl><Input type="number" min={0} placeholder="20000.0" {...field} /></FormControl>
+                  )}
+                />
+                <span className="text-muted-foreground">–</span>
+                <FormField
+                  control={form.control}
+                  name="salaryMax"
+                  render={({ field }) => (
+                    <FormControl><Input type="number" min={0} placeholder="30000.0" {...field} /></FormControl>
+                  )}
+                />
+              </div>
+            </FormItem>
+            {/* Cost Center */}
+            <FormField
+              control={form.control}
+              name="costCenter"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Cost Center</FormLabel>
+                  <FormControl><Input placeholder="e.g. 2100 Account Mgmt" {...field} /></FormControl>
+                </FormItem>
+              )}
+            />
+            {/* Link to Job Description */}
+            <FormField
+              control={form.control}
+              name="jobDescriptionLink"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Link to Job Description</FormLabel>
+                  <FormControl><Textarea rows={2} placeholder="https://docs.google.com/..." {...field} /></FormControl>
+                </FormItem>
+              )}
+            />
+            {/* Level */}
+            <FormField
+              control={form.control}
+              name="level"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Level</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value || ""}>
+                    <FormControl><SelectTrigger><SelectValue placeholder="Select level" /></SelectTrigger></FormControl>
+                    <SelectContent>
+                      <SelectItem value="junior">Junior</SelectItem>
+                      <SelectItem value="mid">Mid</SelectItem>
+                      <SelectItem value="senior">Senior</SelectItem>
+                      <SelectItem value="lead">Lead</SelectItem>
+                      <SelectItem value="principal">Principal</SelectItem>
+                      <SelectItem value="director">Director</SelectItem>
+                      <SelectItem value="vp">VP</SelectItem>
+                      <SelectItem value="c_level">C-Level</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormItem>
+              )}
+            />
+
+            <Separator />
+
+            {/* Workplace & Employment Type */}
+            <div className="grid grid-cols-3 gap-4">
               <FormField
                 control={form.control}
                 name="workplaceType"
@@ -226,30 +413,10 @@ const AddJobDialog = ({ open, onOpenChange }: Props) => {
               />
               <FormField
                 control={form.control}
-                name="workerType"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Worker Type</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
-                      <SelectContent>
-                        <SelectItem value="regular">Regular</SelectItem>
-                        <SelectItem value="internship_trainee">Internship/Trainee</SelectItem>
-                        <SelectItem value="fixed_term">Fixed Term</SelectItem>
-                        <SelectItem value="freelancer">Freelancer</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormItem>
-                )}
-              />
-            </div>
-            <div className="grid grid-cols-3 gap-4">
-              <FormField
-                control={form.control}
                 name="employmentType"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Type</FormLabel>
+                    <FormLabel>Employment Type</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
                       <SelectContent>
@@ -269,45 +436,6 @@ const AddJobDialog = ({ open, onOpenChange }: Props) => {
                   <FormItem>
                     <FormLabel>Openings</FormLabel>
                     <FormControl><Input type="number" min={1} {...field} /></FormControl>
-                  </FormItem>
-                )}
-              />
-            </div>
-            <FormField
-              control={form.control}
-              name="reportsTo"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Reports To</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value || ""}>
-                    <FormControl><SelectTrigger><SelectValue placeholder="Select manager" /></SelectTrigger></FormControl>
-                    <SelectContent>
-                      {useATSStore.getState().users.map((u) => (
-                        <SelectItem key={u.id} value={u.id}>{u.firstName} {u.lastName}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </FormItem>
-              )}
-            />
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="salaryMin"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Gross Annual Salary Min (€)</FormLabel>
-                    <FormControl><Input type="number" min={0} placeholder="e.g. 40000" {...field} /></FormControl>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="salaryMax"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Gross Annual Salary Max (€)</FormLabel>
-                    <FormControl><Input type="number" min={0} placeholder="e.g. 70000" {...field} /></FormControl>
                   </FormItem>
                 )}
               />
