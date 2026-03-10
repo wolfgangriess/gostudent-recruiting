@@ -66,14 +66,19 @@ const JobDetail = () => {
 
       {/* Header */}
       <div className="mb-8 flex items-start justify-between">
-        <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-foreground">{job.name}</h1>
-          <div className="mt-2 flex flex-wrap items-center gap-2">
-            <Badge className="rounded-lg bg-accent/30 text-accent-foreground border-0 font-medium">{job.department}</Badge>
-            <span className="text-sm text-muted-foreground">{job.location}</span>
-            <span className="text-sm text-muted-foreground">·</span>
-            <span className="text-sm text-muted-foreground capitalize">{job.workplaceType}</span>
+        <div className="flex items-center gap-3">
+          <div>
+            <h1 className="text-3xl font-extrabold tracking-tight text-foreground">{job.name}</h1>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <Badge className="rounded-lg bg-accent/30 text-accent-foreground border-0 font-medium">{job.department}</Badge>
+              <span className="text-sm text-muted-foreground">{job.location}</span>
+              <span className="text-sm text-muted-foreground">·</span>
+              <span className="text-sm text-muted-foreground capitalize">{job.workplaceType}</span>
+            </div>
           </div>
+          <Button variant="outline" size="sm" className="ml-2 gap-1.5" onClick={() => setEditOpen(true)}>
+            <Pencil className="h-3.5 w-3.5" /> Edit
+          </Button>
         </div>
 
         {/* Hiring Team Avatars */}
