@@ -74,7 +74,7 @@ const TopNav = () => {
                   <UserPlus className="h-4 w-4" />
                   Add a Candidate
                 </DropdownMenuItem>
-                <DropdownMenuItem className="gap-2 cursor-pointer">
+                <DropdownMenuItem onClick={() => setAddReferralOpen(true)} className="gap-2 cursor-pointer">
                   <Share2 className="h-4 w-4" />
                   Add a Referral
                 </DropdownMenuItem>
