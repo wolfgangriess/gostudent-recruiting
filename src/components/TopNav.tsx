@@ -13,7 +13,8 @@ import AddCandidateDialog from "@/components/AddCandidateDialog";
 import AddReferralDialog from "@/components/AddReferralDialog";
 
 const navItems = [
-  { to: "/", label: "Jobs", icon: Briefcase },
+  { to: "/overview", label: "My Overview", icon: LayoutDashboard },
+  { to: "/jobs", label: "Jobs", icon: Briefcase },
   { to: "/candidates", label: "Candidates", icon: Users },
   { to: "/reports", label: "Reports", icon: BarChart3 },
 ];
