@@ -73,6 +73,7 @@ export const initialJobs: Job[] = [
     department: "Engineering",
     location: "Remote",
     workplaceType: "remote",
+    workerType: "regular",
     employmentType: "full-time",
     numberOfOpenings: 1,
     description: "Help us build and maintain our cloud infrastructure.",
