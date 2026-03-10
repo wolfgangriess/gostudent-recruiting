@@ -43,31 +43,33 @@ const MyOverviewPage = () => {
     return candidates.filter((c) => myJobIds.includes(c.jobId) && offerStageIds.includes(c.currentStageId));
   }, [candidates, jobs, stages]);
 
-  const taskCounts = useMemo(() => {
+  const taskItems = useMemo(() => {
     const myJobIds = jobs.filter((j) => j.hiringManager === CURRENT_USER_ID || j.recruiters.includes(CURRENT_USER_ID)).map((j) => j.id);
     const myCandidates = candidates.filter((c) => myJobIds.includes(c.jobId));
 
-    const needsDecision = myCandidates.filter((c) => {
+    const byStage = (name: string) => myCandidates.filter((c) => {
       const stage = stages.find((s) => s.id === c.currentStageId);
-      return stage?.name === "Interview";
-    }).length;
+      return stage?.name === name;
+    });
 
-    const toSchedule = myCandidates.filter((c) => {
-      const stage = stages.find((s) => s.id === c.currentStageId);
-      return stage?.name === "Phone Screen";
-    }).length;
-
-    const offers = myCandidates.filter((c) => {
-      const stage = stages.find((s) => s.id === c.currentStageId);
-      return stage?.name === "Offer";
-    }).length;
+    const interviewCandidates = byStage("Interview");
+    const phoneScreenCandidates = byStage("Phone Screen");
+    const appliedCandidates = byStage("Applied");
+    const offerCandidates = byStage("Offer");
 
     return [
-      { label: "Needs Decision", count: needsDecision },
-      { label: "Candidates to Schedule", count: toSchedule },
-      { label: "Offers", count: offers },
-      { label: "Forms To Send", count: 0 },
-      { label: "Take Home Tests to Send", count: 0 },
+      { label: "Alerts", candidates: [] as Candidate[] },
+      { label: "Upcoming Interviews Today", candidates: interviewCandidates },
+      { label: "Scorecards Due", candidates: interviewCandidates },
+      { label: "New Applications to Review", candidates: appliedCandidates },
+      { label: "Hiring Manager Review", candidates: interviewCandidates },
+      { label: "Needs Decision", candidates: interviewCandidates },
+      { label: "Forms to Send", candidates: [] as Candidate[] },
+      { label: "Candidates to Schedule", candidates: phoneScreenCandidates },
+      { label: "Take Home Tests to Send", candidates: [] as Candidate[] },
+      { label: "Take Home Tests to Grade", candidates: [] as Candidate[] },
+      { label: "Offers", candidates: offerCandidates },
+      { label: "Pending Approvals", candidates: offerCandidates },
     ];
   }, [candidates, jobs, stages]);
 
