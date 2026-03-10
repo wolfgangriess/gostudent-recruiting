@@ -37,6 +37,7 @@ const jobSchema = z.object({
   department: z.string().min(1, "Department is required"),
   location: z.string().min(1, "Location is required"),
   workplaceType: z.enum(["onsite", "remote", "hybrid"]),
+  workerType: z.enum(["regular", "internship_trainee", "fixed_term", "freelancer"]),
   employmentType: z.enum(["full-time", "part-time", "contract", "internship"]),
   numberOfOpenings: z.coerce.number().int().min(1),
   description: z.string().max(2000),
@@ -74,6 +75,7 @@ const AddJobDialog = ({ open, onOpenChange }: Props) => {
       department: "",
       location: "",
       workplaceType: "onsite",
+      workerType: "regular",
       employmentType: "full-time",
       numberOfOpenings: 1,
       description: "",
@@ -91,6 +93,7 @@ const AddJobDialog = ({ open, onOpenChange }: Props) => {
       department: values.department,
       location: values.location,
       workplaceType: values.workplaceType,
+      workerType: values.workerType,
       employmentType: values.employmentType,
       numberOfOpenings: values.numberOfOpenings,
       description: values.description,
@@ -170,7 +173,7 @@ const AddJobDialog = ({ open, onOpenChange }: Props) => {
                 )}
               />
             </div>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="workplaceType"
@@ -188,6 +191,26 @@ const AddJobDialog = ({ open, onOpenChange }: Props) => {
                   </FormItem>
                 )}
               />
+              <FormField
+                control={form.control}
+                name="workerType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Worker Type</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                      <SelectContent>
+                        <SelectItem value="regular">Regular</SelectItem>
+                        <SelectItem value="internship_trainee">Internship/Trainee</SelectItem>
+                        <SelectItem value="fixed_term">Fixed Term</SelectItem>
+                        <SelectItem value="freelancer">Freelancer</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormItem>
+                )}
+              />
+            </div>
+            <div className="grid grid-cols-3 gap-4">
               <FormField
                 control={form.control}
                 name="employmentType"

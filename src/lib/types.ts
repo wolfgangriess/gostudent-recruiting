@@ -1,5 +1,6 @@
 export type WorkplaceType = "onsite" | "remote" | "hybrid";
 export type EmploymentType = "full-time" | "part-time" | "contract" | "internship";
+export type WorkerType = "regular" | "internship_trainee" | "fixed_term" | "freelancer";
 export type JobStatus = "open" | "closed" | "draft";
 export type UserRole = "admin" | "hiring_manager" | "employee";
 export type RatingType = "scale" | "yes_no" | "text";
@@ -44,6 +45,7 @@ export interface Job {
   department: string;
   location: string;
   workplaceType: WorkplaceType;
+  workerType: WorkerType;
   employmentType: EmploymentType;
   numberOfOpenings: number;
   description: string;
