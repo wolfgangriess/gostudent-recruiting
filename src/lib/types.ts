@@ -1,6 +1,42 @@
 export type WorkplaceType = "onsite" | "remote" | "hybrid";
 export type EmploymentType = "full-time" | "part-time" | "contract" | "internship";
 export type JobStatus = "open" | "closed" | "draft";
+export type UserRole = "admin" | "hiring_manager" | "employee";
+export type RatingType = "scale" | "yes_no" | "text";
+
+export interface User {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: UserRole;
+  department: string;
+  avatarUrl?: string;
+}
+
+export interface ScorecardCriterion {
+  id: string;
+  question: string;
+  ratingType: RatingType;
+  weight?: number;
+}
+
+export interface ScorecardTemplate {
+  id: string;
+  stageId: string;
+  criteria: ScorecardCriterion[];
+}
+
+export interface ScorecardEvaluation {
+  id: string;
+  candidateId: string;
+  stageId: string;
+  evaluatorId: string;
+  scores: Record<string, number | boolean | string>; // criterionId -> value
+  feedback: string;
+  completedAt: string;
+  createdAt: string;
+}
 
 export interface Job {
   id: string;
@@ -14,6 +50,8 @@ export interface Job {
   requirements: string;
   hiringManager: string;
   recruiters: string[];
+  hiringTeamIds: string[];
+  visibilityIds: string[];
   status: JobStatus;
   createdAt: string;
   updatedAt: string;
@@ -40,6 +78,7 @@ export interface PipelineStage {
   name: string;
   jobId: string;
   order: number;
+  ownerId?: string;
 }
 
 export type StageName = "Applied" | "Phone Screen" | "Interview" | "Offer" | "Hired";
