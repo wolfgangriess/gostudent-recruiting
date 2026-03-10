@@ -1,10 +1,13 @@
 import { useMemo, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, CheckCircle2, ClipboardList, ChevronRight, Star } from "lucide-react";
+import { Calendar, CheckCircle2, ClipboardList, ChevronRight, Star, TrendingUp, ArrowUp } from "lucide-react";
 import { useATSStore } from "@/lib/ats-store";
 import { Candidate } from "@/lib/types";
 import { CandidateDetailDialog } from "@/components/CandidateDetailDialog";
+import {
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+} from "recharts";
 
 const CURRENT_USER_ID = "user-1";
 
