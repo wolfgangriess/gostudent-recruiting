@@ -200,7 +200,7 @@ const JobPostPage = () => {
             </Button>
           </div>
 
-          <div className="rounded-lg border border-border bg-emerald-50/50 p-4 space-y-2">
+          <div className="rounded-lg border border-border bg-muted/50 p-4 space-y-2">
             <p className="text-sm text-foreground">
               Inclusive job descriptions motivate candidates from all
               backgrounds to apply, broadening your talent pool and making it
