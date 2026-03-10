@@ -51,7 +51,7 @@ const JobPostPage = () => {
   const [postTo, setPostTo] = useState("GoStudentTA");
   const [postLocation, setPostLocation] = useState(job?.location || "");
   const [appLanguage, setAppLanguage] = useState("English");
-  const [workType, setWorkType] = useState(job?.workplaceType || "onsite");
+  const [workType, setWorkType] = useState(job?.workplaceType || "onsite") as [string, (v: string) => void];
   const [description, setDescription] = useState(job?.description || "");
   const [selectedBoards, setSelectedBoards] = useState<string[]>(
     JOB_BOARDS.filter((b) => b.enabled).map((b) => b.id)
