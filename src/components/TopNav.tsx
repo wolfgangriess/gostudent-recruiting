@@ -16,7 +16,7 @@ const TopNav = () => {
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary">
             <Briefcase className="h-4.5 w-4.5 text-primary-foreground" />
           </div>
-          <span className="text-xl font-extrabold tracking-tight text-foreground">TalentFlow</span>
+          <span className="text-xl font-extrabold tracking-tight text-foreground">GoStudentTA</span>
         </Link>
         <nav className="flex items-center gap-1">
           {navItems.map((item) => {
