@@ -84,7 +84,7 @@ const JobsList = () => {
 
   const SortButton = ({ label, column }: { label: string; column: SortKey }) => (
     <button
-      className="flex items-center gap-1 hover:text-foreground transition-colors"
+      className="flex items-center gap-1 font-semibold hover:text-foreground transition-colors"
       onClick={() => toggleSort(column)}
     >
       {label}
@@ -93,30 +93,30 @@ const JobsList = () => {
   );
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Jobs</h1>
-          <p className="text-sm text-muted-foreground">{jobs.length} open positions</p>
+          <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Jobs</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{jobs.length} open positions</p>
         </div>
-        <Button onClick={() => setDialogOpen(true)} className="gap-1.5">
+        <Button onClick={() => setDialogOpen(true)} size="lg" className="gap-2 rounded-xl font-semibold text-sm px-6">
           <Plus className="h-4 w-4" />
           Add New Job
         </Button>
       </div>
 
-      <div className="mb-4 flex flex-col gap-3 sm:flex-row">
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Search jobs..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-9"
+            className="pl-9 rounded-xl"
           />
         </div>
         <Select value={deptFilter} onValueChange={setDeptFilter}>
-          <SelectTrigger className="w-full sm:w-48">
+          <SelectTrigger className="w-full sm:w-48 rounded-xl">
             <Building2 className="mr-2 h-4 w-4 text-muted-foreground" />
             <SelectValue placeholder="Department" />
           </SelectTrigger>
@@ -128,7 +128,7 @@ const JobsList = () => {
           </SelectContent>
         </Select>
         <Select value={locFilter} onValueChange={setLocFilter}>
-          <SelectTrigger className="w-full sm:w-48">
+          <SelectTrigger className="w-full sm:w-48 rounded-xl">
             <MapPin className="mr-2 h-4 w-4 text-muted-foreground" />
             <SelectValue placeholder="Location" />
           </SelectTrigger>
@@ -141,10 +141,10 @@ const JobsList = () => {
         </Select>
       </div>
 
-      <div className="rounded-lg border border-border bg-card shadow-sm">
+      <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
         <Table>
           <TableHeader>
-            <TableRow className="hover:bg-transparent">
+            <TableRow className="hover:bg-transparent bg-muted/50">
               <TableHead><SortButton label="Job Name" column="name" /></TableHead>
               <TableHead><SortButton label="Department" column="department" /></TableHead>
               <TableHead><SortButton label="Location" column="location" /></TableHead>
@@ -159,24 +159,24 @@ const JobsList = () => {
               return (
                 <TableRow
                   key={job.id}
-                  className="cursor-pointer"
+                  className="cursor-pointer transition-colors hover:bg-primary/[0.03]"
                   onClick={() => navigate(`/jobs/${job.id}`)}
                 >
-                  <TableCell className="font-medium text-primary hover:underline">
+                  <TableCell className="font-semibold text-primary hover:underline">
                     {job.name}
                   </TableCell>
                   <TableCell>
-                    <Badge variant="secondary" className="font-normal">{job.department}</Badge>
+                    <Badge variant="secondary" className="rounded-lg font-medium bg-accent/30 text-accent-foreground border-0">{job.department}</Badge>
                   </TableCell>
                   <TableCell className="text-muted-foreground">{job.location}</TableCell>
                   <TableCell className="text-center">
                     {newCount > 0 ? (
-                      <Badge className="bg-primary/10 text-primary hover:bg-primary/20 border-0">{newCount}</Badge>
+                      <Badge className="rounded-lg bg-primary/10 text-primary hover:bg-primary/20 border-0 font-semibold">{newCount}</Badge>
                     ) : (
                       <span className="text-muted-foreground">0</span>
                     )}
                   </TableCell>
-                  <TableCell className="text-center font-medium">{totalCount}</TableCell>
+                  <TableCell className="text-center font-semibold">{totalCount}</TableCell>
                 </TableRow>
               );
             })}

@@ -1,57 +1,55 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
-
 @layer base {
   :root {
-    --background: 0 0% 98%;
-    --foreground: 220 20% 14%;
+    --background: 230 25% 97%;
+    --foreground: 233 60% 16%;
 
     --card: 0 0% 100%;
-    --card-foreground: 220 20% 14%;
+    --card-foreground: 233 60% 16%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 14%;
+    --popover-foreground: 233 60% 16%;
 
-    --primary: 160 100% 33%;
+    --primary: 240 72% 36%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 160 20% 95%;
-    --secondary-foreground: 160 40% 20%;
+    --secondary: 42 100% 63%;
+    --secondary-foreground: 233 60% 16%;
 
-    --muted: 220 14% 96%;
-    --muted-foreground: 220 10% 46%;
+    --muted: 230 20% 94%;
+    --muted-foreground: 233 20% 46%;
 
-    --accent: 160 20% 95%;
-    --accent-foreground: 160 40% 20%;
+    --accent: 42 100% 63%;
+    --accent-foreground: 233 60% 16%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 160 100% 33%;
+    --border: 230 18% 90%;
+    --input: 230 18% 90%;
+    --ring: 240 72% 36%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
-    --stage-applied: 220 14% 96%;
+    --stage-applied: 230 20% 94%;
     --stage-phone: 210 100% 95%;
-    --stage-interview: 45 100% 94%;
-    --stage-offer: 160 60% 93%;
-    --stage-hired: 160 100% 33%;
+    --stage-interview: 42 100% 93%;
+    --stage-offer: 240 40% 93%;
+    --stage-hired: 240 72% 36%;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-primary: 240 72% 36%;
+    --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 240 4.8% 95.9%;
     --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 160 100% 33%;
+    --sidebar-border: 230 18% 90%;
+    --sidebar-ring: 240 72% 36%;
   }
 }
 
@@ -61,6 +59,7 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Plus Jakarta Sans', sans-serif;
   }
 }

@@ -54,19 +54,19 @@ const JobDetail = () => {
     .sort((a, b) => a.order - b.order);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
+    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
       {/* Breadcrumb */}
-      <nav className="mb-4 flex items-center gap-1.5 text-sm text-muted-foreground">
-        <Link to="/" className="hover:text-foreground transition-colors">Jobs</Link>
+      <nav className="mb-5 flex items-center gap-1.5 text-sm text-muted-foreground">
+        <Link to="/" className="hover:text-foreground transition-colors font-medium">Jobs</Link>
         <ChevronRight className="h-3.5 w-3.5" />
-        <span className="text-foreground font-medium">{job.name}</span>
+        <span className="text-foreground font-semibold">{job.name}</span>
       </nav>
 
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-foreground">{job.name}</h1>
-        <div className="mt-1 flex flex-wrap items-center gap-2">
-          <Badge variant="secondary">{job.department}</Badge>
+      <div className="mb-8">
+        <h1 className="text-3xl font-extrabold tracking-tight text-foreground">{job.name}</h1>
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <Badge className="rounded-lg bg-accent/30 text-accent-foreground border-0 font-medium">{job.department}</Badge>
           <span className="text-sm text-muted-foreground">{job.location}</span>
           <span className="text-sm text-muted-foreground">·</span>
           <span className="text-sm text-muted-foreground capitalize">{job.workplaceType}</span>
@@ -74,63 +74,54 @@ const JobDetail = () => {
       </div>
 
       {/* Metrics */}
-      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Applications</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalApps}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">New This Week</CardTitle>
-            <TrendingUp className="h-4 w-4 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-primary">{newThisWeek}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Avg per Week</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{avgPerWeek}</div>
-          </CardContent>
-        </Card>
+      <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        {[
+          { label: "Total Applications", value: totalApps, icon: Users, highlight: false },
+          { label: "New This Week", value: newThisWeek, icon: TrendingUp, highlight: true },
+          { label: "Avg per Week", value: avgPerWeek, icon: BarChart3, highlight: false },
+        ].map((metric) => (
+          <Card key={metric.label} className="rounded-2xl shadow-sm border-border">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-semibold text-muted-foreground">{metric.label}</CardTitle>
+              <metric.icon className={`h-5 w-5 ${metric.highlight ? "text-primary" : "text-muted-foreground/50"}`} />
+            </CardHeader>
+            <CardContent>
+              <div className={`text-3xl font-extrabold ${metric.highlight ? "text-primary" : "text-foreground"}`}>
+                {metric.value}
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
       {/* Trend Chart */}
-      <Card className="mb-6">
+      <Card className="mb-8 rounded-2xl shadow-sm border-border">
         <CardHeader>
-          <CardTitle className="text-base">Application Trend</CardTitle>
+          <CardTitle className="text-base font-bold">Application Trend</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={trendData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="week" tick={{ fontSize: 12 }} stroke="hsl(var(--muted-foreground))" />
-                <YAxis allowDecimals={false} tick={{ fontSize: 12 }} stroke="hsl(var(--muted-foreground))" />
+                <XAxis dataKey="week" tick={{ fontSize: 12, fontFamily: 'Plus Jakarta Sans' }} stroke="hsl(var(--muted-foreground))" />
+                <YAxis allowDecimals={false} tick={{ fontSize: 12, fontFamily: 'Plus Jakarta Sans' }} stroke="hsl(var(--muted-foreground))" />
                 <Tooltip
                   contentStyle={{
                     backgroundColor: "hsl(var(--card))",
                     border: "1px solid hsl(var(--border))",
-                    borderRadius: "8px",
+                    borderRadius: "12px",
                     fontSize: "13px",
+                    fontFamily: "Plus Jakarta Sans",
                   }}
                 />
                 <Line
                   type="monotone"
                   dataKey="applications"
                   stroke="hsl(var(--primary))"
-                  strokeWidth={2}
-                  dot={{ fill: "hsl(var(--primary))", r: 3 }}
-                  activeDot={{ r: 5 }}
+                  strokeWidth={2.5}
+                  dot={{ fill: "hsl(var(--primary))", r: 3.5 }}
+                  activeDot={{ r: 6, fill: "hsl(var(--secondary))", stroke: "hsl(var(--primary))", strokeWidth: 2 }}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -140,7 +131,7 @@ const JobDetail = () => {
 
       {/* Pipeline */}
       <div>
-        <h2 className="mb-4 text-lg font-semibold text-foreground">Pipeline</h2>
+        <h2 className="mb-5 text-xl font-bold text-foreground">Pipeline</h2>
         <PipelineBoard stages={jobStages} jobId={job.id} />
       </div>
     </div>
