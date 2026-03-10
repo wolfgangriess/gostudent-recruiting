@@ -68,7 +68,7 @@ const TopNav = () => {
                   <Briefcase className="h-4 w-4" />
                   Add a Role
                 </DropdownMenuItem>
-                <DropdownMenuItem className="gap-2 cursor-pointer">
+                <DropdownMenuItem onClick={() => setAddCandidateOpen(true)} className="gap-2 cursor-pointer">
                   <UserPlus className="h-4 w-4" />
                   Add a Candidate
                 </DropdownMenuItem>
