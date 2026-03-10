@@ -92,6 +92,7 @@ export const initialJobs: Job[] = [
     department: "Marketing",
     location: "Austin, TX",
     workplaceType: "hybrid",
+    workerType: "regular",
     employmentType: "full-time",
     numberOfOpenings: 1,
     description: "Lead our B2B marketing strategy and campaigns.",
