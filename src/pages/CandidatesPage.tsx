@@ -11,6 +11,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
 import { useATSStore } from "@/lib/ats-store";
 import { Candidate, ScorecardCriterion, RatingType } from "@/lib/types";
 import { UserAvatar } from "@/components/UserPicker";
@@ -19,17 +22,28 @@ const CandidatesPage = () => {
   const { candidates, jobs, stages, users, getScorecardTemplate, evaluations, addEvaluation, getEvaluationsForCandidate } = useATSStore();
   const [search, setSearch] = useState("");
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
+  const [filterJob, setFilterJob] = useState("all");
+  const [filterStage, setFilterStage] = useState("all");
+  const [filterSource, setFilterSource] = useState("all");
+
+  const sources = useMemo(() => [...new Set(candidates.map((c) => c.source))].sort(), [candidates]);
 
   const filtered = useMemo(() => {
-    if (!search) return candidates;
-    const q = search.toLowerCase();
-    return candidates.filter(
-      (c) =>
-        c.firstName.toLowerCase().includes(q) ||
-        c.lastName.toLowerCase().includes(q) ||
-        c.email.toLowerCase().includes(q)
-    );
-  }, [candidates, search]);
+    return candidates.filter((c) => {
+      if (filterJob !== "all" && c.jobId !== filterJob) return false;
+      if (filterStage !== "all" && c.currentStageId !== filterStage) return false;
+      if (filterSource !== "all" && c.source !== filterSource) return false;
+      if (search) {
+        const q = search.toLowerCase();
+        if (
+          !c.firstName.toLowerCase().includes(q) &&
+          !c.lastName.toLowerCase().includes(q) &&
+          !c.email.toLowerCase().includes(q)
+        ) return false;
+      }
+      return true;
+    });
+  }, [candidates, search, filterJob, filterStage, filterSource]);
 
   const getJobName = (jobId: string) => jobs.find((j) => j.id === jobId)?.name ?? "—";
   const getStageName = (stageId: string) => stages.find((s) => s.id === stageId)?.name ?? "—";
@@ -41,14 +55,49 @@ const CandidatesPage = () => {
         <p className="mt-1 text-sm text-muted-foreground">{candidates.length} total candidates</p>
       </div>
 
-      <div className="mb-5 relative max-w-md">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          placeholder="Search candidates..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="pl-9 rounded-xl"
-        />
+      <div className="mb-5 flex flex-wrap items-center gap-3">
+        <div className="relative max-w-xs flex-1 min-w-[200px]">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Search candidates..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9 rounded-xl"
+          />
+        </div>
+        <Select value={filterJob} onValueChange={setFilterJob}>
+          <SelectTrigger className="w-[180px] rounded-xl">
+            <SelectValue placeholder="All Jobs" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Jobs</SelectItem>
+            {jobs.map((j) => (
+              <SelectItem key={j.id} value={j.id}>{j.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={filterStage} onValueChange={setFilterStage}>
+          <SelectTrigger className="w-[160px] rounded-xl">
+            <SelectValue placeholder="All Stages" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Stages</SelectItem>
+            {stages.map((s) => (
+              <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={filterSource} onValueChange={setFilterSource}>
+          <SelectTrigger className="w-[160px] rounded-xl">
+            <SelectValue placeholder="All Sources" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Sources</SelectItem>
+            {sources.map((s) => (
+              <SelectItem key={s} value={s}>{s}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
