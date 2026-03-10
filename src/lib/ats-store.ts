@@ -16,6 +16,7 @@ interface ATSStore {
   updateJob: (id: string, updates: Partial<Job>) => void;
 
   // Candidates
+  addCandidate: (candidate: Candidate) => void;
   moveCandidateToStage: (candidateId: string, newStageId: string) => void;
   getCandidatesForStage: (stageId: string) => Candidate[];
   getNewCandidatesCount: (jobId: string) => number;
