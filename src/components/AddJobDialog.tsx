@@ -34,15 +34,23 @@ import StageConfigurator from "@/components/StageConfigurator";
 
 const jobSchema = z.object({
   name: z.string().trim().min(1, "Job name is required").max(100),
+  externalName: z.string().max(100).optional(),
   department: z.string().min(1, "Department is required"),
+  office: z.string().optional(),
   location: z.string().min(1, "Location is required"),
+  requisitionId: z.string().max(20).optional(),
   workplaceType: z.enum(["onsite", "remote", "hybrid"]),
   workerType: z.enum(["regular", "internship_trainee", "fixed_term", "freelancer"]),
   employmentType: z.enum(["full-time", "part-time", "contract", "internship"]),
+  workSchedule: z.enum(["full_time", "part_time"]).optional(),
   numberOfOpenings: z.coerce.number().int().min(1),
   reportsTo: z.string().optional(),
+  salaryCurrency: z.string().optional(),
   salaryMin: z.coerce.number().min(0).optional().or(z.literal("")),
   salaryMax: z.coerce.number().min(0).optional().or(z.literal("")),
+  costCenter: z.string().max(100).optional(),
+  jobDescriptionLink: z.string().url().max(500).optional().or(z.literal("")),
+  level: z.string().max(50).optional(),
   description: z.string().max(2000),
   requirements: z.string().max(2000),
 });
