@@ -35,6 +35,7 @@ export const initialJobs: Job[] = [
     department: "Engineering",
     location: "San Francisco, CA",
     workplaceType: "hybrid",
+    workerType: "regular",
     employmentType: "full-time",
     numberOfOpenings: 2,
     description: "We're looking for a senior frontend engineer to lead our design system.",
