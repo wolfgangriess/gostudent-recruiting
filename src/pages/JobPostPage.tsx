@@ -45,11 +45,6 @@ interface PersonalField {
   locked?: boolean; // always required, can't change
 }
 
-interface EducationField {
-  id: string;
-  label: string;
-  visibility: FieldVisibility;
-}
 
 interface CustomQuestion {
   id: string;
