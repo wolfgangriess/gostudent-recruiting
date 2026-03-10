@@ -48,6 +48,9 @@ export interface Job {
   workerType: WorkerType;
   employmentType: EmploymentType;
   numberOfOpenings: number;
+  reportsTo?: string;
+  salaryMin?: number;
+  salaryMax?: number;
   description: string;
   requirements: string;
   hiringManager: string;

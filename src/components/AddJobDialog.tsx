@@ -40,6 +40,9 @@ const jobSchema = z.object({
   workerType: z.enum(["regular", "internship_trainee", "fixed_term", "freelancer"]),
   employmentType: z.enum(["full-time", "part-time", "contract", "internship"]),
   numberOfOpenings: z.coerce.number().int().min(1),
+  reportsTo: z.string().optional(),
+  salaryMin: z.coerce.number().min(0).optional().or(z.literal("")),
+  salaryMax: z.coerce.number().min(0).optional().or(z.literal("")),
   description: z.string().max(2000),
   requirements: z.string().max(2000),
 });
@@ -78,6 +81,9 @@ const AddJobDialog = ({ open, onOpenChange }: Props) => {
       workerType: "regular",
       employmentType: "full-time",
       numberOfOpenings: 1,
+      reportsTo: "",
+      salaryMin: "" as any,
+      salaryMax: "" as any,
       description: "",
       requirements: "",
     },
@@ -96,6 +102,9 @@ const AddJobDialog = ({ open, onOpenChange }: Props) => {
       workerType: values.workerType,
       employmentType: values.employmentType,
       numberOfOpenings: values.numberOfOpenings,
+      reportsTo: values.reportsTo || undefined,
+      salaryMin: typeof values.salaryMin === "number" ? values.salaryMin : undefined,
+      salaryMax: typeof values.salaryMax === "number" ? values.salaryMax : undefined,
       description: values.description,
       requirements: values.requirements,
       hiringManager: "",
@@ -236,6 +245,45 @@ const AddJobDialog = ({ open, onOpenChange }: Props) => {
                   <FormItem>
                     <FormLabel>Openings</FormLabel>
                     <FormControl><Input type="number" min={1} {...field} /></FormControl>
+                  </FormItem>
+                )}
+              />
+            </div>
+            <FormField
+              control={form.control}
+              name="reportsTo"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Reports To</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value || ""}>
+                    <FormControl><SelectTrigger><SelectValue placeholder="Select manager" /></SelectTrigger></FormControl>
+                    <SelectContent>
+                      {useATSStore.getState().users.map((u) => (
+                        <SelectItem key={u.id} value={u.id}>{u.firstName} {u.lastName}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormItem>
+              )}
+            />
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="salaryMin"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Gross Annual Salary Min (€)</FormLabel>
+                    <FormControl><Input type="number" min={0} placeholder="e.g. 40000" {...field} /></FormControl>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="salaryMax"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Gross Annual Salary Max (€)</FormLabel>
+                    <FormControl><Input type="number" min={0} placeholder="e.g. 70000" {...field} /></FormControl>
                   </FormItem>
                 )}
               />
