@@ -102,8 +102,6 @@ const JobPostPage = () => {
   const [sendConfirmationEmail, setSendConfirmationEmail] = useState(false);
   const [autoPublish, setAutoPublish] = useState(false);
   const [confirmationPage, setConfirmationPage] = useState<"default" | "customize">("default");
-  const [includeEEOC, setIncludeEEOC] = useState(false);
-  const [includeSeek, setIncludeSeek] = useState(false);
 
   if (!job) {
     return (
