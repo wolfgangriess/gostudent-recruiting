@@ -171,7 +171,7 @@ function generateCandidates(): Candidate[] {
   let id = 1;
   for (const job of initialJobs) {
     const stages = makeStages(job.id);
-    const counts = [8, 5, 3, 2, 1];
+    const counts = [3, 2, 1, 1, 1];
     for (let si = 0; si < stages.length; si++) {
       for (let ci = 0; ci < counts[si]; ci++) {
         const fi = Math.floor(Math.random() * firstNames.length);
