@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { ChevronRight, Users, TrendingUp, BarChart3 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   LineChart,
   Line,
@@ -15,6 +16,7 @@ import {
 import { useATSStore } from "@/lib/ats-store";
 import { getApplicationTrendData } from "@/lib/mock-data";
 import PipelineBoard from "@/components/PipelineBoard";
+import InterviewPlan from "@/components/InterviewPlan";
 
 const JobDetail = () => {
   const { jobId } = useParams<{ jobId: string }>();
