@@ -16,6 +16,7 @@ interface ATSStore {
   updateJob: (id: string, updates: Partial<Job>) => void;
 
   // Candidates
+  addCandidate: (candidate: Candidate) => void;
   moveCandidateToStage: (candidateId: string, newStageId: string) => void;
   getCandidatesForStage: (stageId: string) => Candidate[];
   getNewCandidatesCount: (jobId: string) => number;
@@ -51,6 +52,8 @@ export const useATSStore = create<ATSStore>((set, get) => ({
     set((s) => ({
       jobs: s.jobs.map((j) => (j.id === id ? { ...j, ...updates } : j)),
     })),
+
+  addCandidate: (candidate) => set((s) => ({ candidates: [...s.candidates, candidate] })),
 
   moveCandidateToStage: (candidateId, newStageId) =>
     set((s) => ({

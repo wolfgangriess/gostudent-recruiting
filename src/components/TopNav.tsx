@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import AddJobDialog from "@/components/AddJobDialog";
+import AddCandidateDialog from "@/components/AddCandidateDialog";
 
 const navItems = [
   { to: "/", label: "Jobs", icon: Briefcase },
@@ -19,6 +20,7 @@ const navItems = [
 const TopNav = () => {
   const location = useLocation();
   const [addJobOpen, setAddJobOpen] = useState(false);
+  const [addCandidateOpen, setAddCandidateOpen] = useState(false);
 
   return (
     <>
@@ -66,7 +68,7 @@ const TopNav = () => {
                   <Briefcase className="h-4 w-4" />
                   Add a Role
                 </DropdownMenuItem>
-                <DropdownMenuItem className="gap-2 cursor-pointer">
+                <DropdownMenuItem onClick={() => setAddCandidateOpen(true)} className="gap-2 cursor-pointer">
                   <UserPlus className="h-4 w-4" />
                   Add a Candidate
                 </DropdownMenuItem>
@@ -81,6 +83,7 @@ const TopNav = () => {
       </header>
 
       <AddJobDialog open={addJobOpen} onOpenChange={setAddJobOpen} />
+      <AddCandidateDialog open={addCandidateOpen} onOpenChange={setAddCandidateOpen} />
     </>
   );
 };
