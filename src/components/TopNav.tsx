@@ -83,6 +83,7 @@ const TopNav = () => {
       </header>
 
       <AddJobDialog open={addJobOpen} onOpenChange={setAddJobOpen} />
+      <AddCandidateDialog open={addCandidateOpen} onOpenChange={setAddCandidateOpen} />
     </>
   );
 };
