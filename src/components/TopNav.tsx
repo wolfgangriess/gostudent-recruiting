@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import AddJobDialog from "@/components/AddJobDialog";
 import AddCandidateDialog from "@/components/AddCandidateDialog";
+import AddReferralDialog from "@/components/AddReferralDialog";
 
 const navItems = [
   { to: "/", label: "Jobs", icon: Briefcase },
