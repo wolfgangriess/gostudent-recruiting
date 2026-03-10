@@ -54,6 +54,7 @@ export const initialJobs: Job[] = [
     department: "Design",
     location: "New York, NY",
     workplaceType: "onsite",
+    workerType: "regular",
     employmentType: "full-time",
     numberOfOpenings: 1,
     description: "Join our design team to shape product experiences.",
