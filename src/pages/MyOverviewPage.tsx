@@ -1,17 +1,17 @@
-import { useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useMemo, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, CheckCircle2, ClipboardList, ChevronRight, Star } from "lucide-react";
 import { useATSStore } from "@/lib/ats-store";
+import { Candidate } from "@/lib/types";
+import { CandidateDetailDialog } from "@/components/CandidateDetailDialog";
 
 const CURRENT_USER_ID = "user-1";
 
 const MyOverviewPage = () => {
-  const navigate = useNavigate();
   const { candidates, jobs, stages } = useATSStore();
+  const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
 
-  // My interviews: candidates in stages where I'm the owner and stage is "Interview" or "Phone Screen"
   const myInterviews = useMemo(() => {
     const myStageIds = stages
       .filter((s) => s.ownerId === CURRENT_USER_ID && (s.name === "Interview" || s.name === "Phone Screen"))
@@ -19,14 +19,12 @@ const MyOverviewPage = () => {
     return candidates.filter((c) => myStageIds.includes(c.currentStageId));
   }, [candidates, stages]);
 
-  // My approvals: candidates in "Offer" stage for jobs where I'm the hiring manager
   const myApprovals = useMemo(() => {
     const myJobIds = jobs.filter((j) => j.hiringManager === CURRENT_USER_ID).map((j) => j.id);
     const offerStageIds = stages.filter((s) => s.name === "Offer").map((s) => s.id);
     return candidates.filter((c) => myJobIds.includes(c.jobId) && offerStageIds.includes(c.currentStageId));
   }, [candidates, jobs, stages]);
 
-  // My tasks derived from data
   const taskCounts = useMemo(() => {
     const myJobIds = jobs.filter((j) => j.hiringManager === CURRENT_USER_ID || j.recruiters.includes(CURRENT_USER_ID)).map((j) => j.id);
     const myCandidates = candidates.filter((c) => myJobIds.includes(c.jobId));
@@ -78,7 +76,7 @@ const MyOverviewPage = () => {
                 {myInterviews.map((c) => (
                   <div
                     key={c.id}
-                    onClick={() => navigate("/candidates")}
+                    onClick={() => setSelectedCandidate(c)}
                     className="flex items-center justify-between py-3 cursor-pointer hover:bg-muted/50 -mx-2 px-2 rounded-lg transition-colors"
                   >
                     <div className="flex items-center gap-3">
@@ -141,7 +139,7 @@ const MyOverviewPage = () => {
                 {myApprovals.map((c) => (
                   <div
                     key={c.id}
-                    onClick={() => navigate("/candidates")}
+                    onClick={() => setSelectedCandidate(c)}
                     className="flex items-center justify-between py-3 cursor-pointer hover:bg-muted/50 -mx-2 px-2 rounded-lg transition-colors"
                   >
                     <div className="flex items-center gap-3">
@@ -164,6 +162,14 @@ const MyOverviewPage = () => {
           </CardContent>
         </Card>
       </div>
+
+      {selectedCandidate && (
+        <CandidateDetailDialog
+          candidate={selectedCandidate}
+          open={!!selectedCandidate}
+          onOpenChange={(open) => { if (!open) setSelectedCandidate(null); }}
+        />
+      )}
     </div>
   );
 };
