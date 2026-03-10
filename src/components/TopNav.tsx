@@ -1,5 +1,14 @@
+import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Briefcase, Users, BarChart3 } from "lucide-react";
+import { Briefcase, Users, BarChart3, ChevronDown, Plus, UserPlus, Share2 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { AddJobDialog } from "@/components/AddJobDialog";
 
 const navItems = [
   { to: "/", label: "Jobs", icon: Briefcase },
@@ -9,40 +18,70 @@ const navItems = [
 
 const TopNav = () => {
   const location = useLocation();
+  const [addJobOpen, setAddJobOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-card shadow-sm">
-      <div className="mx-auto flex h-16 max-w-7xl items-center gap-10 px-4 sm:px-6">
-        <Link to="/" className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary">
-            <Briefcase className="h-4.5 w-4.5 text-primary-foreground" />
+    <>
+      <header className="sticky top-0 z-50 border-b border-border bg-card shadow-sm">
+        <div className="mx-auto flex h-16 max-w-7xl items-center gap-10 px-4 sm:px-6">
+          <Link to="/" className="flex items-center gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary">
+              <Briefcase className="h-4.5 w-4.5 text-primary-foreground" />
+            </div>
+            <span className="text-xl font-extrabold tracking-tight text-foreground">GoStudentTA</span>
+          </Link>
+          <nav className="flex items-center gap-1">
+            {navItems.map((item) => {
+              const active =
+                item.to === "/"
+                  ? location.pathname === "/" || location.pathname.startsWith("/jobs")
+                  : location.pathname.startsWith(item.to);
+              return (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-all ${
+                    active
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  }`}
+                >
+                  <item.icon className="h-4 w-4" />
+                  {item.label}
+                </Link>
+              );
+            })}
+          </nav>
+
+          <div className="ml-auto">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-1.5 rounded-xl font-semibold">
+                  Add
+                  <ChevronDown className="h-3.5 w-3.5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={() => setAddJobOpen(true)} className="gap-2 cursor-pointer">
+                  <Briefcase className="h-4 w-4" />
+                  Add a Role
+                </DropdownMenuItem>
+                <DropdownMenuItem className="gap-2 cursor-pointer">
+                  <UserPlus className="h-4 w-4" />
+                  Add a Candidate
+                </DropdownMenuItem>
+                <DropdownMenuItem className="gap-2 cursor-pointer">
+                  <Share2 className="h-4 w-4" />
+                  Add a Referral
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
-          <span className="text-xl font-extrabold tracking-tight text-foreground">GoStudentTA</span>
-        </Link>
-        <nav className="flex items-center gap-1">
-          {navItems.map((item) => {
-            const active =
-              item.to === "/"
-                ? location.pathname === "/" || location.pathname.startsWith("/jobs")
-                : location.pathname.startsWith(item.to);
-            return (
-              <Link
-                key={item.to}
-                to={item.to}
-                className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-all ${
-                  active
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                }`}
-              >
-                <item.icon className="h-4 w-4" />
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
-      </div>
-    </header>
+        </div>
+      </header>
+
+      <AddJobDialog open={addJobOpen} onOpenChange={setAddJobOpen} />
+    </>
   );
 };
 
