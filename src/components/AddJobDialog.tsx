@@ -75,6 +75,7 @@ const AddJobDialog = ({ open, onOpenChange }: Props) => {
       department: "",
       location: "",
       workplaceType: "onsite",
+      workerType: "regular",
       employmentType: "full-time",
       numberOfOpenings: 1,
       description: "",
