@@ -40,4 +40,35 @@ export const useATSStore = create<ATSStore>((set, get) => ({
     return get().candidates.filter((c) => c.jobId === jobId && new Date(c.appliedAt) >= weekAgo).length;
   },
   getTotalCandidatesCount: (jobId) => get().candidates.filter((c) => c.jobId === jobId).length,
+  addStage: (jobId, name) =>
+    set((s) => {
+      const jobStages = s.stages.filter((st) => st.jobId === jobId);
+      const maxOrder = jobStages.length > 0 ? Math.max(...jobStages.map((st) => st.order)) : -1;
+      const newStage: PipelineStage = {
+        id: `${jobId}-stage-${Date.now()}`,
+        name,
+        jobId,
+        order: maxOrder + 1,
+      };
+      return { stages: [...s.stages, newStage] };
+    }),
+  removeStage: (stageId) =>
+    set((s) => ({
+      stages: s.stages.filter((st) => st.id !== stageId),
+      candidates: s.candidates.map((c) =>
+        c.currentStageId === stageId ? { ...c, currentStageId: "" } : c
+      ),
+    })),
+  renameStage: (stageId, name) =>
+    set((s) => ({
+      stages: s.stages.map((st) => (st.id === stageId ? { ...st, name } : st)),
+    })),
+  reorderStages: (jobId, orderedIds) =>
+    set((s) => ({
+      stages: s.stages.map((st) => {
+        if (st.jobId !== jobId) return st;
+        const newOrder = orderedIds.indexOf(st.id);
+        return newOrder >= 0 ? { ...st, order: newOrder } : st;
+      }),
+    })),
 }));
