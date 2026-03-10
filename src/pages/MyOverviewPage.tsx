@@ -191,12 +191,22 @@ const MyOverviewPage = () => {
               <h2 className="text-base font-bold text-foreground">My Tasks</h2>
             </div>
             <div className="divide-y divide-border">
-              {taskCounts.map((task) => (
-                <div key={task.label} className="flex items-center justify-between px-5 py-2.5">
-                  <span className="text-sm text-foreground">{task.label}</span>
-                  <Badge variant={task.count > 0 ? "default" : "secondary"} className="text-xs min-w-[24px] justify-center">
-                    {task.count}
-                  </Badge>
+              {taskItems.map((task) => (
+                <div
+                  key={task.label}
+                  onClick={() => {
+                    if (task.candidates.length > 0) setSelectedCandidate(task.candidates[0]);
+                  }}
+                  className={`flex items-center justify-between px-5 py-2.5 ${
+                    task.candidates.length > 0 ? "cursor-pointer hover:bg-muted/50" : ""
+                  }`}
+                >
+                  <span className={`text-sm ${task.candidates.length > 0 ? "text-primary font-medium" : "text-foreground"}`}>
+                    {task.label}
+                  </span>
+                  <span className="text-sm text-muted-foreground">
+                    {task.candidates.length > 0 ? task.candidates.length : "-"}
+                  </span>
                 </div>
               ))}
             </div>
