@@ -1,9 +1,10 @@
 import { Link, useLocation } from "react-router-dom";
-import { Briefcase, Users } from "lucide-react";
+import { Briefcase, Users, BarChart3 } from "lucide-react";
 
 const navItems = [
   { to: "/", label: "Jobs", icon: Briefcase },
   { to: "/candidates", label: "Candidates", icon: Users },
+  { to: "/reports", label: "Reports", icon: BarChart3 },
 ];
 
 const TopNav = () => {
