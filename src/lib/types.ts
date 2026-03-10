@@ -45,6 +45,7 @@ export interface Job {
   department: string;
   location: string;
   workplaceType: WorkplaceType;
+  workerType: WorkerType;
   employmentType: EmploymentType;
   numberOfOpenings: number;
   description: string;

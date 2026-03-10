@@ -37,6 +37,7 @@ const jobSchema = z.object({
   department: z.string().min(1, "Department is required"),
   location: z.string().min(1, "Location is required"),
   workplaceType: z.enum(["onsite", "remote", "hybrid"]),
+  workerType: z.enum(["regular", "internship_trainee", "fixed_term", "freelancer"]),
   employmentType: z.enum(["full-time", "part-time", "contract", "internship"]),
   numberOfOpenings: z.coerce.number().int().min(1),
   description: z.string().max(2000),
