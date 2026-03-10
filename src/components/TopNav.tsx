@@ -86,6 +86,7 @@ const TopNav = () => {
 
       <AddJobDialog open={addJobOpen} onOpenChange={setAddJobOpen} />
       <AddCandidateDialog open={addCandidateOpen} onOpenChange={setAddCandidateOpen} />
+      <AddReferralDialog open={addReferralOpen} onOpenChange={setAddReferralOpen} />
     </>
   );
 };
