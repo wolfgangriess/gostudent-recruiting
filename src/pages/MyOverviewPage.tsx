@@ -244,13 +244,42 @@ const MyOverviewPage = () => {
         {isRecruiter && performanceData && (
           <Card className="lg:col-span-3">
             <CardContent className="pt-5 pb-5 px-5">
-              <div className="flex items-center gap-2 mb-5">
-                <TrendingUp className="h-4.5 w-4.5 text-primary" />
-                <h2 className="text-base font-bold text-foreground">My Performance</h2>
+              <div className="flex items-center justify-between mb-5">
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="h-4.5 w-4.5 text-primary" />
+                  <h2 className="text-base font-bold text-foreground">My Performance</h2>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Select value={perfPeriod} onValueChange={setPerfPeriod}>
+                    <SelectTrigger className="w-[150px] h-8 text-xs rounded-lg">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {TIME_PERIODS.map((tp) => (
+                        <SelectItem key={tp.value} value={tp.value}>{tp.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select value={perfJob} onValueChange={setPerfJob}>
+                    <SelectTrigger className="w-[180px] h-8 text-xs rounded-lg">
+                      <SelectValue placeholder="All Jobs" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Jobs</SelectItem>
+                      {myRecruiterJobs.map((j) => (
+                        <SelectItem key={j.id} value={j.id}>{j.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
               {/* Metric cards */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div className="rounded-xl border border-border p-4 text-center">
+                  <p className="text-xs text-muted-foreground mb-1">Applications</p>
+                  <p className="text-2xl font-bold text-foreground">{performanceData.applications}</p>
+                </div>
                 <div className="rounded-xl border border-border p-4 text-center">
                   <p className="text-xs text-muted-foreground mb-1">Candidates Screened</p>
                   <p className="text-2xl font-bold text-foreground">{performanceData.screened}</p>
