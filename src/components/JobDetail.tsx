@@ -131,11 +131,23 @@ const JobDetail = () => {
         </CardContent>
       </Card>
 
-      {/* Pipeline */}
-      <div>
-        <h2 className="mb-5 text-xl font-bold text-foreground">Pipeline</h2>
-        <PipelineBoard stages={jobStages} jobId={job.id} />
-      </div>
+      {/* Tabs: Pipeline & Interview Plan */}
+      <Tabs defaultValue="pipeline" className="mt-2">
+        <TabsList>
+          <TabsTrigger value="pipeline">Pipeline</TabsTrigger>
+          <TabsTrigger value="interview-plan">Interview Plan</TabsTrigger>
+        </TabsList>
+        <TabsContent value="pipeline">
+          <div className="pt-4">
+            <PipelineBoard stages={jobStages} jobId={job.id} />
+          </div>
+        </TabsContent>
+        <TabsContent value="interview-plan">
+          <div className="pt-4">
+            <InterviewPlan jobId={job.id} />
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
