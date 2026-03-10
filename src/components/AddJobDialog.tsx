@@ -87,7 +87,14 @@ const AddJobDialog = ({ open, onOpenChange }: Props) => {
 
     addJob({
       id: jobId,
-      ...values,
+      name: values.name,
+      department: values.department,
+      location: values.location,
+      workplaceType: values.workplaceType,
+      employmentType: values.employmentType,
+      numberOfOpenings: values.numberOfOpenings,
+      description: values.description,
+      requirements: values.requirements,
       hiringManager: "",
       recruiters: [],
       hiringTeamIds,
