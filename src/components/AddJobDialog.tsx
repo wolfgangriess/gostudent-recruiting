@@ -40,6 +40,9 @@ const jobSchema = z.object({
   workerType: z.enum(["regular", "internship_trainee", "fixed_term", "freelancer"]),
   employmentType: z.enum(["full-time", "part-time", "contract", "internship"]),
   numberOfOpenings: z.coerce.number().int().min(1),
+  reportsTo: z.string().optional(),
+  salaryMin: z.coerce.number().min(0).optional().or(z.literal("")),
+  salaryMax: z.coerce.number().min(0).optional().or(z.literal("")),
   description: z.string().max(2000),
   requirements: z.string().max(2000),
 });
