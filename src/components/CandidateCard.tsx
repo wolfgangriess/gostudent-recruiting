@@ -30,16 +30,16 @@ const CandidateCard = ({ candidate, isDragging }: Props) => {
       {...listeners}
       {...attributes}
       style={style}
-      className={`cursor-grab rounded-md border border-border bg-card p-3 shadow-sm transition-shadow hover:shadow-md ${
-        isDragging ? "opacity-90 shadow-lg ring-2 ring-primary/30" : ""
+      className={`cursor-grab rounded-xl border border-border bg-card p-3 shadow-sm transition-all hover:shadow-md hover:border-primary/30 ${
+        isDragging ? "opacity-90 shadow-lg ring-2 ring-primary/30 scale-105" : ""
       }`}
     >
       <div className="flex items-center gap-2.5">
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary text-xs font-bold text-primary-foreground">
           {initials}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-medium text-foreground">
+          <p className="truncate text-sm font-semibold text-foreground">
             {candidate.firstName} {candidate.lastName}
           </p>
           <p className="text-xs text-muted-foreground">{daysInStage}d in stage</p>
