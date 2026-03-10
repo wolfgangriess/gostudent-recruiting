@@ -351,27 +351,6 @@ const JobPostPage = () => {
             </div>
           </div>
 
-          <Separator />
-
-          {/* Education */}
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-semibold text-foreground">Education</h3>
-              <div className="flex items-center gap-6 text-xs font-medium text-muted-foreground pr-1">
-                <span className="w-8 text-center">Hide</span>
-                <span className="w-8 text-center">Optional</span>
-                <span className="w-8 text-center">Required</span>
-              </div>
-            </div>
-            <div className="space-y-0">
-              {educationFields.map((field) => (
-                <div key={field.id} className="flex items-center justify-between py-2.5 px-3 rounded-lg border border-border mb-1.5">
-                  <span className="text-sm text-primary font-medium">{field.label}</span>
-                  <VisibilityRadio value={field.visibility} onChange={(v) => updateEducationField(field.id, v)} />
-                </div>
-              ))}
-            </div>
-          </div>
         </CardContent>
       </Card>
 
