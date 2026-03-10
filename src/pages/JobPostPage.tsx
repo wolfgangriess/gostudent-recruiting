@@ -121,9 +121,6 @@ const JobPostPage = () => {
     setPersonalFields((prev) => prev.map((f) => (f.id === id ? { ...f, visibility } : f)));
   };
 
-  const updateEducationField = (id: string, visibility: FieldVisibility) => {
-    setEducationFields((prev) => prev.map((f) => (f.id === id ? { ...f, visibility } : f)));
-  };
 
   const deleteQuestion = (id: string) => {
     setCustomQuestions((prev) => prev.filter((q) => q.id !== id));
