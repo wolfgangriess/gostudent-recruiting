@@ -1,19 +1,31 @@
 import { useMemo, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, CheckCircle2, ClipboardList, ChevronRight, Star, TrendingUp, ArrowUp } from "lucide-react";
+import { Calendar, CheckCircle2, ClipboardList, ChevronRight, Star, TrendingUp } from "lucide-react";
 import { useATSStore } from "@/lib/ats-store";
 import { Candidate } from "@/lib/types";
 import { CandidateDetailDialog } from "@/components/CandidateDetailDialog";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
 
 const CURRENT_USER_ID = "user-1";
 
+const TIME_PERIODS = [
+  { value: "30", label: "Last 30 days" },
+  { value: "90", label: "Last 90 days" },
+  { value: "180", label: "Last 6 months" },
+  { value: "365", label: "Last 12 months" },
+];
+
 const MyOverviewPage = () => {
   const { candidates, jobs, stages, users } = useATSStore();
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
+  const [perfPeriod, setPerfPeriod] = useState("90");
+  const [perfJob, setPerfJob] = useState("all");
 
   const currentUser = users.find((u) => u.id === CURRENT_USER_ID);
   const isRecruiter = jobs.some((j) => j.recruiters.includes(CURRENT_USER_ID));
@@ -59,11 +71,27 @@ const MyOverviewPage = () => {
     ];
   }, [candidates, jobs, stages]);
 
+  const myRecruiterJobs = useMemo(
+    () => jobs.filter((j) => j.recruiters.includes(CURRENT_USER_ID)),
+    [jobs]
+  );
+
   // Performance data (recruiter only)
   const performanceData = useMemo(() => {
     if (!isRecruiter) return null;
-    const myJobIds = jobs.filter((j) => j.recruiters.includes(CURRENT_USER_ID)).map((j) => j.id);
-    const myCandidates = candidates.filter((c) => myJobIds.includes(c.jobId));
+    const periodDays = parseInt(perfPeriod);
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - periodDays);
+
+    const myJobIds = perfJob === "all"
+      ? myRecruiterJobs.map((j) => j.id)
+      : [perfJob];
+
+    const myCandidates = candidates.filter((c) =>
+      myJobIds.includes(c.jobId) && new Date(c.appliedAt) >= cutoff
+    );
+
+    const applications = myCandidates.length;
 
     const screened = myCandidates.filter((c) => {
       const stage = stages.find((s) => s.id === c.currentStageId);
@@ -76,10 +104,10 @@ const MyOverviewPage = () => {
     const hiredStageIds = stages.filter((s) => s.name === "Hired").map((s) => s.id);
     const offersAccepted = myCandidates.filter((c) => hiredStageIds.includes(c.currentStageId)).length;
 
-    // Generate weekly trend data
+    const weeksCount = Math.ceil(periodDays / 7);
     const weeks: { week: string; offers: number; accepted: number }[] = [];
     const now = new Date();
-    for (let i = 11; i >= 0; i--) {
+    for (let i = weeksCount - 1; i >= 0; i--) {
       const weekStart = new Date(now);
       weekStart.setDate(weekStart.getDate() - i * 7);
       const weekEnd = new Date(weekStart);
@@ -99,8 +127,8 @@ const MyOverviewPage = () => {
       });
     }
 
-    return { screened, offersCreated, offersAccepted, trendData: weeks };
-  }, [isRecruiter, candidates, jobs, stages]);
+    return { applications, screened, offersCreated, offersAccepted, trendData: weeks };
+  }, [isRecruiter, candidates, jobs, stages, perfPeriod, perfJob, myRecruiterJobs]);
 
   const getJobName = (jobId: string) => jobs.find((j) => j.id === jobId)?.name ?? "—";
   const getStageName = (stageId: string) => stages.find((s) => s.id === stageId)?.name ?? "—";
@@ -216,13 +244,42 @@ const MyOverviewPage = () => {
         {isRecruiter && performanceData && (
           <Card className="lg:col-span-3">
             <CardContent className="pt-5 pb-5 px-5">
-              <div className="flex items-center gap-2 mb-5">
-                <TrendingUp className="h-4.5 w-4.5 text-primary" />
-                <h2 className="text-base font-bold text-foreground">My Performance</h2>
+              <div className="flex items-center justify-between mb-5">
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="h-4.5 w-4.5 text-primary" />
+                  <h2 className="text-base font-bold text-foreground">My Performance</h2>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Select value={perfPeriod} onValueChange={setPerfPeriod}>
+                    <SelectTrigger className="w-[150px] h-8 text-xs rounded-lg">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {TIME_PERIODS.map((tp) => (
+                        <SelectItem key={tp.value} value={tp.value}>{tp.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select value={perfJob} onValueChange={setPerfJob}>
+                    <SelectTrigger className="w-[180px] h-8 text-xs rounded-lg">
+                      <SelectValue placeholder="All Jobs" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Jobs</SelectItem>
+                      {myRecruiterJobs.map((j) => (
+                        <SelectItem key={j.id} value={j.id}>{j.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
               {/* Metric cards */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div className="rounded-xl border border-border p-4 text-center">
+                  <p className="text-xs text-muted-foreground mb-1">Applications</p>
+                  <p className="text-2xl font-bold text-foreground">{performanceData.applications}</p>
+                </div>
                 <div className="rounded-xl border border-border p-4 text-center">
                   <p className="text-xs text-muted-foreground mb-1">Candidates Screened</p>
                   <p className="text-2xl font-bold text-foreground">{performanceData.screened}</p>
