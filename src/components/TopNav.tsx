@@ -37,10 +37,7 @@ const TopNav = () => {
           </Link>
           <nav className="flex items-center gap-1">
             {navItems.map((item) => {
-              const active =
-                item.to === "/"
-                  ? location.pathname === "/" || location.pathname.startsWith("/jobs")
-                  : location.pathname.startsWith(item.to);
+              const active = location.pathname.startsWith(item.to);
               return (
                 <Link
                   key={item.to}
