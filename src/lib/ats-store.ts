@@ -53,6 +53,8 @@ export const useATSStore = create<ATSStore>((set, get) => ({
       jobs: s.jobs.map((j) => (j.id === id ? { ...j, ...updates } : j)),
     })),
 
+  addCandidate: (candidate) => set((s) => ({ candidates: [...s.candidates, candidate] })),
+
   moveCandidateToStage: (candidateId, newStageId) =>
     set((s) => ({
       candidates: s.candidates.map((c) =>

@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import AddJobDialog from "@/components/AddJobDialog";
+import AddCandidateDialog from "@/components/AddCandidateDialog";
 
 const navItems = [
   { to: "/", label: "Jobs", icon: Briefcase },
