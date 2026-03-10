@@ -1,6 +1,8 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ChevronRight, Users, TrendingUp, BarChart3 } from "lucide-react";
+import { ChevronRight, Users, TrendingUp, BarChart3, Pencil } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import EditJobDialog from "@/components/EditJobDialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
