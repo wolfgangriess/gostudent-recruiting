@@ -1,13 +1,7 @@
 import { useCallback } from "react";
 import {
-  DndContext,
-  DragEndEvent,
-  DragOverlay,
-  DragStartEvent,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  closestCenter,
+  DndContext, DragEndEvent, DragOverlay, DragStartEvent,
+  PointerSensor, useSensor, useSensors, closestCenter,
 } from "@dnd-kit/core";
 import { useState } from "react";
 import { useATSStore } from "@/lib/ats-store";

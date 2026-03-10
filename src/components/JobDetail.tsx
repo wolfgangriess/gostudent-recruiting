@@ -5,22 +5,22 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
 import { useATSStore } from "@/lib/ats-store";
 import { getApplicationTrendData } from "@/lib/mock-data";
 import PipelineBoard from "@/components/PipelineBoard";
 import InterviewPlan from "@/components/InterviewPlan";
+import { UserAvatar } from "@/components/UserPicker";
+import {
+  Tooltip as UITooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const JobDetail = () => {
   const { jobId } = useParams<{ jobId: string }>();
-  const { jobs, candidates, stages } = useATSStore();
+  const { jobs, candidates, stages, users } = useATSStore();
   const job = jobs.find((j) => j.id === jobId);
 
   const trendData = useMemo(
@@ -44,16 +44,13 @@ const JobDetail = () => {
     return (
       <div className="mx-auto max-w-7xl px-4 py-12 text-center">
         <p className="text-muted-foreground">Job not found.</p>
-        <Link to="/" className="text-primary hover:underline text-sm mt-2 inline-block">
-          Back to Jobs
-        </Link>
+        <Link to="/" className="text-primary hover:underline text-sm mt-2 inline-block">Back to Jobs</Link>
       </div>
     );
   }
 
-  const jobStages = stages
-    .filter((s) => s.jobId === jobId)
-    .sort((a, b) => a.order - b.order);
+  const jobStages = stages.filter((s) => s.jobId === jobId).sort((a, b) => a.order - b.order);
+  const hiringTeam = users.filter((u) => job.hiringTeamIds.includes(u.id));
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
@@ -65,14 +62,42 @@ const JobDetail = () => {
       </nav>
 
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-extrabold tracking-tight text-foreground">{job.name}</h1>
-        <div className="mt-2 flex flex-wrap items-center gap-2">
-          <Badge className="rounded-lg bg-accent/30 text-accent-foreground border-0 font-medium">{job.department}</Badge>
-          <span className="text-sm text-muted-foreground">{job.location}</span>
-          <span className="text-sm text-muted-foreground">·</span>
-          <span className="text-sm text-muted-foreground capitalize">{job.workplaceType}</span>
+      <div className="mb-8 flex items-start justify-between">
+        <div>
+          <h1 className="text-3xl font-extrabold tracking-tight text-foreground">{job.name}</h1>
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <Badge className="rounded-lg bg-accent/30 text-accent-foreground border-0 font-medium">{job.department}</Badge>
+            <span className="text-sm text-muted-foreground">{job.location}</span>
+            <span className="text-sm text-muted-foreground">·</span>
+            <span className="text-sm text-muted-foreground capitalize">{job.workplaceType}</span>
+          </div>
         </div>
+
+        {/* Hiring Team Avatars */}
+        {hiringTeam.length > 0 && (
+          <div className="flex flex-col items-end gap-1.5">
+            <span className="text-xs font-medium text-muted-foreground">Hiring Team</span>
+            <div className="flex -space-x-2">
+              {hiringTeam.slice(0, 5).map((u) => (
+                <UITooltip key={u.id}>
+                  <TooltipTrigger asChild>
+                    <div className="ring-2 ring-card rounded-full">
+                      <UserAvatar user={u} size="md" />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="text-xs">{u.firstName} {u.lastName}</p>
+                  </TooltipContent>
+                </UITooltip>
+              ))}
+              {hiringTeam.length > 5 && (
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-xs font-bold text-muted-foreground ring-2 ring-card">
+                  +{hiringTeam.length - 5}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Metrics */}
@@ -131,7 +156,7 @@ const JobDetail = () => {
         </CardContent>
       </Card>
 
-      {/* Tabs: Pipeline & Interview Plan */}
+      {/* Tabs */}
       <Tabs defaultValue="pipeline" className="mt-2">
         <TabsList>
           <TabsTrigger value="pipeline">Pipeline</TabsTrigger>

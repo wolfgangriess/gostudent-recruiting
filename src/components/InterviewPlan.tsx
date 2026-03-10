@@ -16,12 +16,22 @@ import {
   arrayMove,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, Plus, Trash2, Pencil, Check, X } from "lucide-react";
+import { GripVertical, Plus, Trash2, Pencil, Check, X, ClipboardList } from "lucide-react";
 import { useATSStore } from "@/lib/ats-store";
 import { PipelineStage } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { UserAvatar } from "@/components/UserPicker";
+import ScorecardBuilder from "@/components/ScorecardBuilder";
 
 interface Props {
   jobId: string;
@@ -32,28 +42,28 @@ const SortableStageRow = ({
   onRemove,
   onRename,
   candidateCount,
+  onSetOwner,
+  ownerUser,
+  eligibleUsers,
+  scorecardCount,
+  onOpenScorecard,
 }: {
   stage: PipelineStage;
   onRemove: () => void;
   onRename: (name: string) => void;
   candidateCount: number;
+  onSetOwner: (ownerId: string | undefined) => void;
+  ownerUser: any;
+  eligibleUsers: any[];
+  scorecardCount: number;
+  onOpenScorecard: () => void;
 }) => {
   const [editing, setEditing] = useState(false);
   const [editName, setEditName] = useState(stage.name);
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+    useSortable({ id: stage.id });
 
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: stage.id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
+  const style = { transform: CSS.Transform.toString(transform), transition };
 
   const handleSave = () => {
     if (editName.trim()) {
@@ -88,7 +98,7 @@ const SortableStageRow = ({
             <Input
               value={editName}
               onChange={(e) => setEditName(e.target.value)}
-              className="h-8 w-48"
+              className="h-8 w-40"
               autoFocus
               onKeyDown={(e) => {
                 if (e.key === "Enter") handleSave();
@@ -107,16 +117,46 @@ const SortableStageRow = ({
         )}
       </div>
 
+      {/* Owner */}
+      <Select
+        value={stage.ownerId || "none"}
+        onValueChange={(v) => onSetOwner(v === "none" ? undefined : v)}
+      >
+        <SelectTrigger className="h-8 w-36 text-xs">
+          <SelectValue placeholder="Owner" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="none" className="text-xs">No Owner</SelectItem>
+          {eligibleUsers.map((u: any) => (
+            <SelectItem key={u.id} value={u.id} className="text-xs">
+              <span className="flex items-center gap-1.5">
+                <UserAvatar user={u} size="sm" />
+                {u.firstName} {u.lastName}
+              </span>
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      {/* Scorecard button */}
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        className={`h-8 gap-1 text-xs ${scorecardCount > 0 ? "text-primary" : "text-muted-foreground"}`}
+        onClick={onOpenScorecard}
+      >
+        <ClipboardList className="h-3.5 w-3.5" />
+        {scorecardCount > 0 ? `${scorecardCount}` : "Scorecard"}
+      </Button>
+
       <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
-        {candidateCount} candidate{candidateCount !== 1 ? "s" : ""}
+        {candidateCount}
       </span>
 
       {!editing && (
         <button
-          onClick={() => {
-            setEditName(stage.name);
-            setEditing(true);
-          }}
+          onClick={() => { setEditName(stage.name); setEditing(true); }}
           className="text-muted-foreground/50 hover:text-foreground"
         >
           <Pencil className="h-4 w-4" />
@@ -126,7 +166,6 @@ const SortableStageRow = ({
       <button
         onClick={onRemove}
         className="text-muted-foreground/50 hover:text-destructive"
-        title="Remove stage"
       >
         <Trash2 className="h-4 w-4" />
       </button>
@@ -134,29 +173,22 @@ const SortableStageRow = ({
   );
 };
 
-const DragOverlayStage = ({ stage }: { stage: PipelineStage }) => (
-  <div className="flex items-center gap-3 rounded-xl border border-primary/30 bg-card p-4 shadow-xl">
-    <GripVertical className="h-5 w-5 text-muted-foreground/50" />
-    <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-xs font-bold text-primary">
-      {stage.order + 1}
-    </span>
-    <span className="text-sm font-semibold text-foreground">{stage.name}</span>
-  </div>
-);
-
 const InterviewPlan = ({ jobId }: Props) => {
-  const { stages, candidates, addStage, removeStage, renameStage, reorderStages } =
+  const { stages, candidates, users, addStage, removeStage, renameStage, reorderStages, setStageOwner, getScorecardTemplate } =
     useATSStore();
   const [newStageName, setNewStageName] = useState("");
   const [activeStage, setActiveStage] = useState<PipelineStage | null>(null);
+  const [scorecardStageId, setScorecardStageId] = useState<string | null>(null);
+  const [scorecardStageName, setScorecardStageName] = useState("");
 
-  const jobStages = stages
-    .filter((s) => s.jobId === jobId)
-    .sort((a, b) => a.order - b.order);
+  const jobStages = stages.filter((s) => s.jobId === jobId).sort((a, b) => a.order - b.order);
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
+  const job = useATSStore((s) => s.jobs.find((j) => j.id === jobId));
+  const eligibleUsers = users.filter(
+    (u) => u.role === "admin" || u.role === "hiring_manager" || (job?.hiringTeamIds.includes(u.id))
   );
+
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
   const handleDragStart = (event: DragStartEvent) => {
     const stage = jobStages.find((s) => s.id === event.active.id);
@@ -167,14 +199,10 @@ const InterviewPlan = ({ jobId }: Props) => {
     setActiveStage(null);
     const { active, over } = event;
     if (!over || active.id === over.id) return;
-
     const oldIndex = jobStages.findIndex((s) => s.id === active.id);
     const newIndex = jobStages.findIndex((s) => s.id === over.id);
     const reordered = arrayMove(jobStages, oldIndex, newIndex);
-    reorderStages(
-      jobId,
-      reordered.map((s) => s.id)
-    );
+    reorderStages(jobId, reordered.map((s) => s.id));
   };
 
   const handleAddStage = () => {
@@ -192,21 +220,13 @@ const InterviewPlan = ({ jobId }: Props) => {
         <div>
           <h2 className="text-xl font-bold text-foreground">Interview Plan</h2>
           <p className="text-sm text-muted-foreground mt-1">
-            Configure the hiring stages for this position. Drag to reorder.
+            Configure stages, assign owners, and set up scorecards. Drag to reorder.
           </p>
         </div>
       </div>
 
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-      >
-        <SortableContext
-          items={jobStages.map((s) => s.id)}
-          strategy={verticalListSortingStrategy}
-        >
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+        <SortableContext items={jobStages.map((s) => s.id)} strategy={verticalListSortingStrategy}>
           <div className="flex flex-col gap-2">
             {jobStages.map((stage) => (
               <SortableStageRow
@@ -215,16 +235,28 @@ const InterviewPlan = ({ jobId }: Props) => {
                 candidateCount={getCandidateCount(stage.id)}
                 onRemove={() => removeStage(stage.id)}
                 onRename={(name) => renameStage(stage.id, name)}
+                onSetOwner={(ownerId) => setStageOwner(stage.id, ownerId)}
+                ownerUser={stage.ownerId ? users.find((u) => u.id === stage.ownerId) : null}
+                eligibleUsers={eligibleUsers}
+                scorecardCount={getScorecardTemplate(stage.id)?.criteria.length ?? 0}
+                onOpenScorecard={() => {
+                  setScorecardStageId(stage.id);
+                  setScorecardStageName(stage.name);
+                }}
               />
             ))}
           </div>
         </SortableContext>
         <DragOverlay>
-          {activeStage ? <DragOverlayStage stage={activeStage} /> : null}
+          {activeStage ? (
+            <div className="flex items-center gap-3 rounded-xl border border-primary/30 bg-card p-4 shadow-xl">
+              <GripVertical className="h-5 w-5 text-muted-foreground/50" />
+              <span className="text-sm font-semibold text-foreground">{activeStage.name}</span>
+            </div>
+          ) : null}
         </DragOverlay>
       </DndContext>
 
-      {/* Add stage */}
       <Card className="mt-4 flex items-center gap-3 rounded-xl border-dashed p-4">
         <Plus className="h-5 w-5 text-muted-foreground/50" />
         <Input
@@ -232,14 +264,21 @@ const InterviewPlan = ({ jobId }: Props) => {
           onChange={(e) => setNewStageName(e.target.value)}
           placeholder="New stage name…"
           className="h-9 flex-1"
-          onKeyDown={(e) => {
-            if (e.key === "Enter") handleAddStage();
-          }}
+          onKeyDown={(e) => { if (e.key === "Enter") handleAddStage(); }}
         />
         <Button size="sm" onClick={handleAddStage} disabled={!newStageName.trim()}>
           Add Stage
         </Button>
       </Card>
+
+      {scorecardStageId && (
+        <ScorecardBuilder
+          stageId={scorecardStageId}
+          stageName={scorecardStageName}
+          open={!!scorecardStageId}
+          onOpenChange={(open) => { if (!open) setScorecardStageId(null); }}
+        />
+      )}
     </div>
   );
 };
