@@ -452,21 +452,6 @@ const JobPostPage = () => {
 
           <Separator />
 
-          <div className="flex items-start gap-3">
-            <Checkbox id="eeoc" checked={includeEEOC} onCheckedChange={(c) => setIncludeEEOC(!!c)} />
-            <div>
-              <Label htmlFor="eeoc" className="text-sm cursor-pointer font-medium">Include EEOC questions</Label>
-              <p className="text-xs text-muted-foreground mt-0.5">Collect demographic data about gender, race, veteran, and disability status to meet EEOC compliance and reporting requirements for U.S. federal contractors. The language and format of these questions can't be changed.</p>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-3">
-            <Checkbox id="seek" checked={includeSeek} onCheckedChange={(c) => setIncludeSeek(!!c)} />
-            <div>
-              <Label htmlFor="seek" className="text-sm cursor-pointer font-medium">Include 'Apply with SEEK' button</Label>
-              <p className="text-xs text-muted-foreground mt-0.5">This will only appear for external job boards with a saved SEEK Client ID.</p>
-            </div>
-          </div>
         </CardContent>
       </Card>
 
