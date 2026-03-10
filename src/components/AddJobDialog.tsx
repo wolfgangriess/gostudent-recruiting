@@ -152,6 +152,7 @@ const AddJobDialog = ({ open, onOpenChange }: Props) => {
     setVisibilityIds([]);
     setStageConfigs(defaultStages);
     onOpenChange(false);
+    navigate(`/jobs/${jobId}/post`);
   };
 
   return (
