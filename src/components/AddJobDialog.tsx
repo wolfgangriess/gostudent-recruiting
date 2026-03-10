@@ -251,6 +251,45 @@ const AddJobDialog = ({ open, onOpenChange }: Props) => {
             </div>
             <FormField
               control={form.control}
+              name="reportsTo"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Reports To</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value || ""}>
+                    <FormControl><SelectTrigger><SelectValue placeholder="Select manager" /></SelectTrigger></FormControl>
+                    <SelectContent>
+                      {useATSStore.getState().users.map((u) => (
+                        <SelectItem key={u.id} value={u.id}>{u.firstName} {u.lastName}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormItem>
+              )}
+            />
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="salaryMin"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Gross Annual Salary Min (€)</FormLabel>
+                    <FormControl><Input type="number" min={0} placeholder="e.g. 40000" {...field} /></FormControl>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="salaryMax"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Gross Annual Salary Max (€)</FormLabel>
+                    <FormControl><Input type="number" min={0} placeholder="e.g. 70000" {...field} /></FormControl>
+                  </FormItem>
+                )}
+              />
+            </div>
+            <FormField
+              control={form.control}
               name="description"
               render={({ field }) => (
                 <FormItem>
