@@ -21,6 +21,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/jobs/:jobId" element={<Index />} />
+          <Route path="/jobs/:jobId/post" element={<JobPostPage />} />
           <Route path="/candidates" element={<CandidatesPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
