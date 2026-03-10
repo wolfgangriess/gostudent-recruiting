@@ -86,15 +86,6 @@ const JobPostPage = () => {
     { id: "cover_letter", label: "Cover letter", visibility: "optional" },
   ]);
 
-  const [educationFields, setEducationFields] = useState<EducationField[]>([
-    { id: "school_name", label: "School name", visibility: "hide" },
-    { id: "degree", label: "Degree", visibility: "hide" },
-    { id: "discipline", label: "Discipline", visibility: "hide" },
-    { id: "start_year", label: "Start year", visibility: "hide" },
-    { id: "start_month", label: "Start month", visibility: "hide" },
-    { id: "end_year", label: "End year", visibility: "hide" },
-    { id: "end_month", label: "End month", visibility: "hide" },
-  ]);
 
   // Custom questions state
   const [customQuestions, setCustomQuestions] = useState<CustomQuestion[]>([
