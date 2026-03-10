@@ -1,6 +1,13 @@
 import { useDroppable } from "@dnd-kit/core";
 import { PipelineStage, Candidate } from "@/lib/types";
+import { useATSStore } from "@/lib/ats-store";
 import CandidateCard from "@/components/CandidateCard";
+import { UserAvatar } from "@/components/UserPicker";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface Props {
   stage: PipelineStage;
@@ -17,6 +24,7 @@ const stageColorDots: Record<string, string> = {
 
 const PipelineColumn = ({ stage, candidates }: Props) => {
   const { setNodeRef, isOver } = useDroppable({ id: stage.id });
+  const owner = useATSStore((s) => stage.ownerId ? s.users.find((u) => u.id === stage.ownerId) : undefined);
 
   return (
     <div
@@ -30,9 +38,21 @@ const PipelineColumn = ({ stage, candidates }: Props) => {
           <span className={`inline-block h-2.5 w-2.5 rounded-full ${stageColorDots[stage.name] ?? "bg-muted-foreground/40"}`} />
           <span className="text-sm font-bold text-foreground">{stage.name}</span>
         </div>
-        <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-bold text-muted-foreground">
-          {candidates.length}
-        </span>
+        <div className="flex items-center gap-1.5">
+          {owner && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div><UserAvatar user={owner} size="sm" /></div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="text-xs">{owner.firstName} {owner.lastName} (Owner)</p>
+              </TooltipContent>
+            </Tooltip>
+          )}
+          <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-bold text-muted-foreground">
+            {candidates.length}
+          </span>
+        </div>
       </div>
       <div className="flex flex-1 flex-col gap-2">
         {candidates.map((c) => (

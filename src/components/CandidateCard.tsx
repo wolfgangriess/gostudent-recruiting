@@ -1,5 +1,7 @@
 import { useDraggable } from "@dnd-kit/core";
 import { Candidate } from "@/lib/types";
+import { useATSStore } from "@/lib/ats-store";
+import { ClipboardList } from "lucide-react";
 
 interface Props {
   candidate: Candidate;
@@ -10,6 +12,11 @@ const CandidateCard = ({ candidate, isDragging }: Props) => {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: candidate.id,
   });
+
+  const { getScorecardTemplate, getEvaluationsForCandidate } = useATSStore();
+  const template = getScorecardTemplate(candidate.currentStageId);
+  const evals = getEvaluationsForCandidate(candidate.id, candidate.currentStageId);
+  const hasScorecard = template && template.criteria.length > 0;
 
   const daysInStage = Math.max(
     1,
@@ -42,7 +49,15 @@ const CandidateCard = ({ candidate, isDragging }: Props) => {
           <p className="truncate text-sm font-semibold text-foreground">
             {candidate.firstName} {candidate.lastName}
           </p>
-          <p className="text-xs text-muted-foreground">{daysInStage}d in stage</p>
+          <div className="flex items-center gap-2">
+            <p className="text-xs text-muted-foreground">{daysInStage}d in stage</p>
+            {hasScorecard && (
+              <span className="flex items-center gap-0.5 text-[10px] text-primary">
+                <ClipboardList className="h-3 w-3" />
+                {evals.length > 0 ? `${evals.length} eval` : ""}
+              </span>
+            )}
+          </div>
         </div>
       </div>
     </div>
