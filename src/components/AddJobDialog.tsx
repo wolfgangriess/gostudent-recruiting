@@ -75,6 +75,7 @@ const defaultStages: StageConfig[] = PIPELINE_STAGES.map((name, i) => ({
 }));
 
 const AddJobDialog = ({ open, onOpenChange }: Props) => {
+  const navigate = useNavigate();
   const { addJob, addStage, setStageOwner } = useATSStore();
   const [hiringTeamIds, setHiringTeamIds] = useState<string[]>([]);
   const [visibilityIds, setVisibilityIds] = useState<string[]>([]);
