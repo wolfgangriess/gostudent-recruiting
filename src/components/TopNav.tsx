@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import AddJobDialog from "@/components/AddJobDialog";
 import AddCandidateDialog from "@/components/AddCandidateDialog";
+import AddReferralDialog from "@/components/AddReferralDialog";
 
 const navItems = [
   { to: "/", label: "Jobs", icon: Briefcase },
@@ -21,6 +22,7 @@ const TopNav = () => {
   const location = useLocation();
   const [addJobOpen, setAddJobOpen] = useState(false);
   const [addCandidateOpen, setAddCandidateOpen] = useState(false);
+  const [addReferralOpen, setAddReferralOpen] = useState(false);
 
   return (
     <>
@@ -72,7 +74,7 @@ const TopNav = () => {
                   <UserPlus className="h-4 w-4" />
                   Add a Candidate
                 </DropdownMenuItem>
-                <DropdownMenuItem className="gap-2 cursor-pointer">
+                <DropdownMenuItem onClick={() => setAddReferralOpen(true)} className="gap-2 cursor-pointer">
                   <Share2 className="h-4 w-4" />
                   Add a Referral
                 </DropdownMenuItem>
@@ -84,6 +86,7 @@ const TopNav = () => {
 
       <AddJobDialog open={addJobOpen} onOpenChange={setAddJobOpen} />
       <AddCandidateDialog open={addCandidateOpen} onOpenChange={setAddCandidateOpen} />
+      <AddReferralDialog open={addReferralOpen} onOpenChange={setAddReferralOpen} />
     </>
   );
 };
