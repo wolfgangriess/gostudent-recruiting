@@ -24,6 +24,8 @@ const TIME_PERIODS = [
 const MyOverviewPage = () => {
   const { candidates, jobs, stages, users } = useATSStore();
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
+  const [perfPeriod, setPerfPeriod] = useState("90");
+  const [perfJob, setPerfJob] = useState("all");
 
   const currentUser = users.find((u) => u.id === CURRENT_USER_ID);
   const isRecruiter = jobs.some((j) => j.recruiters.includes(CURRENT_USER_ID));
