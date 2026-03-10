@@ -42,15 +42,23 @@ export interface ScorecardEvaluation {
 export interface Job {
   id: string;
   name: string;
+  externalName?: string;
   department: string;
+  office?: string;
   location: string;
+  requisitionId?: string;
   workplaceType: WorkplaceType;
   workerType: WorkerType;
   employmentType: EmploymentType;
+  workSchedule?: string;
   numberOfOpenings: number;
   reportsTo?: string;
+  salaryCurrency?: string;
   salaryMin?: number;
   salaryMax?: number;
+  costCenter?: string;
+  jobDescriptionLink?: string;
+  level?: string;
   description: string;
   requirements: string;
   hiringManager: string;
