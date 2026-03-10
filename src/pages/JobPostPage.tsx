@@ -45,11 +45,6 @@ interface PersonalField {
   locked?: boolean; // always required, can't change
 }
 
-interface EducationField {
-  id: string;
-  label: string;
-  visibility: FieldVisibility;
-}
 
 interface CustomQuestion {
   id: string;
@@ -86,15 +81,6 @@ const JobPostPage = () => {
     { id: "cover_letter", label: "Cover letter", visibility: "optional" },
   ]);
 
-  const [educationFields, setEducationFields] = useState<EducationField[]>([
-    { id: "school_name", label: "School name", visibility: "hide" },
-    { id: "degree", label: "Degree", visibility: "hide" },
-    { id: "discipline", label: "Discipline", visibility: "hide" },
-    { id: "start_year", label: "Start year", visibility: "hide" },
-    { id: "start_month", label: "Start month", visibility: "hide" },
-    { id: "end_year", label: "End year", visibility: "hide" },
-    { id: "end_month", label: "End month", visibility: "hide" },
-  ]);
 
   // Custom questions state
   const [customQuestions, setCustomQuestions] = useState<CustomQuestion[]>([
@@ -111,8 +97,6 @@ const JobPostPage = () => {
   const [sendConfirmationEmail, setSendConfirmationEmail] = useState(false);
   const [autoPublish, setAutoPublish] = useState(false);
   const [confirmationPage, setConfirmationPage] = useState<"default" | "customize">("default");
-  const [includeEEOC, setIncludeEEOC] = useState(false);
-  const [includeSeek, setIncludeSeek] = useState(false);
 
   if (!job) {
     return (
@@ -132,9 +116,6 @@ const JobPostPage = () => {
     setPersonalFields((prev) => prev.map((f) => (f.id === id ? { ...f, visibility } : f)));
   };
 
-  const updateEducationField = (id: string, visibility: FieldVisibility) => {
-    setEducationFields((prev) => prev.map((f) => (f.id === id ? { ...f, visibility } : f)));
-  };
 
   const deleteQuestion = (id: string) => {
     setCustomQuestions((prev) => prev.filter((q) => q.id !== id));
@@ -351,27 +332,6 @@ const JobPostPage = () => {
             </div>
           </div>
 
-          <Separator />
-
-          {/* Education */}
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-semibold text-foreground">Education</h3>
-              <div className="flex items-center gap-6 text-xs font-medium text-muted-foreground pr-1">
-                <span className="w-8 text-center">Hide</span>
-                <span className="w-8 text-center">Optional</span>
-                <span className="w-8 text-center">Required</span>
-              </div>
-            </div>
-            <div className="space-y-0">
-              {educationFields.map((field) => (
-                <div key={field.id} className="flex items-center justify-between py-2.5 px-3 rounded-lg border border-border mb-1.5">
-                  <span className="text-sm text-primary font-medium">{field.label}</span>
-                  <VisibilityRadio value={field.visibility} onChange={(v) => updateEducationField(field.id, v)} />
-                </div>
-              ))}
-            </div>
-          </div>
         </CardContent>
       </Card>
 
@@ -473,21 +433,6 @@ const JobPostPage = () => {
 
           <Separator />
 
-          <div className="flex items-start gap-3">
-            <Checkbox id="eeoc" checked={includeEEOC} onCheckedChange={(c) => setIncludeEEOC(!!c)} />
-            <div>
-              <Label htmlFor="eeoc" className="text-sm cursor-pointer font-medium">Include EEOC questions</Label>
-              <p className="text-xs text-muted-foreground mt-0.5">Collect demographic data about gender, race, veteran, and disability status to meet EEOC compliance and reporting requirements for U.S. federal contractors. The language and format of these questions can't be changed.</p>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-3">
-            <Checkbox id="seek" checked={includeSeek} onCheckedChange={(c) => setIncludeSeek(!!c)} />
-            <div>
-              <Label htmlFor="seek" className="text-sm cursor-pointer font-medium">Include 'Apply with SEEK' button</Label>
-              <p className="text-xs text-muted-foreground mt-0.5">This will only appear for external job boards with a saved SEEK Client ID.</p>
-            </div>
-          </div>
         </CardContent>
       </Card>
 
