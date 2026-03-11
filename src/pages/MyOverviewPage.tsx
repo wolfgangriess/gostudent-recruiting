@@ -11,6 +11,7 @@ import { ScorecardsDialog } from "@/components/ScorecardsDialog";
 import { NewApplicationsDialog } from "@/components/NewApplicationsDialog";
 import { NeedsDecisionDialog } from "@/components/NeedsDecisionDialog";
 import { CandidatesToScheduleDialog } from "@/components/CandidatesToScheduleDialog";
+import { OffersDialog } from "@/components/OffersDialog";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -40,6 +41,8 @@ const MyOverviewPage = () => {
   const [decisionDialogCandidates, setDecisionDialogCandidates] = useState<Candidate[]>([]);
   const [showScheduleDialog, setShowScheduleDialog] = useState(false);
   const [scheduleDialogCandidates, setScheduleDialogCandidates] = useState<Candidate[]>([]);
+  const [showOffersDialog, setShowOffersDialog] = useState(false);
+  const [offersDialogCandidates, setOffersDialogCandidates] = useState<Candidate[]>([]);
   const [perfPeriod, setPerfPeriod] = useState("90");
   const [perfJob, setPerfJob] = useState("all");
 
@@ -254,6 +257,9 @@ const MyOverviewPage = () => {
                       } else if (task.label === "Candidates to Schedule") {
                         setScheduleDialogCandidates(task.candidates);
                         setShowScheduleDialog(true);
+                      } else if (task.label === "Offers") {
+                        setOffersDialogCandidates(task.candidates);
+                        setShowOffersDialog(true);
                       } else {
                         setSelectedCandidate(task.candidates[0]);
                       }
@@ -444,6 +450,11 @@ const MyOverviewPage = () => {
         open={showScheduleDialog}
         onOpenChange={setShowScheduleDialog}
         candidates={scheduleDialogCandidates}
+      />
+      <OffersDialog
+        open={showOffersDialog}
+        onOpenChange={setShowOffersDialog}
+        candidates={offersDialogCandidates}
       />
     </div>
   );
