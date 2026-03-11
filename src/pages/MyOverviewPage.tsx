@@ -44,6 +44,8 @@ const MyOverviewPage = () => {
   const [scheduleDialogCandidates, setScheduleDialogCandidates] = useState<Candidate[]>([]);
   const [showOffersDialog, setShowOffersDialog] = useState(false);
   const [offersDialogCandidates, setOffersDialogCandidates] = useState<Candidate[]>([]);
+  const [showPendingApprovalsDialog, setShowPendingApprovalsDialog] = useState(false);
+  const [pendingApprovalsDialogCandidates, setPendingApprovalsDialogCandidates] = useState<Candidate[]>([]);
   const [perfPeriod, setPerfPeriod] = useState("90");
   const [perfJob, setPerfJob] = useState("all");
 
