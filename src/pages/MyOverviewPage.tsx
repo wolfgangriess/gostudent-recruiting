@@ -263,6 +263,9 @@ const MyOverviewPage = () => {
                       } else if (task.label === "Offers") {
                         setOffersDialogCandidates(task.candidates);
                         setShowOffersDialog(true);
+                      } else if (task.label === "Pending Approvals") {
+                        setPendingApprovalsDialogCandidates(task.candidates);
+                        setShowPendingApprovalsDialog(true);
                       } else {
                         setSelectedCandidate(task.candidates[0]);
                       }
