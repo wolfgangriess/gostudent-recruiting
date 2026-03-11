@@ -150,12 +150,6 @@ const CandidateDetailPage = () => {
                   <Mail className="h-4 w-4" />
                 </a>
               </Button>
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
-                <Plus className="h-4 w-4" />
-              </Button>
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
-                <RefreshCw className="h-4 w-4" />
-              </Button>
               <Button
                 variant="outline"
                 size="sm"
