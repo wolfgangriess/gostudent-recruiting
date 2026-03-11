@@ -276,10 +276,10 @@ const MyOverviewPage = () => {
         {/* My Approvals */}
         <Card className="lg:col-span-3">
           <CardContent className="pt-5 pb-5 px-5">
-            <div className="flex items-center gap-2 mb-4">
-              <CheckCircle2 className="h-4.5 w-4.5 text-primary" />
-              <h2 className="text-base font-bold text-foreground">My Approvals</h2>
-              <Badge variant="secondary" className="ml-1 text-xs">{myApprovals.length}</Badge>
+            <div className="flex items-center gap-2 mb-3">
+              <CheckCircle2 className="h-4 w-4 text-primary" />
+              <h2>My Approvals</h2>
+              <Badge variant="secondary" className="ml-1 text-[11px] h-5 px-1.5">{myApprovals.length}</Badge>
             </div>
             {myApprovals.length === 0 ? (
               <p className="text-sm text-muted-foreground">You have no jobs or offers to approve.</p>
