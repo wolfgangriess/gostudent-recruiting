@@ -313,16 +313,101 @@ const CandidateDetailPage = () => {
           )}
 
           {activeTab === "linkedin" && (
-            <div className="text-sm text-muted-foreground py-8 text-center">
-              <a
-                href={`https://linkedin.com/in/${candidate.firstName.toLowerCase()}-${candidate.lastName.toLowerCase()}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary hover:underline inline-flex items-center gap-1.5"
-              >
-                <Linkedin className="h-4 w-4" />
-                View LinkedIn Profile
-              </a>
+            <div className="space-y-5">
+              {/* Profile header */}
+              <div className="rounded-xl border border-border bg-card overflow-hidden">
+                <div className="h-24 bg-gradient-to-r from-primary/30 to-primary/10" />
+                <div className="px-5 pb-5 -mt-10">
+                  <div className="flex items-end gap-4">
+                    <div className="h-20 w-20 rounded-full border-4 border-card bg-muted flex items-center justify-center text-xl font-bold text-primary">
+                      {candidate.firstName[0]}{candidate.lastName[0]}
+                    </div>
+                    <div className="pb-1">
+                      <h3 className="text-base font-bold text-foreground">
+                        {candidate.firstName} {candidate.lastName}
+                      </h3>
+                      <p className="text-xs text-muted-foreground">
+                        {job ? `Applicant for ${job.name}` : "Professional"}
+                      </p>
+                      <p className="text-xs text-muted-foreground">{job?.location ?? "Location not specified"}</p>
+                    </div>
+                  </div>
+                  <div className="mt-3 flex gap-2">
+                    <a
+                      href={`https://linkedin.com/in/${candidate.firstName.toLowerCase()}-${candidate.lastName.toLowerCase()}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
+                    >
+                      <Linkedin className="h-3.5 w-3.5" /> Open LinkedIn
+                    </a>
+                    <a
+                      href={`mailto:${candidate.email}`}
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted transition-colors"
+                    >
+                      <Mail className="h-3.5 w-3.5" /> Message
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              {/* About */}
+              <div className="rounded-xl border border-border bg-card p-5 space-y-2">
+                <h4 className="text-sm font-semibold text-foreground">About</h4>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Passionate professional with experience in {job?.department ?? "the industry"}.
+                  Committed to driving results and contributing to team success. Currently exploring
+                  opportunities in {job?.location ?? "various locations"}.
+                </p>
+              </div>
+
+              {/* Experience */}
+              <div className="rounded-xl border border-border bg-card p-5 space-y-3">
+                <h4 className="text-sm font-semibold text-foreground">Experience</h4>
+                <div className="space-y-4">
+                  <div className="flex gap-3">
+                    <div className="h-9 w-9 rounded-lg bg-muted flex items-center justify-center text-xs font-bold text-muted-foreground shrink-0">Co</div>
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{job?.department ?? "General"} Specialist</p>
+                      <p className="text-xs text-muted-foreground">Previous Company · Full-time</p>
+                      <p className="text-xs text-muted-foreground">Jan 2023 – Present · 3 yrs</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="h-9 w-9 rounded-lg bg-muted flex items-center justify-center text-xs font-bold text-muted-foreground shrink-0">AB</div>
+                    <div>
+                      <p className="text-sm font-medium text-foreground">Junior {job?.department ?? "General"} Associate</p>
+                      <p className="text-xs text-muted-foreground">Another Company · Full-time</p>
+                      <p className="text-xs text-muted-foreground">Jun 2020 – Dec 2022 · 2 yrs 6 mos</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Education */}
+              <div className="rounded-xl border border-border bg-card p-5 space-y-3">
+                <h4 className="text-sm font-semibold text-foreground">Education</h4>
+                <div className="flex gap-3">
+                  <div className="h-9 w-9 rounded-lg bg-muted flex items-center justify-center text-xs font-bold text-muted-foreground shrink-0">🎓</div>
+                  <div>
+                    <p className="text-sm font-medium text-foreground">University of Technology</p>
+                    <p className="text-xs text-muted-foreground">Bachelor's Degree, {job?.department ?? "Business"}</p>
+                    <p className="text-xs text-muted-foreground">2016 – 2020</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Skills */}
+              <div className="rounded-xl border border-border bg-card p-5 space-y-2">
+                <h4 className="text-sm font-semibold text-foreground">Skills</h4>
+                <div className="flex flex-wrap gap-1.5">
+                  {["Team Leadership", "Project Management", "Communication", "Problem Solving", job?.department ?? "General Skills", "Agile", "Data Analysis"].map((skill) => (
+                    <span key={skill} className="rounded-md bg-muted px-2.5 py-1 text-xs font-medium text-foreground">
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </div>
             </div>
           )}
         </div>
