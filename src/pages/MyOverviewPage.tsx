@@ -208,11 +208,6 @@ const MyOverviewPage = () => {
                           <span className="font-medium text-foreground">{format(interviewDt, "h:mm a")}</span>
                         </div>
                         <Badge variant="outline" className="text-xs">{getStageName(c.currentStageId)}</Badge>
-                        <div className="flex gap-0.5">
-                          {Array.from({ length: 5 }).map((_, i) => (
-                            <Star key={i} className={`h-3 w-3 ${i < c.rating ? "fill-secondary text-secondary" : "text-muted-foreground/20"}`} />
-                          ))}
-                        </div>
                         <ChevronRight className="h-4 w-4 text-muted-foreground" />
                       </div>
                     </div>
