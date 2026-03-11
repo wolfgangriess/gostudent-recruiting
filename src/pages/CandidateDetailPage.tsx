@@ -297,8 +297,13 @@ const CandidateDetailPage = () => {
           )}
 
           {activeTab === "offer" && (
-            <div className="text-sm text-muted-foreground py-8 text-center">
-              Offer details will appear here once an offer is created.
+            <div className="space-y-6">
+              <div className="text-center py-6 space-y-3">
+                <p className="text-sm text-muted-foreground">No offers have been created for this candidate</p>
+                <Button size="sm" className="font-semibold" onClick={() => setShowOfferDialog(true)}>
+                  Create offer
+                </Button>
+              </div>
             </div>
           )}
 
