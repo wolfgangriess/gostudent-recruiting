@@ -1,8 +1,10 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Candidate } from "@/lib/types";
 import { useATSStore } from "@/lib/ats-store";
 import { Gift } from "lucide-react";
+import { toast } from "sonner";
 
 interface Props {
   open: boolean;
