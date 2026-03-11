@@ -10,6 +10,7 @@ import { UpcomingInterviewsDialog } from "@/components/UpcomingInterviewsDialog"
 import { ScorecardsDialog } from "@/components/ScorecardsDialog";
 import { NewApplicationsDialog } from "@/components/NewApplicationsDialog";
 import { NeedsDecisionDialog } from "@/components/NeedsDecisionDialog";
+import { CandidatesToScheduleDialog } from "@/components/CandidatesToScheduleDialog";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
