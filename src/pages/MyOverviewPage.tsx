@@ -202,12 +202,14 @@ const MyOverviewPage = () => {
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
-                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                          <Clock className="h-3 w-3" />
-                          <span>{format(interviewDt, "MMM d")}</span>
-                          <span className="font-medium text-foreground">{format(interviewDt, "h:mm a")}</span>
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground w-36 justify-end">
+                          <Clock className="h-3 w-3 shrink-0" />
+                          <span className="w-12 text-right">{format(interviewDt, "MMM d")}</span>
+                          <span className="font-medium text-foreground w-16 text-right">{format(interviewDt, "h:mm a")}</span>
                         </div>
-                        <Badge variant="outline" className="text-xs">{getStageName(c.currentStageId)}</Badge>
+                        <div className="w-28 flex justify-center">
+                          <Badge variant="outline" className="text-xs">{getStageName(c.currentStageId)}</Badge>
+                        </div>
                         <ChevronRight className="h-4 w-4 text-muted-foreground" />
                       </div>
                     </div>
