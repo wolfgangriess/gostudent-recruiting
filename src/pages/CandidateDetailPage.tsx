@@ -86,15 +86,16 @@ const CandidateDetailPage = () => {
               Back to Candidates
             </Link>
 
-            <div className="flex items-start gap-4">
+            <div className="flex items-start gap-5">
               {/* Avatar */}
-              <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center text-base font-bold text-primary shrink-0">
+              <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center text-lg font-bold text-primary shrink-0">
                 {candidate.firstName[0]}{candidate.lastName[0]}
               </div>
 
-              {/* Info */}
-              <div className="min-w-0 flex-1 space-y-1.5">
-                <div className="flex items-center gap-3">
+              {/* Info + Actions */}
+              <div className="min-w-0 flex-1">
+                {/* Row 1: Name + Badge + Icons + Actions */}
+                <div className="flex items-center gap-3 mb-1">
                   <h1 className="text-xl font-bold text-foreground tracking-tight">
                     {candidate.firstName} {candidate.lastName}
                   </h1>
@@ -103,9 +104,43 @@ const CandidateDetailPage = () => {
                       {currentStageName}
                     </Badge>
                   )}
+                  <div className="flex items-center gap-1 ml-1">
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => setShowResumeDialog(true)}>
+                      <FileText className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" asChild>
+                      <a href={`mailto:${candidate.email}`}>
+                        <Mail className="h-4 w-4" />
+                      </a>
+                    </Button>
+                  </div>
+                  <div className="ml-auto flex items-center gap-2 shrink-0">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-destructive/40 text-destructive hover:bg-destructive/10 font-semibold text-xs h-9 px-4"
+                      onClick={handleReject}
+                    >
+                      Reject
+                    </Button>
+                    <Button
+                      size="sm"
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-xs h-9 px-5"
+                      onClick={handleMoveStage}
+                    >
+                      Move stage
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground">
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
-                <p className="text-sm text-muted-foreground">{job?.name ?? "No position"}</p>
-                <div className="flex items-center gap-4 text-xs text-muted-foreground pt-0.5">
+
+                {/* Row 2: Job title */}
+                <p className="text-sm text-muted-foreground mb-2">{job?.name ?? "No position"}</p>
+
+                {/* Row 3: Email + Phone aligned */}
+                <div className="flex items-center gap-5 text-xs text-muted-foreground">
                   <a href={`mailto:${candidate.email}`} className="flex items-center gap-1.5 text-primary hover:underline">
                     <Mail className="h-3.5 w-3.5" />
                     {candidate.email}
@@ -115,37 +150,6 @@ const CandidateDetailPage = () => {
                     {candidate.phone}
                   </span>
                 </div>
-              </div>
-
-              {/* Actions */}
-              <div className="flex items-center gap-2 shrink-0 pt-1">
-                <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:text-foreground" onClick={() => setShowResumeDialog(true)}>
-                  <FileText className="h-4 w-4" />
-                </Button>
-                <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:text-foreground" asChild>
-                  <a href={`mailto:${candidate.email}`}>
-                    <Mail className="h-4 w-4" />
-                  </a>
-                </Button>
-                <div className="w-px h-6 bg-border mx-1" />
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="border-destructive/40 text-destructive hover:bg-destructive/10 font-semibold text-xs h-9 px-4"
-                  onClick={handleReject}
-                >
-                  Reject
-                </Button>
-                <Button
-                  size="sm"
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-xs h-9 px-5"
-                  onClick={handleMoveStage}
-                >
-                  Move stage
-                </Button>
-                <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground">
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
               </div>
             </div>
           </div>
