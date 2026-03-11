@@ -17,6 +17,22 @@ interface Props {
 
 const ResumePreviewDialog = ({ open, onOpenChange, candidate, job }: Props) => {
   const fullName = `${candidate.firstName} ${candidate.lastName}`;
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  const handleDownload = () => {
+    const printWindow = window.open("", "_blank");
+    if (!printWindow || !contentRef.current) return;
+    printWindow.document.write(`
+      <html><head><title>Resume - ${fullName}</title>
+      <style>
+        body { font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 40px; color: #1a1a1a; }
+        * { box-sizing: border-box; }
+      </style>
+      </head><body>${contentRef.current.innerHTML}</body></html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
