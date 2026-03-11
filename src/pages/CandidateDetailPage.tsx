@@ -1,43 +1,33 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { CreateOfferDialog } from "@/components/CreateOfferDialog";
 import ScorecardPanel from "@/components/ScorecardPanel";
 import ActivityFeed from "@/components/ActivityFeed";
 import ResumePreviewDialog from "@/components/ResumePreviewDialog";
+import CandidateLinkedInTab from "@/components/CandidateLinkedInTab";
+import CandidateStagesTab from "@/components/CandidateStagesTab";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import {
-  ChevronLeft, ChevronDown, FileText, Mail, Plus, RefreshCw,
-  MoreHorizontal, Linkedin, MessageSquare, Pin, Zap,
+  ChevronLeft, FileText, Mail,
+  MoreHorizontal, MessageSquare, Pin,
+  Briefcase, ClipboardList, Star, Activity, Linkedin,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Collapsible, CollapsibleContent, CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { useATSStore } from "@/lib/ats-store";
 import { toast } from "sonner";
 
-/* Mock interview configs per stage name for demo purposes */
-const stageInterviewConfig: Record<string, { type: string; duration: string }[]> = {
-  "Phone Screen": [{ type: "HR Call", duration: "30 minutes" }],
-  "Interview": [{ type: "Team Lead's Call", duration: "45 minutes" }],
-  "1st Interview": [{ type: "HR Call", duration: "30 minutes" }],
-  "2nd Interview": [{ type: "Team Lead's Call", duration: "45 minutes" }],
-  "3rd Interview": [{ type: "HM Interview", duration: "60 minutes" }],
-};
-
 const CandidateDetailPage = () => {
   const { candidateId } = useParams<{ candidateId: string }>();
   const navigate = useNavigate();
-  const { candidates, jobs, stages, users, moveCandidateToStage } = useATSStore();
+  const { candidates, jobs, stages, moveCandidateToStage } = useATSStore();
 
   const candidate = candidates.find((c) => c.id === candidateId);
   const [activeTab, setActiveTab] = useState("stages");
   const [noteText, setNoteText] = useState("");
-  const [closedStages, setClosedStages] = useState<Set<string>>(new Set());
   const [showOfferDialog, setShowOfferDialog] = useState(false);
   const [showResumeDialog, setShowResumeDialog] = useState(false);
 
@@ -53,31 +43,7 @@ const CandidateDetailPage = () => {
   const job = jobs.find((j) => j.id === candidate.jobId);
   const jobStages = stages.filter((s) => s.jobId === candidate.jobId).sort((a, b) => a.order - b.order);
   const currentStageIdx = jobStages.findIndex((s) => s.id === candidate.currentStageId);
-
-  const timeSinceApplied = () => {
-    const diff = Date.now() - new Date(candidate.appliedAt).getTime();
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    if (days === 0) return "less than a day";
-    if (days === 1) return "1 day";
-    return `${days} days`;
-  };
-
-  const sidebarTabs = [
-    { id: "stages", label: "Stages" },
-    { id: "scorecards", label: "Scorecards" },
-    { id: "offer", label: "Offer details" },
-    { id: "activity", label: "Activity feed" },
-    { id: "linkedin", label: "LinkedIn" },
-  ];
-
-  const toggleStage = (stageId: string) => {
-    setClosedStages((prev) => {
-      const next = new Set(prev);
-      if (next.has(stageId)) next.delete(stageId);
-      else next.add(stageId);
-      return next;
-    });
-  };
+  const currentStageName = jobStages[currentStageIdx]?.name;
 
   const handleMoveStage = () => {
     const nextStage = jobStages[currentStageIdx + 1];
@@ -98,197 +64,122 @@ const CandidateDetailPage = () => {
     }
   };
 
-  const isLastStage = (idx: number) => idx === jobStages.length - 1;
+  const tabs = [
+    { id: "stages", label: "Stages", icon: Briefcase },
+    { id: "scorecards", label: "Scorecards", icon: Star },
+    { id: "offer", label: "Offer", icon: ClipboardList },
+    { id: "activity", label: "Activity", icon: Activity },
+    { id: "linkedin", label: "LinkedIn", icon: Linkedin },
+  ];
 
   return (
     <div className="flex h-[calc(100vh-48px)] overflow-hidden">
-      {/* Left Sidebar */}
-      <div className="w-44 shrink-0 border-r border-border bg-card p-4">
-        <nav className="space-y-0.5">
-          {sidebarTabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                activeTab === tab.id
-                  ? "bg-primary/10 text-primary font-semibold"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </nav>
-      </div>
-
-      {/* Center Content */}
+      {/* Main Content */}
       <div className="flex-1 overflow-y-auto">
         {/* Header */}
-        <div className="border-b border-border bg-card px-6 py-3">
-          <div className="flex items-start justify-between">
-            <div>
-              <div className="flex items-center gap-2 mb-0.5">
-                <Link to="/candidates" className="text-muted-foreground hover:text-foreground">
+        <div className="border-b border-border bg-card px-6 py-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Link to="/candidates" className="text-muted-foreground hover:text-foreground transition-colors">
                   <ChevronLeft className="h-4 w-4" />
                 </Link>
-                <h1 className="text-lg font-bold tracking-tight text-foreground uppercase">
-                  {candidate.firstName} {candidate.lastName}
-                </h1>
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary">
+                    {candidate.firstName[0]}{candidate.lastName[0]}
+                  </div>
+                  <div>
+                    <h1 className="text-base font-bold tracking-tight text-foreground">
+                      {candidate.firstName} {candidate.lastName}
+                    </h1>
+                    <div className="flex items-center gap-2 text-xs">
+                      <span className="text-muted-foreground">{job?.name ?? "No position"}</span>
+                      {currentStageName && (
+                        <>
+                          <span className="text-muted-foreground">·</span>
+                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0 font-medium">
+                            {currentStageName}
+                          </Badge>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center gap-2 text-xs pl-6">
-                <a href={`mailto:${candidate.email}`} className="text-primary hover:underline">{candidate.email}</a>
-                <span className="text-muted-foreground">·</span>
-                <span className="text-primary">{candidate.phone}</span>
+              <div className="flex items-center gap-1.5">
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => setShowResumeDialog(true)}>
+                  <FileText className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" asChild>
+                  <a href={`mailto:${candidate.email}`}>
+                    <Mail className="h-4 w-4" />
+                  </a>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-destructive/40 text-destructive hover:bg-destructive/10 font-semibold text-xs h-8"
+                  onClick={handleReject}
+                >
+                  Reject
+                </Button>
+                <Button
+                  size="sm"
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-xs h-8"
+                  onClick={handleMoveStage}
+                >
+                  Move stage
+                </Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
               </div>
             </div>
-            <div className="flex items-center gap-1.5">
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => setShowResumeDialog(true)}>
-                <FileText className="h-4 w-4" />
-              </Button>
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" asChild>
-                <a href={`mailto:${candidate.email}`}>
-                  <Mail className="h-4 w-4" />
-                </a>
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="border-destructive/40 text-destructive hover:bg-destructive/10 font-semibold text-xs h-8"
-                onClick={handleReject}
-              >
-                Reject
-              </Button>
-              <Button
-                size="sm"
-                className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-xs h-8"
-                onClick={handleMoveStage}
-              >
-                Move stage
-              </Button>
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
+
+            {/* Contact info */}
+            <div className="flex items-center gap-3 mt-2 ml-[52px] text-xs">
+              <a href={`mailto:${candidate.email}`} className="text-primary hover:underline">{candidate.email}</a>
+              <span className="text-muted-foreground">·</span>
+              <span className="text-muted-foreground">{candidate.phone}</span>
             </div>
           </div>
         </div>
 
-        {/* Main Content */}
-        <div className="p-6 max-w-3xl mx-auto">
-          {activeTab === "stages" && (
-            <div>
-              {jobStages.map((stage, idx) => {
-                const isCurrent = stage.id === candidate.currentStageId;
-                const isPast = idx < currentStageIdx;
-                const isOpen = !closedStages.has(stage.id);
-                const isOffer = isLastStage(idx);
-                const interviews = stageInterviewConfig[stage.name];
-                const isReviewStage = idx === 0;
-
+        {/* Horizontal Tabs */}
+        <div className="border-b border-border bg-card">
+          <div className="max-w-4xl mx-auto px-6">
+            <nav className="flex gap-0">
+              {tabs.map((tab) => {
+                const Icon = tab.icon;
+                const isActive = activeTab === tab.id;
                 return (
-                  <Collapsible
-                    key={stage.id}
-                    open={isOpen}
-                    onOpenChange={() => toggleStage(stage.id)}
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`flex items-center gap-1.5 px-4 py-2.5 text-xs font-medium border-b-2 transition-colors ${
+                      isActive
+                        ? "border-primary text-primary"
+                        : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
+                    }`}
                   >
-                    <CollapsibleTrigger className="flex w-full items-center gap-2.5 border-b border-border px-1 py-3 text-left hover:bg-muted/20 transition-colors">
-                      <ChevronDown className={`h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform ${!isOpen ? "-rotate-90" : ""}`} />
-                      <span className="text-sm font-semibold text-foreground">
-                        {idx + 1}. {stage.name}
-                      </span>
-                      {stage.ownerId && (
-                        <Zap className="h-3.5 w-3.5 text-muted-foreground" />
-                      )}
-                      {isCurrent && (
-                        <>
-                          <Badge className="bg-primary text-primary-foreground border-0 text-[10px] px-2 py-0.5 font-semibold">
-                            Current stage
-                          </Badge>
-                          <span className="text-[11px] text-muted-foreground">
-                            since {new Date(candidate.appliedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })} · {timeSinceApplied()}
-                          </span>
-                        </>
-                      )}
-                    </CollapsibleTrigger>
-                    <CollapsibleContent className="border-b border-border">
-                      <div className="px-8 py-4 space-y-4">
-                        {/* Application Review / first stage */}
-                        {isReviewStage && (
-                          <>
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-1.5">
-                                <span className="text-sm font-semibold text-foreground">Reviewers</span>
-                                <button className="text-muted-foreground hover:text-foreground">
-                                  <Plus className="h-3.5 w-3.5" />
-                                </button>
-                              </div>
-                              <a href="#" className="text-xs text-primary hover:underline font-medium">Go to interview kit</a>
-                            </div>
-                            <p className="text-xs text-muted-foreground">No feedback submitted</p>
-                          </>
-                        )}
-
-                        {/* Interview stages */}
-                        {interviews && !isOffer && (
-                          <>
-                            <div className="flex items-center gap-1.5">
-                              <span className="text-sm font-semibold text-foreground">Interviews</span>
-                              <button className="text-muted-foreground hover:text-foreground">
-                                <Plus className="h-3.5 w-3.5" />
-                              </button>
-                            </div>
-                            <p className="text-xs text-muted-foreground">
-                              {isPast ? "Completed" : "Unscheduled"}
-                            </p>
-                            {interviews.map((iv, i) => (
-                              <div key={i} className="flex items-center justify-between py-1.5 border-t border-border">
-                                <a href="#" className="text-xs text-primary hover:underline font-medium">
-                                  {iv.type} - {iv.duration}
-                                </a>
-                                <div className="flex items-center gap-3">
-                                  <a href="#" className="text-[11px] text-primary hover:underline">Schedule manually</a>
-                                  <a href="#" className="text-[11px] text-primary hover:underline">Automated scheduling</a>
-                                  <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground">
-                                    <MoreHorizontal className="h-3.5 w-3.5" />
-                                  </Button>
-                                </div>
-                              </div>
-                            ))}
-                          </>
-                        )}
-
-                        {/* Non-interview, non-review, non-offer stages */}
-                        {!isReviewStage && !interviews && !isOffer && (
-                          <>
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-1.5">
-                                <span className="text-sm font-semibold text-foreground">Reviewers</span>
-                                <button className="text-muted-foreground hover:text-foreground">
-                                  <Plus className="h-3.5 w-3.5" />
-                                </button>
-                              </div>
-                              <a href="#" className="text-xs text-primary hover:underline font-medium">Go to interview kit</a>
-                            </div>
-                            <p className="text-xs text-muted-foreground">
-                              {isPast ? "Completed" : "No feedback submitted"}
-                            </p>
-                          </>
-                        )}
-
-                        {/* Offer stage */}
-                        {isOffer && (
-                          <div className="text-center py-6 space-y-3">
-                            <p className="text-sm text-muted-foreground">No offers have been created for this job</p>
-                            <Button size="sm" className="font-semibold" onClick={() => setShowOfferDialog(true)}>
-                              Create offer
-                            </Button>
-                          </div>
-                        )}
-                      </div>
-                    </CollapsibleContent>
-                  </Collapsible>
+                    <Icon className="h-3.5 w-3.5" />
+                    {tab.label}
+                  </button>
                 );
               })}
-            </div>
+            </nav>
+          </div>
+        </div>
+
+        {/* Tab Content */}
+        <div className="p-6 max-w-4xl mx-auto">
+          {activeTab === "stages" && (
+            <CandidateStagesTab
+              candidate={candidate}
+              jobStages={jobStages}
+              currentStageIdx={currentStageIdx}
+              onCreateOffer={() => setShowOfferDialog(true)}
+            />
           )}
 
           {activeTab === "scorecards" && (
@@ -296,13 +187,12 @@ const CandidateDetailPage = () => {
           )}
 
           {activeTab === "offer" && (
-            <div className="space-y-6">
-              <div className="text-center py-6 space-y-3">
-                <p className="text-sm text-muted-foreground">No offers have been created for this candidate</p>
-                <Button size="sm" className="font-semibold" onClick={() => setShowOfferDialog(true)}>
-                  Create offer
-                </Button>
-              </div>
+            <div className="rounded-xl border border-border bg-card p-8 text-center space-y-3">
+              <ClipboardList className="h-8 w-8 text-muted-foreground mx-auto" />
+              <p className="text-sm text-muted-foreground">No offers have been created for this candidate</p>
+              <Button size="sm" className="font-semibold" onClick={() => setShowOfferDialog(true)}>
+                Create offer
+              </Button>
             </div>
           )}
 
@@ -311,102 +201,7 @@ const CandidateDetailPage = () => {
           )}
 
           {activeTab === "linkedin" && (
-            <div className="space-y-5">
-              {/* Profile header */}
-              <div className="rounded-xl border border-border bg-card overflow-hidden">
-                <div className="h-24 bg-gradient-to-r from-primary/30 to-primary/10" />
-                <div className="px-5 pb-5 -mt-10">
-                  <div className="flex items-end gap-4">
-                    <div className="h-20 w-20 rounded-full border-4 border-card bg-muted flex items-center justify-center text-xl font-bold text-primary">
-                      {candidate.firstName[0]}{candidate.lastName[0]}
-                    </div>
-                    <div className="pb-1">
-                      <h3 className="text-base font-bold text-foreground">
-                        {candidate.firstName} {candidate.lastName}
-                      </h3>
-                      <p className="text-xs text-muted-foreground">
-                        {job ? `Applicant for ${job.name}` : "Professional"}
-                      </p>
-                      <p className="text-xs text-muted-foreground">{job?.location ?? "Location not specified"}</p>
-                    </div>
-                  </div>
-                  <div className="mt-3 flex gap-2">
-                    <a
-                      href={`https://linkedin.com/in/${candidate.firstName.toLowerCase()}-${candidate.lastName.toLowerCase()}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
-                    >
-                      <Linkedin className="h-3.5 w-3.5" /> Open LinkedIn
-                    </a>
-                    <a
-                      href={`mailto:${candidate.email}`}
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted transition-colors"
-                    >
-                      <Mail className="h-3.5 w-3.5" /> Message
-                    </a>
-                  </div>
-                </div>
-              </div>
-
-              {/* About */}
-              <div className="rounded-xl border border-border bg-card p-5 space-y-2">
-                <h4 className="text-sm font-semibold text-foreground">About</h4>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  Passionate professional with experience in {job?.department ?? "the industry"}.
-                  Committed to driving results and contributing to team success. Currently exploring
-                  opportunities in {job?.location ?? "various locations"}.
-                </p>
-              </div>
-
-              {/* Experience */}
-              <div className="rounded-xl border border-border bg-card p-5 space-y-3">
-                <h4 className="text-sm font-semibold text-foreground">Experience</h4>
-                <div className="space-y-4">
-                  <div className="flex gap-3">
-                    <div className="h-9 w-9 rounded-lg bg-muted flex items-center justify-center text-xs font-bold text-muted-foreground shrink-0">Co</div>
-                    <div>
-                      <p className="text-sm font-medium text-foreground">{job?.department ?? "General"} Specialist</p>
-                      <p className="text-xs text-muted-foreground">Previous Company · Full-time</p>
-                      <p className="text-xs text-muted-foreground">Jan 2023 – Present · 3 yrs</p>
-                    </div>
-                  </div>
-                  <div className="flex gap-3">
-                    <div className="h-9 w-9 rounded-lg bg-muted flex items-center justify-center text-xs font-bold text-muted-foreground shrink-0">AB</div>
-                    <div>
-                      <p className="text-sm font-medium text-foreground">Junior {job?.department ?? "General"} Associate</p>
-                      <p className="text-xs text-muted-foreground">Another Company · Full-time</p>
-                      <p className="text-xs text-muted-foreground">Jun 2020 – Dec 2022 · 2 yrs 6 mos</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Education */}
-              <div className="rounded-xl border border-border bg-card p-5 space-y-3">
-                <h4 className="text-sm font-semibold text-foreground">Education</h4>
-                <div className="flex gap-3">
-                  <div className="h-9 w-9 rounded-lg bg-muted flex items-center justify-center text-xs font-bold text-muted-foreground shrink-0">🎓</div>
-                  <div>
-                    <p className="text-sm font-medium text-foreground">University of Technology</p>
-                    <p className="text-xs text-muted-foreground">Bachelor's Degree, {job?.department ?? "Business"}</p>
-                    <p className="text-xs text-muted-foreground">2016 – 2020</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Skills */}
-              <div className="rounded-xl border border-border bg-card p-5 space-y-2">
-                <h4 className="text-sm font-semibold text-foreground">Skills</h4>
-                <div className="flex flex-wrap gap-1.5">
-                  {["Team Leadership", "Project Management", "Communication", "Problem Solving", job?.department ?? "General Skills", "Agile", "Data Analysis"].map((skill) => (
-                    <span key={skill} className="rounded-md bg-muted px-2.5 py-1 text-xs font-medium text-foreground">
-                      {skill}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
+            <CandidateLinkedInTab candidate={candidate} job={job} />
           )}
         </div>
       </div>
@@ -425,8 +220,9 @@ const CandidateDetailPage = () => {
 
         <div className="flex-1 flex items-center justify-center px-4">
           <div className="text-center">
-            <p className="text-sm font-semibold text-primary">There aren't any notes yet</p>
-            <p className="text-xs text-muted-foreground mt-1">Add a note to start collaborating with your team.</p>
+            <MessageSquare className="h-6 w-6 text-muted-foreground/40 mx-auto mb-2" />
+            <p className="text-sm font-medium text-foreground">No notes yet</p>
+            <p className="text-xs text-muted-foreground mt-1">Add a note to collaborate with your team.</p>
           </div>
         </div>
 
