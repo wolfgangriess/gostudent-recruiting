@@ -103,7 +103,7 @@ const CandidatesPage = () => {
               <TableHead className="font-semibold">Job</TableHead>
               <TableHead className="font-semibold">Stage</TableHead>
               <TableHead className="font-semibold">Source</TableHead>
-              <TableHead className="font-semibold text-center">Rating</TableHead>
+              
             </TableRow>
           </TableHeader>
           <TableBody>
