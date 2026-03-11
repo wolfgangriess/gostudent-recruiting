@@ -28,11 +28,11 @@ const TopNav = () => {
 
   return (
     <>
-      <header className="sticky top-0 z-50 border-b border-border bg-card shadow-sm">
+      <header className="sticky top-0 z-50 border-b border-primary/10 bg-primary shadow-sm">
         <div className="mx-auto flex h-16 max-w-7xl items-center gap-10 px-4 sm:px-6">
           <Link to="/" className="flex items-center gap-2">
-            <img src={gostudentLogo} alt="GoStudent" className="h-7 w-7 brightness-150" />
-            <span className="text-sm font-bold tracking-tight text-primary">GoStudentRecruiting</span>
+            <img src={gostudentLogo} alt="GoStudent" className="h-7 w-7 brightness-[3] invert" />
+            <span className="text-sm font-bold tracking-tight text-primary-foreground">GoStudentRecruiting</span>
           </Link>
           <nav className="flex items-center gap-1">
             {navItems.map((item) => {
@@ -43,8 +43,8 @@ const TopNav = () => {
                   to={item.to}
                   className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-all ${
                     active
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      ? "bg-primary-foreground/20 text-primary-foreground"
+                      : "text-primary-foreground/70 hover:bg-primary-foreground/10 hover:text-primary-foreground"
                   }`}
                 >
                   <item.icon className="h-4 w-4" />
@@ -57,7 +57,7 @@ const TopNav = () => {
           <div className="ml-auto">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="gap-1.5 rounded-xl font-semibold">
+                <Button variant="secondary" size="sm" className="gap-1.5 rounded-xl font-semibold">
                   Add
                   <ChevronDown className="h-3.5 w-3.5" />
                 </Button>
