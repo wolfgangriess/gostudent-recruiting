@@ -82,8 +82,17 @@ export const OffersDialog = ({ open, onOpenChange, candidates }: Props) => {
                         ↓ Offer · <span className="text-secondary">{offerStatus}</span>
                       </p>
                     </div>
+                    <div className="ml-auto pl-4">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-7 text-xs border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                        onClick={() => toast.info(`Creating offer for ${c.firstName} ${c.lastName}`)}
+                      >
+                        Create Offer
+                      </Button>
+                    </div>
                   </div>
-                </div>
               );
             })}
           </div>
