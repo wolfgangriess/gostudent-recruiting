@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { CreateOfferDialog } from "@/components/CreateOfferDialog";
 import ScorecardPanel from "@/components/ScorecardPanel";
+import ActivityFeed from "@/components/ActivityFeed";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   ChevronLeft, ChevronDown, FileText, Mail, Plus, RefreshCw,
@@ -308,9 +309,7 @@ const CandidateDetailPage = () => {
           )}
 
           {activeTab === "activity" && (
-            <div className="text-sm text-muted-foreground py-8 text-center">
-              Activity feed — coming soon.
-            </div>
+            <ActivityFeed candidate={candidate} />
           )}
 
           {activeTab === "linkedin" && (
