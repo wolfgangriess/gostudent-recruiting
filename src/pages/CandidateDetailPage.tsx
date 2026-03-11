@@ -474,6 +474,14 @@ const CandidateDetailPage = () => {
           candidate={candidate}
         />
       )}
+      {candidate && (
+        <ResumePreviewDialog
+          open={showResumeDialog}
+          onOpenChange={setShowResumeDialog}
+          candidate={candidate}
+          job={job}
+        />
+      )}
     </div>
   );
 };
