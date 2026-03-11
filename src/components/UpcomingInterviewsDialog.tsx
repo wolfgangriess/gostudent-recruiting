@@ -3,9 +3,10 @@ import { Badge } from "@/components/ui/badge";
 import { Candidate } from "@/lib/types";
 import { useATSStore } from "@/lib/ats-store";
 import { format, addDays, setHours, setMinutes } from "date-fns";
-import { Calendar, Copy, ChevronDown, ChevronRight, Link2, Send } from "lucide-react";
-import { useState } from "react";
+import { Calendar, ChevronRight, Clock, Video } from "lucide-react";
 import { toast } from "sonner";
+import { CandidateDetailDialog } from "@/components/CandidateDetailDialog";
+import { useState } from "react";
 
 interface Props {
   open: boolean;
@@ -30,9 +31,17 @@ const MOCK_INTERVIEWERS = [
   "Ana Martinez Luna",
 ];
 
+const INTERVIEW_TYPES = [
+  "Practical assessment",
+  "Basic requirements",
+  "TA Interview",
+  "Technical screening",
+  "Culture fit",
+];
+
 export const UpcomingInterviewsDialog = ({ open, onOpenChange, candidates }: Props) => {
-  const { jobs, stages, users } = useATSStore();
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const { jobs, stages } = useATSStore();
+  const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
 
   const getJobName = (jobId: string) => jobs.find((j) => j.id === jobId)?.name ?? "—";
   const getStageName = (stageId: string) => stages.find((s) => s.id === stageId)?.name ?? "—";
@@ -43,131 +52,114 @@ export const UpcomingInterviewsDialog = ({ open, onOpenChange, candidates }: Pro
   };
 
   const getInterviewType = (c: Candidate) => {
-    const types = [
-      "TL - 30min - Google Meet - Practical assessment",
-      "Recruiter - 30min - Google Meet - Basic requirements",
-      "TA Interview",
-      "Technical screening - 45min",
-      "Culture fit - 30min - Google Meet",
-    ];
     const hash = c.id.charCodeAt(c.id.length - 1);
-    return types[hash % types.length];
-  };
-
-  const getDaysAgo = (c: Candidate) => {
-    const hash = c.id.charCodeAt(c.id.length - 1) % 7;
-    return hash + 1;
+    return INTERVIEW_TYPES[hash % INTERVIEW_TYPES.length];
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Upcoming Interviews Today</DialogTitle>
-        </DialogHeader>
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Calendar className="h-5 w-5 text-primary" />
+              Upcoming Interviews Today
+              <Badge variant="secondary" className="ml-1">{candidates.length}</Badge>
+            </DialogTitle>
+          </DialogHeader>
 
-        {/* Table header */}
-        <div className="grid grid-cols-[200px_1fr] text-xs text-muted-foreground border-b border-border pb-2">
-          <span>Name</span>
-          <span>Job / Status</span>
-        </div>
-
-        <div className="divide-y divide-border">
           {candidates.length === 0 ? (
             <p className="text-sm text-muted-foreground py-4">No upcoming interviews today.</p>
           ) : (
-            candidates.map((c) => {
-              const interviewDt = getInterviewDateTime(c);
-              const stageName = getStageName(c.currentStageId);
-              const isExpanded = expandedId === c.id;
-              const daysAgo = getDaysAgo(c);
-              const interviewerCount = (c.id.charCodeAt(c.id.length - 1) % 2) + 1;
+            <div className="divide-y divide-border">
+              {candidates.map((c) => {
+                const interviewDt = getInterviewDateTime(c);
+                const stageName = getStageName(c.currentStageId);
+                const interviewerCount = (c.id.charCodeAt(c.id.length - 1) % 2) + 1;
 
-              return (
-                <div key={c.id} className="py-4">
-                  {/* Candidate header */}
-                  <div className="grid grid-cols-[200px_1fr] items-start gap-2">
-                    <div>
-                      <p className="text-sm font-semibold text-primary cursor-pointer hover:underline">
-                        {c.firstName} {c.lastName}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-foreground">
-                        {getJobName(c.jobId)}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        ↑ {stageName} · 1st Interview on {format(interviewDt, "MMM d")}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Availability row */}
-                  <div className="grid grid-cols-[200px_1fr] items-center mt-3">
+                return (
+                  <div key={c.id} className="py-4 first:pt-0">
+                    {/* Candidate row */}
                     <div
-                      className="flex items-center gap-1.5 cursor-pointer text-xs text-muted-foreground"
-                      onClick={() => setExpandedId(isExpanded ? null : c.id)}
+                      className="flex items-center justify-between cursor-pointer hover:bg-muted/50 -mx-2 px-2 py-2 rounded-lg transition-colors"
+                      onClick={() => setSelectedCandidate(c)}
                     >
-                      {isExpanded ? (
-                        <ChevronDown className="h-3 w-3" />
-                      ) : (
-                        <ChevronRight className="h-3 w-3" />
-                      )}
-                      <span>Availability</span>
-                      <span className="text-primary font-medium">Confirmation Sent</span>
-                      <span className="text-muted-foreground ml-1">{daysAgo} days ago</span>
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+                          {c.firstName[0]}{c.lastName[0]}
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-foreground">
+                            {c.firstName} {c.lastName}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {getJobName(c.jobId)} · {stageName}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="text-right">
+                          <p className="text-xs font-medium text-foreground">
+                            {format(interviewDt, "h:mm a")}
+                          </p>
+                          <p className="text-[11px] text-muted-foreground">
+                            {format(interviewDt, "MMM d")}
+                          </p>
+                        </div>
+                        <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                      </div>
                     </div>
-                    <div>
-                      <button
-                        className="text-xs text-primary font-medium hover:underline"
-                        onClick={() => toast.info("Confirmation resent")}
-                      >
-                        Resend
-                      </button>
-                    </div>
-                  </div>
 
-                  {/* Interviews section */}
-                  <div className="mt-3 ml-0">
-                    <p className="text-xs font-semibold text-primary mb-2">Interviews</p>
-                    <div className="grid grid-cols-[200px_1fr] gap-y-3">
+                    {/* Interview details */}
+                    <div className="ml-12 mt-2 space-y-2">
                       {Array.from({ length: interviewerCount }).map((_, idx) => {
                         const interviewer = getInterviewerForCandidate(c, idx);
                         return (
-                          <div key={idx} className="contents">
-                            <div className="text-xs text-muted-foreground pr-4">
-                              {idx === 0 && getInterviewType(c)}
-                            </div>
-                            <div>
-                              <div className="flex items-center gap-1.5">
-                                <div className="h-3 w-3 rounded-full border border-muted-foreground/30" />
-                                <span className="text-xs font-medium text-foreground">{interviewer}</span>
+                          <div
+                            key={idx}
+                            className="flex items-center justify-between rounded-lg border border-border px-3 py-2"
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-semibold text-muted-foreground">
+                                {interviewer.split(" ").map((n) => n[0]).join("").slice(0, 2)}
                               </div>
-                              <p className="text-xs text-muted-foreground ml-[18px] mt-0.5">
-                                {format(interviewDt, "MMM d, yyyy h:mma")}
-                              </p>
-                              <button
-                                className="flex items-center gap-1 text-xs text-primary font-medium hover:underline ml-[18px] mt-0.5"
-                                onClick={() => {
-                                  navigator.clipboard.writeText("https://meet.google.com/abc-defg-hij");
-                                  toast.success("Meeting link copied!");
-                                }}
-                              >
-                                <Calendar className="h-3 w-3" />
-                                <span>Copy meeting link</span>
-                              </button>
+                              <div>
+                                <p className="text-xs font-medium text-foreground">{interviewer}</p>
+                                {idx === 0 && (
+                                  <p className="text-[11px] text-muted-foreground">{getInterviewType(c)} · 30 min</p>
+                                )}
+                              </div>
                             </div>
+                            <button
+                              className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-1 text-[11px] font-medium text-primary hover:bg-primary/20 transition-colors"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigator.clipboard.writeText("https://meet.google.com/abc-defg-hij");
+                                toast.success("Meeting link copied!");
+                              }}
+                            >
+                              <Video className="h-3 w-3" />
+                              Copy link
+                            </button>
                           </div>
                         );
                       })}
                     </div>
                   </div>
-                </div>
-              );
-            })
+                );
+              })}
+            </div>
           )}
-        </div>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+
+      {selectedCandidate && (
+        <CandidateDetailDialog
+          candidate={selectedCandidate}
+          open={!!selectedCandidate}
+          onOpenChange={(o) => { if (!o) setSelectedCandidate(null); }}
+        />
+      )}
+    </>
   );
 };
