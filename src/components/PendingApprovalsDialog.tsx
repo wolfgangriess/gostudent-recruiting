@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Candidate } from "@/lib/types";
 import { useATSStore } from "@/lib/ats-store";
-import { ShieldCheck } from "lucide-react";
+import { Bell } from "lucide-react";
+import { toast } from "sonner";
 
 interface Props {
   open: boolean;
@@ -19,7 +21,7 @@ const APPROVAL_TYPES = [
 ];
 
 export const PendingApprovalsDialog = ({ open, onOpenChange, candidates }: Props) => {
-  const { jobs } = useATSStore();
+  const { jobs, users } = useATSStore();
   const [showOnlyMine, setShowOnlyMine] = useState(true);
   const [activeTypes, setActiveTypes] = useState<Set<string>>(
     new Set(APPROVAL_TYPES.map((t) => t.id))
@@ -39,6 +41,12 @@ export const PendingApprovalsDialog = ({ open, onOpenChange, candidates }: Props
   const getApprovalType = (c: Candidate) => {
     const hash = c.id.charCodeAt(c.id.length - 1);
     return APPROVAL_TYPES[hash % APPROVAL_TYPES.length];
+  };
+
+  const getApprover = (c: Candidate) => {
+    const hash = c.id.charCodeAt(c.id.length - 1);
+    const approver = users[hash % users.length];
+    return approver ? `${approver.firstName} ${approver.lastName}` : "—";
   };
 
   const filteredCandidates = candidates.filter((c) => {
@@ -92,20 +100,34 @@ export const PendingApprovalsDialog = ({ open, onOpenChange, candidates }: Props
             {filteredCandidates.map((c) => {
               const approvalType = getApprovalType(c);
               return (
-                <div key={c.id} className="py-3 grid grid-cols-[200px_1fr] items-start gap-2">
-                  <div>
-                    <p className="text-sm font-semibold text-primary">
-                      {c.firstName} {c.lastName}
-                    </p>
+                <div key={c.id} className="py-3 flex items-center justify-between gap-4">
+                  <div className="flex gap-6 min-w-0">
+                    <div className="min-w-[160px]">
+                      <p className="text-sm font-semibold text-primary">
+                        {c.firstName} {c.lastName}
+                      </p>
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-foreground">
+                        {getJobName(c.jobId)}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {approvalType.label}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Approval by: <span className="font-medium text-foreground">{getApprover(c)}</span>
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-semibold text-foreground">
-                      {getJobName(c.jobId)}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {approvalType.label}
-                    </p>
-                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 text-xs shrink-0 gap-1"
+                    onClick={() => toast.success(`Reminder sent for ${c.firstName} ${c.lastName}`)}
+                  >
+                    <Bell className="h-3 w-3" />
+                    Reminder
+                  </Button>
                 </div>
               );
             })}
