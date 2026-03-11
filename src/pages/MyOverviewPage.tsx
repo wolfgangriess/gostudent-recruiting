@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar, CheckCircle2, ClipboardList, ChevronRight, Star, TrendingUp, Clock } from "lucide-react";
 import { useATSStore } from "@/lib/ats-store";
 import { Candidate } from "@/lib/types";
+import { format, addDays, setHours, setMinutes } from "date-fns";
 import { CandidateDetailDialog } from "@/components/CandidateDetailDialog";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
