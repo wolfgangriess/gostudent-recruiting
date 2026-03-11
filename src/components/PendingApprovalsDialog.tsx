@@ -123,7 +123,7 @@ export const PendingApprovalsDialog = ({ open, onOpenChange, candidates }: Props
                     size="sm"
                     variant="outline"
                     className="h-7 text-xs shrink-0 gap-1"
-                    onClick={() => toast.success(`Reminder sent for ${c.firstName} ${c.lastName}`)}
+                    onClick={() => toast.success(`Reminder sent to ${getApprover(c)}`)}
                   >
                     <Bell className="h-3 w-3" />
                     Reminder
