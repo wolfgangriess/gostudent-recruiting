@@ -34,8 +34,8 @@ const CandidateDetailPage = () => {
   const candidate = candidates.find((c) => c.id === candidateId);
   const [activeTab, setActiveTab] = useState("stages");
   const [noteText, setNoteText] = useState("");
-  // All stages open by default
   const [closedStages, setClosedStages] = useState<Set<string>>(new Set());
+  const [showOfferDialog, setShowOfferDialog] = useState(false);
 
   if (!candidate) {
     return (
