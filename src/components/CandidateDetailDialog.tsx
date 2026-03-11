@@ -195,7 +195,7 @@ export const CandidateDetailDialog = ({ candidate, open, onOpenChange }: DetailP
               }}
             >
               <CheckCircle className="h-4 w-4" />
-              Pass
+              Approve
             </Button>
             <Button
               variant="outline"
