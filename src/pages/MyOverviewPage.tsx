@@ -406,6 +406,12 @@ const MyOverviewPage = () => {
         onOpenChange={setShowInterviewsDialog}
         candidates={interviewDialogCandidates}
       />
+
+      <ScorecardsDialog
+        open={showScorecardsDialog}
+        onOpenChange={setShowScorecardsDialog}
+        candidates={scorecardDialogCandidates}
+      />
     </div>
   );
 };
