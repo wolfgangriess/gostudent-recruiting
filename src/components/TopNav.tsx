@@ -31,7 +31,7 @@ const TopNav = () => {
       <header className="sticky top-0 z-50 border-b border-primary/10 bg-primary shadow-sm">
         <div className="mx-auto flex h-16 max-w-7xl items-center gap-10 px-4 sm:px-6">
           <Link to="/" className="flex items-center gap-2">
-            <img src={gostudentLogo} alt="GoStudent" className="h-7 w-7 brightness-[3] invert" />
+            <img src={gostudentLogo} alt="GoStudent" className="h-7 w-7" />
             <span className="text-sm font-bold tracking-tight text-primary-foreground">GoStudentRecruiting</span>
           </Link>
           <nav className="flex items-center gap-1">
