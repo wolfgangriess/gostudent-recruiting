@@ -151,37 +151,6 @@ const CandidateDetailPage = () => {
                   </span>
                 </div>
               </div>
-
-              {/* Actions */}
-              <div className="flex items-center gap-2 shrink-0 pt-1">
-                <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:text-foreground" onClick={() => setShowResumeDialog(true)}>
-                  <FileText className="h-4 w-4" />
-                </Button>
-                <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:text-foreground" asChild>
-                  <a href={`mailto:${candidate.email}`}>
-                    <Mail className="h-4 w-4" />
-                  </a>
-                </Button>
-                <div className="w-px h-6 bg-border mx-1" />
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="border-destructive/40 text-destructive hover:bg-destructive/10 font-semibold text-xs h-9 px-4"
-                  onClick={handleReject}
-                >
-                  Reject
-                </Button>
-                <Button
-                  size="sm"
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-xs h-9 px-5"
-                  onClick={handleMoveStage}
-                >
-                  Move stage
-                </Button>
-                <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground">
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              </div>
             </div>
           </div>
         </div>
