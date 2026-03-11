@@ -451,6 +451,11 @@ const MyOverviewPage = () => {
         onOpenChange={setShowScheduleDialog}
         candidates={scheduleDialogCandidates}
       />
+      <OffersDialog
+        open={showOffersDialog}
+        onOpenChange={setShowOffersDialog}
+        candidates={offersDialogCandidates}
+      />
     </div>
   );
 };
