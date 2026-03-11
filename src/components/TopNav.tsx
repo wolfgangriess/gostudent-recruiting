@@ -96,9 +96,6 @@ const TopNav = () => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-primary-foreground/65 hover:text-primary-foreground hover:bg-primary-foreground/10" onClick={() => navigate("/settings")}>
-              <Settings className="h-4 w-4" />
-            </Button>
           </div>
         </div>
       </header>
