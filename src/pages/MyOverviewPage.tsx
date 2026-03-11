@@ -251,6 +251,9 @@ const MyOverviewPage = () => {
                       } else if (task.label === "Needs Decision") {
                         setDecisionDialogCandidates(task.candidates);
                         setShowDecisionDialog(true);
+                      } else if (task.label === "Candidates to Schedule") {
+                        setScheduleDialogCandidates(task.candidates);
+                        setShowScheduleDialog(true);
                       } else {
                         setSelectedCandidate(task.candidates[0]);
                       }
