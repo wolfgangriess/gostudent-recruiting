@@ -96,7 +96,7 @@ const CandidateDetailPage = () => {
   const isLastStage = (idx: number) => idx === jobStages.length - 1;
 
   return (
-    <div className="flex h-[calc(100vh-64px)] overflow-hidden">
+    <div className="flex h-[calc(100vh-48px)] overflow-hidden">
       {/* Left Sidebar */}
       <div className="w-44 shrink-0 border-r border-border bg-card p-4">
         <nav className="space-y-0.5">
