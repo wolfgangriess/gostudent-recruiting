@@ -394,6 +394,12 @@ const MyOverviewPage = () => {
           onOpenChange={(open) => { if (!open) setSelectedCandidate(null); }}
         />
       )}
+
+      <UpcomingInterviewsDialog
+        open={showInterviewsDialog}
+        onOpenChange={setShowInterviewsDialog}
+        candidates={interviewDialogCandidates}
+      />
     </div>
   );
 };
