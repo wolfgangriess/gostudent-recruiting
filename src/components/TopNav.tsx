@@ -43,8 +43,8 @@ const TopNav = () => {
                   to={item.to}
                   className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-all ${
                     active
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      ? "bg-primary-foreground/20 text-primary-foreground"
+                      : "text-primary-foreground/70 hover:bg-primary-foreground/10 hover:text-primary-foreground"
                   }`}
                 >
                   <item.icon className="h-4 w-4" />
