@@ -239,6 +239,9 @@ const MyOverviewPage = () => {
                       } else if (task.label === "Scorecards Due") {
                         setScorecardDialogCandidates(task.candidates);
                         setShowScorecardsDialog(true);
+                      } else if (task.label === "New Applications to Review") {
+                        setApplicationDialogCandidates(task.candidates);
+                        setShowApplicationsDialog(true);
                       } else {
                         setSelectedCandidate(task.candidates[0]);
                       }
