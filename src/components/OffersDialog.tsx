@@ -1,8 +1,10 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Candidate } from "@/lib/types";
 import { useATSStore } from "@/lib/ats-store";
 import { Gift } from "lucide-react";
+import { toast } from "sonner";
 
 interface Props {
   open: boolean;
@@ -79,6 +81,16 @@ export const OffersDialog = ({ open, onOpenChange, candidates }: Props) => {
                       <p className="text-xs text-muted-foreground mt-0.5">
                         ↓ Offer · <span className="text-secondary">{offerStatus}</span>
                       </p>
+                    </div>
+                    <div className="ml-auto pl-4">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-7 text-xs border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                        onClick={() => toast.info(`Creating offer for ${c.firstName} ${c.lastName}`)}
+                      >
+                        Create Offer
+                      </Button>
                     </div>
                   </div>
                 </div>
