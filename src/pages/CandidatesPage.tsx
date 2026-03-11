@@ -129,16 +129,6 @@ const CandidatesPage = () => {
                 </TableCell>
                 <TableCell className="text-sm">{getStageName(c.currentStageId)}</TableCell>
                 <TableCell className="text-sm text-muted-foreground">{c.source}</TableCell>
-                <TableCell className="text-center">
-                  <div className="flex items-center justify-center gap-0.5">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`h-3.5 w-3.5 ${i < c.rating ? "fill-secondary text-secondary" : "text-muted-foreground/20"}`}
-                      />
-                    ))}
-                  </div>
-                </TableCell>
               </TableRow>
             ))}
             {filtered.length === 0 && (
