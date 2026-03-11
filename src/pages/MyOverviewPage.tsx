@@ -6,6 +6,7 @@ import { useATSStore } from "@/lib/ats-store";
 import { Candidate } from "@/lib/types";
 import { format, addDays, setHours, setMinutes } from "date-fns";
 import { CandidateDetailDialog } from "@/components/CandidateDetailDialog";
+import { UpcomingInterviewsDialog } from "@/components/UpcomingInterviewsDialog";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -25,6 +26,8 @@ const TIME_PERIODS = [
 const MyOverviewPage = () => {
   const { candidates, jobs, stages, users } = useATSStore();
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
+  const [showInterviewsDialog, setShowInterviewsDialog] = useState(false);
+  const [interviewDialogCandidates, setInterviewDialogCandidates] = useState<Candidate[]>([]);
   const [perfPeriod, setPerfPeriod] = useState("90");
   const [perfJob, setPerfJob] = useState("all");
 
@@ -223,7 +226,14 @@ const MyOverviewPage = () => {
                 <div
                   key={task.label}
                   onClick={() => {
-                    if (task.candidates.length > 0) setSelectedCandidate(task.candidates[0]);
+                    if (task.candidates.length > 0) {
+                      if (task.label === "Upcoming Interviews Today") {
+                        setInterviewDialogCandidates(task.candidates);
+                        setShowInterviewsDialog(true);
+                      } else {
+                        setSelectedCandidate(task.candidates[0]);
+                      }
+                    }
                   }}
                   className={`flex items-center justify-between px-5 py-2.5 ${
                     task.candidates.length > 0 ? "cursor-pointer hover:bg-muted/50" : ""
@@ -384,6 +394,12 @@ const MyOverviewPage = () => {
           onOpenChange={(open) => { if (!open) setSelectedCandidate(null); }}
         />
       )}
+
+      <UpcomingInterviewsDialog
+        open={showInterviewsDialog}
+        onOpenChange={setShowInterviewsDialog}
+        candidates={interviewDialogCandidates}
+      />
     </div>
   );
 };
