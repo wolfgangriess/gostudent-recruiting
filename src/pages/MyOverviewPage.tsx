@@ -462,6 +462,11 @@ const MyOverviewPage = () => {
         onOpenChange={setShowOffersDialog}
         candidates={offersDialogCandidates}
       />
+      <PendingApprovalsDialog
+        open={showPendingApprovalsDialog}
+        onOpenChange={setShowPendingApprovalsDialog}
+        candidates={pendingApprovalsDialogCandidates}
+      />
     </div>
   );
 };
