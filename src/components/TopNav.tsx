@@ -28,11 +28,11 @@ const TopNav = () => {
 
   return (
     <>
-      <header className="sticky top-0 z-50 border-b border-primary/10 bg-primary shadow-sm">
-        <div className="mx-auto flex h-16 max-w-7xl items-center gap-10 px-4 sm:px-6">
+      <header className="sticky top-0 z-50 border-b border-primary/10 bg-primary">
+        <div className="mx-auto flex h-12 max-w-7xl items-center gap-8 px-4 sm:px-6">
           <Link to="/" className="flex items-center gap-2">
-            <img src={gostudentLogo} alt="GoStudent" className="h-7 w-7" />
-            <span className="text-sm font-bold tracking-tight text-primary-foreground">GoStudentRecruiting</span>
+            <img src={gostudentLogo} alt="GoStudent" className="h-6 w-6" />
+            <span className="text-[13px] font-semibold text-primary-foreground">GoStudentRecruiting</span>
           </Link>
           <nav className="flex items-center gap-1">
             {navItems.map((item) => {
