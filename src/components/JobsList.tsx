@@ -147,7 +147,7 @@ const JobsList = () => {
             <TableRow className="hover:bg-transparent bg-muted/50">
               <TableHead><SortButton label="Job Name" column="name" /></TableHead>
               <TableHead><SortButton label="Department" column="department" /></TableHead>
-              <TableHead><SortButton label="Location" column="location" /></TableHead>
+              <TableHead><SortButton label="Office" column="location" /></TableHead>
               <TableHead className="text-center"><SortButton label="New" column="newCandidates" /></TableHead>
               <TableHead className="text-center"><SortButton label="Total" column="totalCandidates" /></TableHead>
             </TableRow>
