@@ -100,20 +100,34 @@ export const PendingApprovalsDialog = ({ open, onOpenChange, candidates }: Props
             {filteredCandidates.map((c) => {
               const approvalType = getApprovalType(c);
               return (
-                <div key={c.id} className="py-3 grid grid-cols-[200px_1fr] items-start gap-2">
-                  <div>
-                    <p className="text-sm font-semibold text-primary">
-                      {c.firstName} {c.lastName}
-                    </p>
+                <div key={c.id} className="py-3 flex items-center justify-between gap-4">
+                  <div className="flex gap-6 min-w-0">
+                    <div className="min-w-[160px]">
+                      <p className="text-sm font-semibold text-primary">
+                        {c.firstName} {c.lastName}
+                      </p>
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-foreground">
+                        {getJobName(c.jobId)}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {approvalType.label}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Approval by: <span className="font-medium text-foreground">{getApprover(c)}</span>
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-semibold text-foreground">
-                      {getJobName(c.jobId)}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {approvalType.label}
-                    </p>
-                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 text-xs shrink-0 gap-1"
+                    onClick={() => toast.success(`Reminder sent for ${c.firstName} ${c.lastName}`)}
+                  >
+                    <Bell className="h-3 w-3" />
+                    Reminder
+                  </Button>
                 </div>
               );
             })}
