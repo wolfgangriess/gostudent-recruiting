@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Search, Star } from "lucide-react";
+import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -103,7 +103,7 @@ const CandidatesPage = () => {
               <TableHead className="font-semibold">Job</TableHead>
               <TableHead className="font-semibold">Stage</TableHead>
               <TableHead className="font-semibold">Source</TableHead>
-              <TableHead className="font-semibold text-center">Rating</TableHead>
+              
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -129,16 +129,6 @@ const CandidatesPage = () => {
                 </TableCell>
                 <TableCell className="text-sm">{getStageName(c.currentStageId)}</TableCell>
                 <TableCell className="text-sm text-muted-foreground">{c.source}</TableCell>
-                <TableCell className="text-center">
-                  <div className="flex items-center justify-center gap-0.5">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`h-3.5 w-3.5 ${i < c.rating ? "fill-secondary text-secondary" : "text-muted-foreground/20"}`}
-                      />
-                    ))}
-                  </div>
-                </TableCell>
               </TableRow>
             ))}
             {filtered.length === 0 && (
