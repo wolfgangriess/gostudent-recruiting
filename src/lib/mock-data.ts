@@ -156,6 +156,78 @@ export const initialScorecardTemplates: ScorecardTemplate[] = [
       { id: "cr-8", question: "Salary Expectations Aligned", ratingType: "yes_no" },
     ],
   },
+  {
+    id: "sc-3",
+    stageId: "job-2-stage-2", // Interview stage for job-2
+    criteria: [
+      { id: "cr-9", question: "Design Portfolio Quality", ratingType: "scale", weight: 3 },
+      { id: "cr-10", question: "UX Process & Thinking", ratingType: "scale", weight: 2 },
+      { id: "cr-11", question: "Collaboration Skills", ratingType: "scale", weight: 1 },
+      { id: "cr-12", question: "Culture Fit", ratingType: "yes_no" },
+    ],
+  },
+  {
+    id: "sc-4",
+    stageId: "job-2-stage-1", // Phone Screen for job-2
+    criteria: [
+      { id: "cr-13", question: "Relevant Experience", ratingType: "scale", weight: 2 },
+      { id: "cr-14", question: "Communication", ratingType: "scale", weight: 1 },
+    ],
+  },
+  {
+    id: "sc-5",
+    stageId: "job-3-stage-2", // Interview stage for job-3
+    criteria: [
+      { id: "cr-15", question: "Technical Architecture", ratingType: "scale", weight: 3 },
+      { id: "cr-16", question: "System Design", ratingType: "scale", weight: 2 },
+      { id: "cr-17", question: "Leadership Potential", ratingType: "scale", weight: 1 },
+      { id: "cr-18", question: "Team Fit", ratingType: "yes_no" },
+      { id: "cr-19", question: "Notes", ratingType: "text" },
+    ],
+  },
+  {
+    id: "sc-6",
+    stageId: "job-3-stage-1",
+    criteria: [
+      { id: "cr-20", question: "Relevant Experience", ratingType: "scale", weight: 2 },
+      { id: "cr-21", question: "Salary Expectations Aligned", ratingType: "yes_no" },
+    ],
+  },
+  {
+    id: "sc-7",
+    stageId: "job-4-stage-2",
+    criteria: [
+      { id: "cr-22", question: "Content Strategy", ratingType: "scale", weight: 2 },
+      { id: "cr-23", question: "Writing Quality", ratingType: "scale", weight: 3 },
+      { id: "cr-24", question: "Brand Alignment", ratingType: "yes_no" },
+    ],
+  },
+  {
+    id: "sc-8",
+    stageId: "job-4-stage-1",
+    criteria: [
+      { id: "cr-25", question: "Marketing Experience", ratingType: "scale", weight: 2 },
+      { id: "cr-26", question: "Communication", ratingType: "scale", weight: 1 },
+    ],
+  },
+  {
+    id: "sc-9",
+    stageId: "job-5-stage-2",
+    criteria: [
+      { id: "cr-27", question: "Sales Acumen", ratingType: "scale", weight: 3 },
+      { id: "cr-28", question: "Objection Handling", ratingType: "scale", weight: 2 },
+      { id: "cr-29", question: "Pipeline Management", ratingType: "scale", weight: 1 },
+      { id: "cr-30", question: "Culture Fit", ratingType: "yes_no" },
+    ],
+  },
+  {
+    id: "sc-10",
+    stageId: "job-5-stage-1",
+    criteria: [
+      { id: "cr-31", question: "Sales Experience", ratingType: "scale", weight: 2 },
+      { id: "cr-32", question: "Motivation", ratingType: "scale", weight: 1 },
+    ],
+  },
 ];
 
 const firstNames = ["Emma", "Liam", "Olivia", "Noah", "Ava", "James", "Sophia", "William", "Isabella", "Oliver", "Mia", "Benjamin", "Charlotte", "Elijah", "Amelia", "Lucas", "Harper", "Mason", "Evelyn", "Logan"];
