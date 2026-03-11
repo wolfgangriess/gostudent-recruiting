@@ -50,8 +50,6 @@ const ResumePreviewDialog = ({ open, onOpenChange, candidate, job }: Props) => {
                 <Download className="h-3.5 w-3.5" /> Download
               </Button>
             </div>
-              </DialogTitle>
-            </DialogHeader>
             <p className="text-sm text-muted-foreground mt-0.5">
               {job?.department ?? "Professional"} · {job?.location ?? "Location not specified"}
             </p>
