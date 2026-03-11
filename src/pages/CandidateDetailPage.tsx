@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { CreateOfferDialog } from "@/components/CreateOfferDialog";
+import ScorecardPanel from "@/components/ScorecardPanel";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   ChevronLeft, ChevronDown, FileText, Mail, Plus, RefreshCw,
@@ -292,9 +293,7 @@ const CandidateDetailPage = () => {
           )}
 
           {activeTab === "scorecards" && (
-            <div className="text-sm text-muted-foreground py-8 text-center">
-              Scorecards for each stage will appear here.
-            </div>
+            <ScorecardPanel candidateId={candidate.id} jobId={candidate.jobId} />
           )}
 
           {activeTab === "offer" && (
