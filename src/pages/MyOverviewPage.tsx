@@ -136,6 +136,15 @@ const MyOverviewPage = () => {
   const getJobName = (jobId: string) => jobs.find((j) => j.id === jobId)?.name ?? "—";
   const getStageName = (stageId: string) => stages.find((s) => s.id === stageId)?.name ?? "—";
 
+  const getInterviewDateTime = (candidate: Candidate) => {
+    const hash = candidate.id.charCodeAt(candidate.id.length - 1) % 5;
+    const today = new Date();
+    const day = addDays(today, hash);
+    const hours = [9, 10, 11, 13, 14, 15, 16][hash % 7];
+    const mins = [0, 15, 30, 45][hash % 4];
+    return setMinutes(setHours(day, hours), mins);
+  };
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
       <h1 className="text-3xl font-extrabold tracking-tight text-foreground mb-6">My Dashboard</h1>
