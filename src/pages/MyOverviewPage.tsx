@@ -32,6 +32,8 @@ const MyOverviewPage = () => {
   const [showScorecardsDialog, setShowScorecardsDialog] = useState(false);
   const [interviewDialogCandidates, setInterviewDialogCandidates] = useState<Candidate[]>([]);
   const [scorecardDialogCandidates, setScorecardDialogCandidates] = useState<Candidate[]>([]);
+  const [showApplicationsDialog, setShowApplicationsDialog] = useState(false);
+  const [applicationDialogCandidates, setApplicationDialogCandidates] = useState<Candidate[]>([]);
   const [perfPeriod, setPerfPeriod] = useState("90");
   const [perfJob, setPerfJob] = useState("all");
 
