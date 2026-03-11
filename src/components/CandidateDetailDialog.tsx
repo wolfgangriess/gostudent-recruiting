@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Star, ClipboardList, FileText, Linkedin, ExternalLink, CheckCircle, XCircle } from "lucide-react";
+import { Star, ClipboardList, FileText, Linkedin, ExternalLink, CheckCircle, XCircle, Calendar } from "lucide-react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
@@ -65,6 +65,9 @@ export const CandidateDetailDialog = ({ candidate, open, onOpenChange }: DetailP
           </a>
           <a href="#" className="inline-flex items-center gap-1 text-xs text-primary hover:underline font-medium">
             <ExternalLink className="h-3.5 w-3.5" /> Application
+          </a>
+          <a href="#" className="inline-flex items-center gap-1 text-xs text-primary hover:underline font-medium">
+            <Calendar className="h-3.5 w-3.5" /> Calendar
           </a>
         </div>
 

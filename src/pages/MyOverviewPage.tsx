@@ -183,6 +183,9 @@ const MyOverviewPage = () => {
                             <a href="#" onClick={(e) => e.stopPropagation()} className="inline-flex items-center gap-0.5 text-[11px] text-primary hover:underline">
                               <ExternalLink className="h-3 w-3" /> Application
                             </a>
+                            <a href="#" onClick={(e) => e.stopPropagation()} className="inline-flex items-center gap-0.5 text-[11px] text-primary hover:underline">
+                              <Calendar className="h-3 w-3" /> Calendar
+                            </a>
                           </div>
                         </div>
                       </div>
