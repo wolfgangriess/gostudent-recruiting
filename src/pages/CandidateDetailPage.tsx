@@ -77,70 +77,60 @@ const CandidateDetailPage = () => {
       {/* Main Content */}
       <div className="flex-1 overflow-y-auto">
         {/* Header */}
-        <div className="border-b border-border bg-card px-6 py-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Link to="/candidates" className="text-muted-foreground hover:text-foreground transition-colors">
-                  <ChevronLeft className="h-4 w-4" />
-                </Link>
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary">
-                    {candidate.firstName[0]}{candidate.lastName[0]}
-                  </div>
-                  <div>
-                    <h1 className="text-base font-bold tracking-tight text-foreground">
-                      {candidate.firstName} {candidate.lastName}
-                    </h1>
-                    <div className="flex items-center gap-2 text-xs">
-                      <span className="text-muted-foreground">{job?.name ?? "No position"}</span>
-                      {currentStageName && (
-                        <>
-                          <span className="text-muted-foreground">·</span>
-                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0 font-medium">
-                            {currentStageName}
-                          </Badge>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </div>
+        <div className="border-b border-border bg-card px-6 py-3">
+          <div className="max-w-4xl mx-auto flex items-center gap-3">
+            <Link to="/candidates" className="text-muted-foreground hover:text-foreground transition-colors shrink-0">
+              <ChevronLeft className="h-4 w-4" />
+            </Link>
+            <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary shrink-0">
+              {candidate.firstName[0]}{candidate.lastName[0]}
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2">
+                <h1 className="text-sm font-bold text-foreground truncate">
+                  {candidate.firstName} {candidate.lastName}
+                </h1>
+                <span className="text-xs text-muted-foreground truncate">{job?.name ?? "No position"}</span>
+                <span className="text-muted-foreground">·</span>
+                {currentStageName && (
+                  <Badge variant="secondary" className="text-[10px] px-1.5 py-0 font-medium shrink-0">
+                    {currentStageName}
+                  </Badge>
+                )}
               </div>
-              <div className="flex items-center gap-1.5">
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => setShowResumeDialog(true)}>
-                  <FileText className="h-4 w-4" />
-                </Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" asChild>
-                  <a href={`mailto:${candidate.email}`}>
-                    <Mail className="h-4 w-4" />
-                  </a>
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="border-destructive/40 text-destructive hover:bg-destructive/10 font-semibold text-xs h-8"
-                  onClick={handleReject}
-                >
-                  Reject
-                </Button>
-                <Button
-                  size="sm"
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-xs h-8"
-                  onClick={handleMoveStage}
-                >
-                  Move stage
-                </Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
+              <div className="flex items-center gap-2 text-xs">
+                <a href={`mailto:${candidate.email}`} className="text-primary hover:underline">{candidate.email}</a>
+                <span className="text-muted-foreground">·</span>
+                <span className="text-muted-foreground">{candidate.phone}</span>
               </div>
             </div>
-
-            {/* Contact info */}
-            <div className="flex items-center gap-3 mt-2 ml-[52px] text-xs">
-              <a href={`mailto:${candidate.email}`} className="text-primary hover:underline">{candidate.email}</a>
-              <span className="text-muted-foreground">·</span>
-              <span className="text-muted-foreground">{candidate.phone}</span>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => setShowResumeDialog(true)}>
+                <FileText className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" asChild>
+                <a href={`mailto:${candidate.email}`}>
+                  <Mail className="h-4 w-4" />
+                </a>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-destructive/40 text-destructive hover:bg-destructive/10 font-semibold text-xs h-8"
+                onClick={handleReject}
+              >
+                Reject
+              </Button>
+              <Button
+                size="sm"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-xs h-8"
+                onClick={handleMoveStage}
+              >
+                Move stage
+              </Button>
+              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
             </div>
           </div>
         </div>
