@@ -226,7 +226,14 @@ const MyOverviewPage = () => {
                 <div
                   key={task.label}
                   onClick={() => {
-                    if (task.candidates.length > 0) setSelectedCandidate(task.candidates[0]);
+                    if (task.candidates.length > 0) {
+                      if (task.label === "Upcoming Interviews Today") {
+                        setInterviewDialogCandidates(task.candidates);
+                        setShowInterviewsDialog(true);
+                      } else {
+                        setSelectedCandidate(task.candidates[0]);
+                      }
+                    }
                   }}
                   className={`flex items-center justify-between px-5 py-2.5 ${
                     task.candidates.length > 0 ? "cursor-pointer hover:bg-muted/50" : ""
