@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -19,6 +19,8 @@ import { useATSStore } from "@/lib/ats-store";
 import { DEPARTMENTS, LOCATIONS } from "@/lib/types";
 import type { Job } from "@/lib/types";
 import UserPicker from "@/components/UserPicker";
+import StageConfigurator from "@/components/StageConfigurator";
+import type { StageConfig } from "@/components/AddJobDialog";
 
 const jobSchema = z.object({
   name: z.string().trim().min(1, "Job name is required").max(100),
@@ -52,9 +54,18 @@ interface Props {
 }
 
 const EditJobDialog = ({ open, onOpenChange, job }: Props) => {
-  const { updateJob, users } = useATSStore();
+  const { updateJob, stages, addStage, removeStage, setStageOwner } = useATSStore();
   const [hiringTeamIds, setHiringTeamIds] = useState<string[]>(job.hiringTeamIds);
   const [visibilityIds, setVisibilityIds] = useState<string[]>(job.visibilityIds);
+
+  const existingStages = useMemo(
+    () => stages.filter((s) => s.jobId === job.id).sort((a, b) => a.order - b.order),
+    [stages, job.id]
+  );
+
+  const [stageConfigs, setStageConfigs] = useState<StageConfig[]>(() =>
+    existingStages.map((s) => ({ tempId: s.id, name: s.name, ownerId: s.ownerId }))
+  );
 
   const form = useForm<JobFormValues>({
     resolver: zodResolver(jobSchema),
@@ -108,6 +119,8 @@ const EditJobDialog = ({ open, onOpenChange, job }: Props) => {
       });
       setHiringTeamIds(job.hiringTeamIds);
       setVisibilityIds(job.visibilityIds);
+      const fresh = stages.filter((s) => s.jobId === job.id).sort((a, b) => a.order - b.order);
+      setStageConfigs(fresh.map((s) => ({ tempId: s.id, name: s.name, ownerId: s.ownerId })));
     }
   }, [open, job]);
 
@@ -137,6 +150,23 @@ const EditJobDialog = ({ open, onOpenChange, job }: Props) => {
       visibilityIds,
       updatedAt: new Date().toISOString(),
     });
+
+    // Sync stages: remove old, add new
+    const currentStageIds = existingStages.map((s) => s.id);
+    const keptIds = stageConfigs.map((sc) => sc.tempId).filter((id) => currentStageIds.includes(id));
+    // Remove stages that were deleted
+    currentStageIds.forEach((id) => {
+      if (!keptIds.includes(id)) removeStage(id);
+    });
+    // Add new stages & update owners
+    stageConfigs.forEach((sc) => {
+      if (currentStageIds.includes(sc.tempId)) {
+        if (sc.ownerId) setStageOwner(sc.tempId, sc.ownerId);
+      } else {
+        addStage(job.id, sc.name, sc.ownerId);
+      }
+    });
+
     onOpenChange(false);
   };
 
@@ -244,25 +274,6 @@ const EditJobDialog = ({ open, onOpenChange, job }: Props) => {
                 </FormItem>
               )}
             />
-            {/* Employment Type */}
-            <FormField
-              control={form.control}
-              name="employmentType"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Employment Type *</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
-                    <SelectContent>
-                      <SelectItem value="full-time">Full-time</SelectItem>
-                      <SelectItem value="part-time">Part-time</SelectItem>
-                      <SelectItem value="contract">Contract</SelectItem>
-                      <SelectItem value="internship">Internship</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </FormItem>
-              )}
-            />
             {/* Work Schedule */}
             <FormField
               control={form.control}
@@ -275,36 +286,6 @@ const EditJobDialog = ({ open, onOpenChange, job }: Props) => {
                     <SelectContent>
                       <SelectItem value="full_time">Full Time</SelectItem>
                       <SelectItem value="part_time">Part Time</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </FormItem>
-              )}
-            />
-            {/* Number of Openings */}
-            <FormField
-              control={form.control}
-              name="numberOfOpenings"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Number of Openings *</FormLabel>
-                  <FormControl><Input type="number" min={1} {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            {/* Workplace Type */}
-            <FormField
-              control={form.control}
-              name="workplaceType"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Workplace Type *</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
-                    <SelectContent>
-                      <SelectItem value="onsite">On-site</SelectItem>
-                      <SelectItem value="remote">Remote</SelectItem>
-                      <SelectItem value="hybrid">Hybrid</SelectItem>
                     </SelectContent>
                   </Select>
                 </FormItem>
@@ -337,7 +318,7 @@ const EditJobDialog = ({ open, onOpenChange, job }: Props) => {
                   <Select onValueChange={field.onChange} value={field.value || ""}>
                     <FormControl><SelectTrigger><SelectValue placeholder="Select manager" /></SelectTrigger></FormControl>
                     <SelectContent>
-                      {users.map((u) => (
+                      {useATSStore.getState().users.map((u) => (
                         <SelectItem key={u.id} value={u.id}>{u.firstName} {u.lastName}</SelectItem>
                       ))}
                     </SelectContent>
@@ -426,30 +407,6 @@ const EditJobDialog = ({ open, onOpenChange, job }: Props) => {
                 </FormItem>
               )}
             />
-            {/* Description */}
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Job Description *</FormLabel>
-                  <FormControl><Textarea rows={4} placeholder="Describe the role..." {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            {/* Requirements */}
-            <FormField
-              control={form.control}
-              name="requirements"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Requirements *</FormLabel>
-                  <FormControl><Textarea rows={4} placeholder="List the requirements..." {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
 
             <Separator />
 
@@ -467,6 +424,15 @@ const EditJobDialog = ({ open, onOpenChange, job }: Props) => {
               onChange={setVisibilityIds}
               label="Job Visibility (Read-only)"
               placeholder="Add employees for visibility…"
+            />
+
+            <Separator />
+
+            {/* Recruiting Stages */}
+            <StageConfigurator
+              stages={stageConfigs}
+              onChange={setStageConfigs}
+              hiringTeamIds={hiringTeamIds}
             />
 
             <div className="flex justify-end gap-2 pt-2">
