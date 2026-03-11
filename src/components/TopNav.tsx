@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Briefcase, Users, BarChart3, ChevronDown, Plus, UserPlus, Share2, LayoutDashboard, UserCircle, Settings, LogOut, LogIn, FileText } from "lucide-react";
+import { Briefcase, Users, BarChart3, ChevronDown, Plus, UserPlus, Share2, LayoutDashboard, UserCircle, Settings, LogOut, LogIn } from "lucide-react";
 import gostudentIcon from "@/assets/recruiting-logo.png";
 import { toast } from "sonner";
 import {
