@@ -57,7 +57,7 @@ const TopNav = () => {
           <div className="ml-auto">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="gap-1.5 rounded-xl font-semibold">
+                <Button variant="secondary" size="sm" className="gap-1.5 rounded-xl font-semibold">
                   Add
                   <ChevronDown className="h-3.5 w-3.5" />
                 </Button>
