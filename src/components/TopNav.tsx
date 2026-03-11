@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Briefcase, Users, BarChart3, ChevronDown, Plus, UserPlus, Share2, LayoutDashboard, UserCircle, Settings } from "lucide-react";
 import gostudentIcon from "@/assets/gostudent-icon.png";
 import {
@@ -22,6 +22,7 @@ const navItems = [
 
 const TopNav = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [addJobOpen, setAddJobOpen] = useState(false);
   const [addCandidateOpen, setAddCandidateOpen] = useState(false);
   const [addReferralOpen, setAddReferralOpen] = useState(false);
@@ -80,7 +81,7 @@ const TopNav = () => {
             <Button variant="ghost" size="icon" className="h-8 w-8 text-primary-foreground/65 hover:text-primary-foreground hover:bg-primary-foreground/10">
               <UserCircle className="h-4.5 w-4.5" />
             </Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-primary-foreground/65 hover:text-primary-foreground hover:bg-primary-foreground/10">
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-primary-foreground/65 hover:text-primary-foreground hover:bg-primary-foreground/10" onClick={() => navigate("/settings")}>
               <Settings className="h-4 w-4" />
             </Button>
           </div>
