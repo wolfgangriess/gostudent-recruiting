@@ -93,6 +93,7 @@ export const OffersDialog = ({ open, onOpenChange, candidates }: Props) => {
                       </Button>
                     </div>
                   </div>
+                </div>
               );
             })}
           </div>
