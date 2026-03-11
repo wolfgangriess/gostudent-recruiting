@@ -10,7 +10,7 @@ import {
   ChevronLeft, FileText, Mail,
   MoreHorizontal, MessageSquare, Pin,
   Briefcase, ClipboardList, Star, Activity, Linkedin,
-  Phone,
+  Phone, GitMerge, UserMinus, Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +18,9 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useATSStore } from "@/lib/ats-store";
 import { toast } from "sonner";
 
@@ -130,9 +133,27 @@ const CandidateDetailPage = () => {
                     >
                       Move stage
                     </Button>
-                    <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-48">
+                        <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => toast.info("Merge candidate coming soon")}>
+                          <GitMerge className="h-4 w-4" />
+                          Merge with another candidate
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { toast.success(`${candidate.firstName} removed from job`); navigate("/candidates"); }}>
+                          <UserMinus className="h-4 w-4" />
+                          Remove from job
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="gap-2 cursor-pointer text-destructive focus:text-destructive" onClick={() => { toast.success(`${candidate.firstName} deleted`); navigate("/candidates"); }}>
+                          <Trash2 className="h-4 w-4" />
+                          Delete candidate
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </div>
 
