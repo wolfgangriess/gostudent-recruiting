@@ -12,6 +12,7 @@ import { NewApplicationsDialog } from "@/components/NewApplicationsDialog";
 import { NeedsDecisionDialog } from "@/components/NeedsDecisionDialog";
 import { CandidatesToScheduleDialog } from "@/components/CandidatesToScheduleDialog";
 import { OffersDialog } from "@/components/OffersDialog";
+import { PendingApprovalsDialog } from "@/components/PendingApprovalsDialog";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -43,6 +44,8 @@ const MyOverviewPage = () => {
   const [scheduleDialogCandidates, setScheduleDialogCandidates] = useState<Candidate[]>([]);
   const [showOffersDialog, setShowOffersDialog] = useState(false);
   const [offersDialogCandidates, setOffersDialogCandidates] = useState<Candidate[]>([]);
+  const [showPendingApprovalsDialog, setShowPendingApprovalsDialog] = useState(false);
+  const [pendingApprovalsDialogCandidates, setPendingApprovalsDialogCandidates] = useState<Candidate[]>([]);
   const [perfPeriod, setPerfPeriod] = useState("90");
   const [perfJob, setPerfJob] = useState("all");
 
@@ -260,6 +263,9 @@ const MyOverviewPage = () => {
                       } else if (task.label === "Offers") {
                         setOffersDialogCandidates(task.candidates);
                         setShowOffersDialog(true);
+                      } else if (task.label === "Pending Approvals") {
+                        setPendingApprovalsDialogCandidates(task.candidates);
+                        setShowPendingApprovalsDialog(true);
                       } else {
                         setSelectedCandidate(task.candidates[0]);
                       }
@@ -455,6 +461,11 @@ const MyOverviewPage = () => {
         open={showOffersDialog}
         onOpenChange={setShowOffersDialog}
         candidates={offersDialogCandidates}
+      />
+      <PendingApprovalsDialog
+        open={showPendingApprovalsDialog}
+        onOpenChange={setShowPendingApprovalsDialog}
+        candidates={pendingApprovalsDialogCandidates}
       />
     </div>
   );
