@@ -71,7 +71,7 @@ const MyOverviewPage = () => {
       { label: "Upcoming Interviews Today", candidates: interviewCandidates },
       { label: "Scorecards Due", candidates: interviewCandidates },
       { label: "New Applications to Review", candidates: appliedCandidates },
-      { label: "Hiring Manager Review", candidates: interviewCandidates },
+      
       { label: "Needs Decision", candidates: interviewCandidates },
       { label: "Candidates to Schedule", candidates: phoneScreenCandidates },
       { label: "Offers", candidates: offerCandidates },
