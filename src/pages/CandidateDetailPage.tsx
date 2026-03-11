@@ -39,6 +39,7 @@ const CandidateDetailPage = () => {
   const [noteText, setNoteText] = useState("");
   const [closedStages, setClosedStages] = useState<Set<string>>(new Set());
   const [showOfferDialog, setShowOfferDialog] = useState(false);
+  const [showResumeDialog, setShowResumeDialog] = useState(false);
 
   if (!candidate) {
     return (
