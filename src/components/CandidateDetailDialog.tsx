@@ -156,6 +156,50 @@ export const CandidateDetailDialog = ({ candidate, open, onOpenChange }: DetailP
             </Button>
           </div>
         )}
+
+        {/* Decision buttons */}
+        <div className="mt-4 border-t border-border pt-4">
+          <h3 className="text-sm font-semibold text-foreground mb-3">Decision</h3>
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-1 gap-1.5 border-green-500/30 text-green-600 hover:bg-green-500/10 hover:text-green-700"
+              onClick={() => {
+                const jobStages = stages.filter((s) => s.jobId === candidate.jobId).sort((a, b) => a.order - b.order);
+                const currentIdx = jobStages.findIndex((s) => s.id === candidate.currentStageId);
+                const nextStage = jobStages[currentIdx + 1];
+                if (nextStage) {
+                  moveCandidateToStage(candidate.id, nextStage.id);
+                  toast.success(`${candidate.firstName} advanced to ${nextStage.name}`);
+                  onOpenChange(false);
+                } else {
+                  toast.info("Candidate is already at the final stage");
+                }
+              }}
+            >
+              <CheckCircle className="h-4 w-4" />
+              Pass
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-1 gap-1.5 border-destructive/30 text-destructive hover:bg-destructive/10"
+              onClick={() => {
+                // Move to first stage as "rejected" (could be extended with a rejected status)
+                const appliedStage = stages.find((s) => s.jobId === candidate.jobId && s.name === "Applied");
+                if (appliedStage) {
+                  moveCandidateToStage(candidate.id, appliedStage.id);
+                  toast.success(`${candidate.firstName} has been rejected`);
+                  onOpenChange(false);
+                }
+              }}
+            >
+              <XCircle className="h-4 w-4" />
+              Reject
+            </Button>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );
