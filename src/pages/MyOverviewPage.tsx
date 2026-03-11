@@ -250,7 +250,16 @@ const MyOverviewPage = () => {
               <p className="text-sm text-muted-foreground">You have no jobs or offers to approve.</p>
             ) : (
               <div className="divide-y divide-border">
-                {myApprovals.map((c) => (
+                {myApprovals.map((c) => {
+                  const approvalJob = jobs.find((j) => j.id === c.jobId);
+                  const salaryMin = approvalJob?.salaryMin ?? 0;
+                  const salaryMax = approvalJob?.salaryMax ?? 0;
+                  const currency = approvalJob?.salaryCurrency ?? "USD";
+                  // Mock offered salary within range
+                  const offeredSalary = salaryMin + Math.round((salaryMax - salaryMin) * 0.7);
+                  const fmt = (n: number) => n.toLocaleString("en-US", { style: "currency", currency, maximumFractionDigits: 0 });
+
+                  return (
                   <div
                     key={c.id}
                     onClick={() => setSelectedCandidate(c)}
@@ -265,12 +274,21 @@ const MyOverviewPage = () => {
                         <p className="text-xs text-muted-foreground">{getJobName(c.jobId)} — Offer pending approval</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-4">
+                      <div className="text-right">
+                        <p className="text-xs text-muted-foreground">Salary</p>
+                        <p className="text-sm font-semibold text-foreground">{fmt(offeredSalary)}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs text-muted-foreground">Pay Band</p>
+                        <p className="text-xs font-medium text-foreground">{fmt(salaryMin)} – {fmt(salaryMax)}</p>
+                      </div>
                       <Badge variant="outline" className="text-xs border-secondary text-secondary">Offer</Badge>
                       <ChevronRight className="h-4 w-4 text-muted-foreground" />
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </CardContent>
