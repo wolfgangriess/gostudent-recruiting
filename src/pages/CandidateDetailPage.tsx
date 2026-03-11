@@ -2,6 +2,7 @@ import { useState } from "react";
 import { CreateOfferDialog } from "@/components/CreateOfferDialog";
 import ScorecardPanel from "@/components/ScorecardPanel";
 import ActivityFeed from "@/components/ActivityFeed";
+import ResumePreviewDialog from "@/components/ResumePreviewDialog";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   ChevronLeft, ChevronDown, FileText, Mail, Plus, RefreshCw,
@@ -38,6 +39,7 @@ const CandidateDetailPage = () => {
   const [noteText, setNoteText] = useState("");
   const [closedStages, setClosedStages] = useState<Set<string>>(new Set());
   const [showOfferDialog, setShowOfferDialog] = useState(false);
+  const [showResumeDialog, setShowResumeDialog] = useState(false);
 
   if (!candidate) {
     return (
@@ -140,7 +142,7 @@ const CandidateDetailPage = () => {
               </div>
             </div>
             <div className="flex items-center gap-1.5">
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
+              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => setShowResumeDialog(true)}>
                 <FileText className="h-4 w-4" />
               </Button>
               <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
@@ -470,6 +472,14 @@ const CandidateDetailPage = () => {
           open={showOfferDialog}
           onOpenChange={setShowOfferDialog}
           candidate={candidate}
+        />
+      )}
+      {candidate && (
+        <ResumePreviewDialog
+          open={showResumeDialog}
+          onOpenChange={setShowResumeDialog}
+          candidate={candidate}
+          job={job}
         />
       )}
     </div>
