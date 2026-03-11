@@ -26,41 +26,6 @@ const ratingIcons: Record<RatingType, React.ReactNode> = {
   text: <MessageSquare className="h-3 w-3" />,
 };
 
-/* ── Common dimension presets ─────────────────────────────────────── */
-const COMMON_DIMENSIONS: { category: string; items: { question: string; ratingType: RatingType }[] }[] = [
-  {
-    category: "Core Competencies",
-    items: [
-      { question: "Technical Skills", ratingType: "scale" },
-      { question: "Problem Solving", ratingType: "scale" },
-      { question: "Communication", ratingType: "scale" },
-      { question: "Leadership Potential", ratingType: "scale" },
-    ],
-  },
-  {
-    category: "Culture & Fit",
-    items: [
-      { question: "Culture Fit", ratingType: "yes_no" },
-      { question: "Team Collaboration", ratingType: "scale" },
-      { question: "Motivation & Drive", ratingType: "scale" },
-    ],
-  },
-  {
-    category: "Role-Specific",
-    items: [
-      { question: "Relevant Experience", ratingType: "scale" },
-      { question: "Domain Knowledge", ratingType: "scale" },
-      { question: "Portfolio / Work Samples", ratingType: "scale" },
-    ],
-  },
-  {
-    category: "Overall",
-    items: [
-      { question: "Overall Recommendation", ratingType: "scale" },
-      { question: "Additional Notes", ratingType: "text" },
-    ],
-  },
-];
 
 /* ── Scale rating component ──────────────────────────────────────── */
 const ScaleInput = ({ value, onChange }: { value: number; onChange: (v: number) => void }) => (
