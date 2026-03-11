@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { CreateOfferDialog } from "@/components/CreateOfferDialog";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   ChevronLeft, ChevronDown, FileText, Mail, Plus, RefreshCw,
@@ -33,8 +34,8 @@ const CandidateDetailPage = () => {
   const candidate = candidates.find((c) => c.id === candidateId);
   const [activeTab, setActiveTab] = useState("stages");
   const [noteText, setNoteText] = useState("");
-  // All stages open by default
   const [closedStages, setClosedStages] = useState<Set<string>>(new Set());
+  const [showOfferDialog, setShowOfferDialog] = useState(false);
 
   if (!candidate) {
     return (
@@ -277,7 +278,7 @@ const CandidateDetailPage = () => {
                         {isOffer && (
                           <div className="text-center py-6 space-y-3">
                             <p className="text-sm text-muted-foreground">No offers have been created for this job</p>
-                            <Button size="sm" className="font-semibold">
+                            <Button size="sm" className="font-semibold" onClick={() => setShowOfferDialog(true)}>
                               Create offer
                             </Button>
                           </div>
@@ -375,6 +376,14 @@ const CandidateDetailPage = () => {
           </div>
         </div>
       </div>
+
+      {candidate && (
+        <CreateOfferDialog
+          open={showOfferDialog}
+          onOpenChange={setShowOfferDialog}
+          candidate={candidate}
+        />
+      )}
     </div>
   );
 };
