@@ -7,6 +7,7 @@ import { Candidate } from "@/lib/types";
 import { format, addDays, setHours, setMinutes } from "date-fns";
 import { CandidateDetailDialog } from "@/components/CandidateDetailDialog";
 import { UpcomingInterviewsDialog } from "@/components/UpcomingInterviewsDialog";
+import { ScorecardsDialog } from "@/components/ScorecardsDialog";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
