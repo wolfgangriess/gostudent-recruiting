@@ -96,8 +96,8 @@ const JobsList = () => {
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Jobs</h1>
-          <p className="mt-1 text-sm text-muted-foreground">{jobs.length} open positions</p>
+          <h1>Jobs</h1>
+          <p className="mt-1 text-[13px] text-muted-foreground">{jobs.length} open positions</p>
         </div>
         <Button onClick={() => setDialogOpen(true)} size="lg" className="gap-2 rounded-xl font-semibold text-sm px-6">
           <Plus className="h-4 w-4" />

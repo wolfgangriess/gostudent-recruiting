@@ -125,7 +125,7 @@ const ReportsPage = () => {
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 space-y-6">
       <div>
-        <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Offers and hiring</h1>
+        <h1>Offers and hiring</h1>
       </div>
 
       {/* Filter chips */}

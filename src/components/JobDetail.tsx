@@ -121,7 +121,7 @@ const JobDetail = () => {
               <metric.icon className={`h-5 w-5 ${metric.highlight ? "text-primary" : "text-muted-foreground/50"}`} />
             </CardHeader>
             <CardContent>
-              <div className={`text-3xl font-extrabold ${metric.highlight ? "text-primary" : "text-foreground"}`}>
+              <div className={`text-2xl font-bold ${metric.highlight ? "text-primary" : "text-foreground"}`}>
                 {metric.value}
               </div>
             </CardContent>
