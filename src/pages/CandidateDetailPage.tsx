@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { CreateOfferDialog } from "@/components/CreateOfferDialog";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   ChevronLeft, ChevronDown, FileText, Mail, Plus, RefreshCw,
