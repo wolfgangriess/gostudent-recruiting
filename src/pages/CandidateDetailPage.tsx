@@ -376,7 +376,6 @@ const CandidateDetailPage = () => {
           </div>
         </div>
       </div>
-      </div>
 
       {candidate && (
         <CreateOfferDialog
