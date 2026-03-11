@@ -376,6 +376,15 @@ const CandidateDetailPage = () => {
           </div>
         </div>
       </div>
+      </div>
+
+      {candidate && (
+        <CreateOfferDialog
+          open={showOfferDialog}
+          onOpenChange={setShowOfferDialog}
+          candidate={candidate}
+        />
+      )}
     </div>
   );
 };
