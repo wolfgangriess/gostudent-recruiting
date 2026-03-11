@@ -170,10 +170,10 @@ const MyOverviewPage = () => {
         {/* My Interviews */}
         <Card className="lg:col-span-2">
           <CardContent className="pt-5 pb-5 px-5">
-            <div className="flex items-center gap-2 mb-4">
-              <Calendar className="h-4.5 w-4.5 text-primary" />
-              <h2 className="text-base font-bold text-foreground">My Interviews</h2>
-              <Badge variant="secondary" className="ml-1 text-xs">{myInterviews.length}</Badge>
+            <div className="flex items-center gap-2 mb-3">
+              <Calendar className="h-4 w-4 text-primary" />
+              <h2>My Interviews</h2>
+              <Badge variant="secondary" className="ml-1 text-[11px] h-5 px-1.5">{myInterviews.length}</Badge>
             </div>
             {myInterviews.length === 0 ? (
               <p className="text-sm text-muted-foreground">You have no upcoming interviews.</p>
