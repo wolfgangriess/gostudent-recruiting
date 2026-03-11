@@ -18,7 +18,7 @@ interface DetailProps {
 }
 
 export const CandidateDetailDialog = ({ candidate, open, onOpenChange }: DetailProps) => {
-  const { jobs, stages, getScorecardTemplate, getEvaluationsForCandidate, addEvaluation, users } = useATSStore();
+  const { jobs, stages, getScorecardTemplate, getEvaluationsForCandidate, addEvaluation, moveCandidateToStage, users } = useATSStore();
   const job = jobs.find((j) => j.id === candidate.jobId);
   const currentStage = stages.find((s) => s.id === candidate.currentStageId);
   const template = currentStage ? getScorecardTemplate(currentStage.id) : undefined;
