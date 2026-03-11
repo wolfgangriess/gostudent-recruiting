@@ -133,7 +133,7 @@ const JobsList = () => {
             <SelectValue placeholder="Office" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Locations</SelectItem>
+            <SelectItem value="all">All Offices</SelectItem>
             {LOCATIONS.map((l) => (
               <SelectItem key={l} value={l}>{l}</SelectItem>
             ))}
