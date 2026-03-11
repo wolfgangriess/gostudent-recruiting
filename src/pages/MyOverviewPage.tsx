@@ -245,6 +245,9 @@ const MyOverviewPage = () => {
                       } else if (task.label === "New Applications to Review") {
                         setApplicationDialogCandidates(task.candidates);
                         setShowApplicationsDialog(true);
+                      } else if (task.label === "Needs Decision") {
+                        setDecisionDialogCandidates(task.candidates);
+                        setShowDecisionDialog(true);
                       } else {
                         setSelectedCandidate(task.candidates[0]);
                       }
