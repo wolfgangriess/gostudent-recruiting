@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Candidate } from "@/lib/types";
 import { useATSStore } from "@/lib/ats-store";
-import { ShieldCheck } from "lucide-react";
+import { Bell } from "lucide-react";
+import { toast } from "sonner";
 
 interface Props {
   open: boolean;
