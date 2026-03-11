@@ -43,6 +43,12 @@ export const PendingApprovalsDialog = ({ open, onOpenChange, candidates }: Props
     return APPROVAL_TYPES[hash % APPROVAL_TYPES.length];
   };
 
+  const getApprover = (c: Candidate) => {
+    const hash = c.id.charCodeAt(c.id.length - 1);
+    const approver = users[hash % users.length];
+    return approver ? `${approver.firstName} ${approver.lastName}` : "—";
+  };
+
   const filteredCandidates = candidates.filter((c) => {
     const type = getApprovalType(c);
     return activeTypes.has(type.id);
