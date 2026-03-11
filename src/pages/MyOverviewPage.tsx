@@ -26,6 +26,8 @@ const TIME_PERIODS = [
 const MyOverviewPage = () => {
   const { candidates, jobs, stages, users } = useATSStore();
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
+  const [showInterviewsDialog, setShowInterviewsDialog] = useState(false);
+  const [interviewDialogCandidates, setInterviewDialogCandidates] = useState<Candidate[]>([]);
   const [perfPeriod, setPerfPeriod] = useState("90");
   const [perfJob, setPerfJob] = useState("all");
 
