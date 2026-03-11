@@ -11,7 +11,6 @@ import ReportsPage from "./pages/ReportsPage.tsx";
 import JobPostPage from "./pages/JobPostPage.tsx";
 import MyOverviewPage from "./pages/MyOverviewPage.tsx";
 import SettingsPage from "./pages/SettingsPage.tsx";
-import JobDescriptionsPage from "./pages/JobDescriptionsPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
