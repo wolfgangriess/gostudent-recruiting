@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Briefcase, Users, BarChart3, ChevronDown, Plus, UserPlus, Share2, LayoutDashboard } from "lucide-react";
+import gostudentLogo from "@/assets/gostudent-logo.png";
 import {
   DropdownMenu,
   DropdownMenuContent,
