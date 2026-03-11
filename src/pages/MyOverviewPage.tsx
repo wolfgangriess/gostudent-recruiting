@@ -418,6 +418,11 @@ const MyOverviewPage = () => {
         onOpenChange={setShowScorecardsDialog}
         candidates={scorecardDialogCandidates}
       />
+      <NewApplicationsDialog
+        open={showApplicationsDialog}
+        onOpenChange={setShowApplicationsDialog}
+        candidates={applicationDialogCandidates}
+      />
     </div>
   );
 };
