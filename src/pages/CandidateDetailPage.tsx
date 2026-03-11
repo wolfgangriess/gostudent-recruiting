@@ -10,7 +10,7 @@ import {
   ChevronLeft, FileText, Mail,
   MoreHorizontal, MessageSquare, Pin,
   Briefcase, ClipboardList, Star, Activity, Linkedin,
-  Phone,
+  Phone, GitMerge, UserMinus, Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
