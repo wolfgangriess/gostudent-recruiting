@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -9,13 +10,11 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { useATSStore } from "@/lib/ats-store";
-import { Candidate } from "@/lib/types";
-import { CandidateDetailDialog } from "@/components/CandidateDetailDialog";
 
 const CandidatesPage = () => {
-  const { candidates, jobs, stages, users, getScorecardTemplate, evaluations, addEvaluation, getEvaluationsForCandidate } = useATSStore();
+  const { candidates, jobs, stages } = useATSStore();
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
-  const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
   const [filterJob, setFilterJob] = useState("all");
   const [filterStage, setFilterStage] = useState("all");
   const [filterSource, setFilterSource] = useState("all");
@@ -103,7 +102,6 @@ const CandidatesPage = () => {
               <TableHead className="font-semibold">Job</TableHead>
               <TableHead className="font-semibold">Stage</TableHead>
               <TableHead className="font-semibold">Source</TableHead>
-              
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -111,7 +109,7 @@ const CandidatesPage = () => {
               <TableRow
                 key={c.id}
                 className="cursor-pointer transition-colors hover:bg-primary/[0.03]"
-                onClick={() => setSelectedCandidate(c)}
+                onClick={() => navigate(`/candidates/${c.id}`)}
               >
                 <TableCell>
                   <div className="flex items-center gap-2.5">
@@ -133,7 +131,7 @@ const CandidatesPage = () => {
             ))}
             {filtered.length === 0 && (
               <TableRow>
-                <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
                   No candidates found.
                 </TableCell>
               </TableRow>
@@ -141,17 +139,8 @@ const CandidatesPage = () => {
           </TableBody>
         </Table>
       </div>
-
-      {selectedCandidate && (
-        <CandidateDetailDialog
-          candidate={selectedCandidate}
-          open={!!selectedCandidate}
-          onOpenChange={(open) => { if (!open) setSelectedCandidate(null); }}
-        />
-      )}
     </div>
   );
 };
-
 
 export default CandidatesPage;
