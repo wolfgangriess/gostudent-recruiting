@@ -65,33 +65,33 @@ export const OffersDialog = ({ open, onOpenChange, candidates }: Props) => {
 
               return (
                 <div key={c.id} className="py-4">
-                  <div className="grid grid-cols-[200px_1fr] items-start gap-2">
-                    <div>
-                      <p className="text-sm font-semibold text-primary">
-                        {c.firstName} {c.lastName}
-                      </p>
-                      {mockTitle && (
-                        <p className="text-xs text-muted-foreground mt-0.5">{mockTitle}</p>
-                      )}
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex gap-6">
+                      <div className="min-w-[160px]">
+                        <p className="text-sm font-semibold text-primary">
+                          {c.firstName} {c.lastName}
+                        </p>
+                        {mockTitle && (
+                          <p className="text-xs text-muted-foreground mt-0.5">{mockTitle}</p>
+                        )}
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-foreground">
+                          {getJobName(c.jobId)}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          ↓ Offer · <span className="text-secondary">{offerStatus}</span>
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm font-semibold text-foreground">
-                        {getJobName(c.jobId)}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        ↓ Offer · <span className="text-secondary">{offerStatus}</span>
-                      </p>
-                    </div>
-                    <div className="ml-auto pl-4">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="h-7 text-xs border-primary text-primary hover:bg-primary hover:text-primary-foreground"
-                        onClick={() => toast.info(`Creating offer for ${c.firstName} ${c.lastName}`)}
-                      >
-                        Create Offer
-                      </Button>
-                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-7 text-xs border-primary text-primary hover:bg-primary hover:text-primary-foreground shrink-0"
+                      onClick={() => toast.info(`Creating offer for ${c.firstName} ${c.lastName}`)}
+                    >
+                      Create Offer
+                    </Button>
                   </div>
                 </div>
               );
