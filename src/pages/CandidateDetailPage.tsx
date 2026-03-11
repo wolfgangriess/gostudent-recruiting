@@ -292,9 +292,7 @@ const CandidateDetailPage = () => {
           )}
 
           {activeTab === "scorecards" && (
-            <div className="text-sm text-muted-foreground py-8 text-center">
-              Scorecards for each stage will appear here.
-            </div>
+            <ScorecardPanel candidateId={candidate.id} jobId={candidate.jobId} />
           )}
 
           {activeTab === "offer" && (
