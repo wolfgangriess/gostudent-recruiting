@@ -12,6 +12,7 @@ import { NewApplicationsDialog } from "@/components/NewApplicationsDialog";
 import { NeedsDecisionDialog } from "@/components/NeedsDecisionDialog";
 import { CandidatesToScheduleDialog } from "@/components/CandidatesToScheduleDialog";
 import { OffersDialog } from "@/components/OffersDialog";
+import { PendingApprovalsDialog } from "@/components/PendingApprovalsDialog";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
