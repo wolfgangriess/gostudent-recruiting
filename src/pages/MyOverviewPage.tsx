@@ -222,8 +222,8 @@ const MyOverviewPage = () => {
         <Card>
           <CardContent className="pt-0 pb-4 px-0">
             <div className="flex items-center gap-2 px-5 pt-5 pb-3">
-              <ClipboardList className="h-4.5 w-4.5 text-primary" />
-              <h2 className="text-base font-bold text-foreground">My Tasks</h2>
+              <ClipboardList className="h-4 w-4 text-primary" />
+              <h2>My Tasks</h2>
             </div>
             <div className="divide-y divide-border">
               {taskItems.map((task) => (
