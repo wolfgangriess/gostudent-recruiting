@@ -96,6 +96,22 @@ export const CandidateDetailDialog = ({ candidate, open, onOpenChange }: DetailP
                 {new Date(candidate.appliedAt).toLocaleDateString()}
               </p>
             </div>
+            {job?.salaryMin != null && job?.salaryMax != null && (
+              <>
+                <div>
+                  <span className="text-muted-foreground">Salary</span>
+                  <p className="font-medium text-foreground">
+                    {(job.salaryMin + Math.round((job.salaryMax - job.salaryMin) * 0.7)).toLocaleString("en-US", { style: "currency", currency: job.salaryCurrency ?? "USD", maximumFractionDigits: 0 })}
+                  </p>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Pay Band</span>
+                  <p className="font-medium text-foreground">
+                    {job.salaryMin.toLocaleString("en-US", { style: "currency", currency: job.salaryCurrency ?? "USD", maximumFractionDigits: 0 })} – {job.salaryMax.toLocaleString("en-US", { style: "currency", currency: job.salaryCurrency ?? "USD", maximumFractionDigits: 0 })}
+                  </p>
+                </div>
+              </>
+            )}
           </div>
         </div>
 
