@@ -130,7 +130,7 @@ const JobsList = () => {
         <Select value={locFilter} onValueChange={setLocFilter}>
           <SelectTrigger className="w-full sm:w-48 rounded-xl">
             <MapPin className="mr-2 h-4 w-4 text-muted-foreground" />
-            <SelectValue placeholder="Location" />
+            <SelectValue placeholder="Office" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Locations</SelectItem>
