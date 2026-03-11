@@ -2,9 +2,11 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Mail, Phone, MapPin, Linkedin, Globe, GraduationCap, Briefcase, Award, Star } from "lucide-react";
+import { Mail, Phone, MapPin, Linkedin, Globe, GraduationCap, Briefcase, Award, Star, Download } from "lucide-react";
 import { Candidate, Job } from "@/lib/types";
+import { useRef } from "react";
 
 interface Props {
   open: boolean;
