@@ -54,6 +54,19 @@ export const CandidateDetailDialog = ({ candidate, open, onOpenChange }: DetailP
           </DialogTitle>
         </DialogHeader>
 
+        {/* Quick links */}
+        <div className="flex items-center gap-3 -mt-1">
+          <a href="#" className="inline-flex items-center gap-1 text-xs text-primary hover:underline font-medium">
+            <FileText className="h-3.5 w-3.5" /> CV
+          </a>
+          <a href={`https://linkedin.com/in/${candidate.firstName.toLowerCase()}-${candidate.lastName.toLowerCase()}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-primary hover:underline font-medium">
+            <Linkedin className="h-3.5 w-3.5" /> LinkedIn
+          </a>
+          <a href="#" className="inline-flex items-center gap-1 text-xs text-primary hover:underline font-medium">
+            <ExternalLink className="h-3.5 w-3.5" /> Application
+          </a>
+        </div>
+
         <div className="space-y-3 text-sm">
           <div className="grid grid-cols-2 gap-3">
             <div>

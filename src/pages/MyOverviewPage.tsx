@@ -173,6 +173,17 @@ const MyOverviewPage = () => {
                         <div>
                           <p className="text-sm font-semibold text-foreground">{c.firstName} {c.lastName}</p>
                           <p className="text-xs text-muted-foreground">{getJobName(c.jobId)}</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <a href="#" onClick={(e) => e.stopPropagation()} className="inline-flex items-center gap-0.5 text-[11px] text-primary hover:underline">
+                              <FileText className="h-3 w-3" /> CV
+                            </a>
+                            <a href={`https://linkedin.com/in/${c.firstName.toLowerCase()}-${c.lastName.toLowerCase()}`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="inline-flex items-center gap-0.5 text-[11px] text-primary hover:underline">
+                              <Linkedin className="h-3 w-3" /> LinkedIn
+                            </a>
+                            <a href="#" onClick={(e) => e.stopPropagation()} className="inline-flex items-center gap-0.5 text-[11px] text-primary hover:underline">
+                              <ExternalLink className="h-3 w-3" /> Application
+                            </a>
+                          </div>
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
