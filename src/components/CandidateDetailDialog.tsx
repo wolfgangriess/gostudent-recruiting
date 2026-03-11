@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { useATSStore } from "@/lib/ats-store";
 import { Candidate, ScorecardCriterion } from "@/lib/types";
 import { UserAvatar } from "@/components/UserPicker";
+import { toast } from "sonner";
 
 interface DetailProps {
   candidate: Candidate;
