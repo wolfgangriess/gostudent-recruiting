@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Briefcase, Users, BarChart3, ChevronDown, Plus, UserPlus, Share2, LayoutDashboard, UserCircle, Settings } from "lucide-react";
+import { Briefcase, Users, BarChart3, ChevronDown, Plus, UserPlus, Share2, LayoutDashboard, UserCircle, Settings, LogOut, LogIn } from "lucide-react";
 import gostudentIcon from "@/assets/gostudent-pencil-icon.png";
+import { toast } from "sonner";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -78,12 +79,23 @@ const TopNav = () => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-primary-foreground/65 hover:text-primary-foreground hover:bg-primary-foreground/10">
-              <UserCircle className="h-4.5 w-4.5" />
-            </Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-primary-foreground/65 hover:text-primary-foreground hover:bg-primary-foreground/10" onClick={() => navigate("/settings")}>
-              <Settings className="h-4 w-4" />
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-primary-foreground/65 hover:text-primary-foreground hover:bg-primary-foreground/10">
+                  <UserCircle className="h-4.5 w-4.5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={() => navigate("/settings")} className="gap-2 cursor-pointer">
+                  <Settings className="h-4 w-4" />
+                  Account Settings
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => toast.info("Login/Logout coming soon")} className="gap-2 cursor-pointer">
+                  <LogOut className="h-4 w-4" />
+                  Log out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </header>
