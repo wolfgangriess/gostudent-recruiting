@@ -2,9 +2,11 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Mail, Phone, MapPin, Linkedin, Globe, GraduationCap, Briefcase, Award, Star } from "lucide-react";
+import { Mail, Phone, MapPin, Linkedin, Globe, GraduationCap, Briefcase, Award, Star, Download } from "lucide-react";
 import { Candidate, Job } from "@/lib/types";
+import { useRef } from "react";
 
 interface Props {
   open: boolean;
@@ -15,18 +17,39 @@ interface Props {
 
 const ResumePreviewDialog = ({ open, onOpenChange, candidate, job }: Props) => {
   const fullName = `${candidate.firstName} ${candidate.lastName}`;
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  const handleDownload = () => {
+    const printWindow = window.open("", "_blank");
+    if (!printWindow || !contentRef.current) return;
+    printWindow.document.write(`
+      <html><head><title>Resume - ${fullName}</title>
+      <style>
+        body { font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 40px; color: #1a1a1a; }
+        * { box-sizing: border-box; }
+      </style>
+      </head><body>${contentRef.current.innerHTML}</body></html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0">
-        <div className="bg-card">
+        <div className="bg-card" ref={contentRef}>
           {/* Header */}
           <div className="bg-primary/5 border-b border-border px-8 py-6">
-            <DialogHeader className="mb-0">
-              <DialogTitle className="text-xl font-bold text-foreground tracking-tight">
-                {fullName}
-              </DialogTitle>
-            </DialogHeader>
+            <div className="flex items-start justify-between">
+              <DialogHeader className="mb-0">
+                <DialogTitle className="text-xl font-bold text-foreground tracking-tight">
+                  {fullName}
+                </DialogTitle>
+              </DialogHeader>
+              <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs shrink-0 print:hidden" onClick={handleDownload}>
+                <Download className="h-3.5 w-3.5" /> Download
+              </Button>
+            </div>
             <p className="text-sm text-muted-foreground mt-0.5">
               {job?.department ?? "Professional"} · {job?.location ?? "Location not specified"}
             </p>
