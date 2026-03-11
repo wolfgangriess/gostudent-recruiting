@@ -59,16 +59,12 @@ const MyOverviewPage = () => {
     const offerCandidates = byStage("Offer");
 
     return [
-      { label: "Alerts", candidates: [] as Candidate[] },
       { label: "Upcoming Interviews Today", candidates: interviewCandidates },
       { label: "Scorecards Due", candidates: interviewCandidates },
       { label: "New Applications to Review", candidates: appliedCandidates },
       { label: "Hiring Manager Review", candidates: interviewCandidates },
       { label: "Needs Decision", candidates: interviewCandidates },
-      { label: "Forms to Send", candidates: [] as Candidate[] },
       { label: "Candidates to Schedule", candidates: phoneScreenCandidates },
-      { label: "Take Home Tests to Send", candidates: [] as Candidate[] },
-      { label: "Take Home Tests to Grade", candidates: [] as Candidate[] },
       { label: "Offers", candidates: offerCandidates },
       { label: "Pending Approvals", candidates: offerCandidates },
     ];
