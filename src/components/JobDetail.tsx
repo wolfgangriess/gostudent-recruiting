@@ -5,14 +5,14 @@ import { Button } from "@/components/ui/button";
 import EditJobDialog from "@/components/EditJobDialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
 import { useATSStore } from "@/lib/ats-store";
 import { getApplicationTrendData } from "@/lib/mock-data";
 import PipelineBoard from "@/components/PipelineBoard";
-import InterviewPlan from "@/components/InterviewPlan";
+
 import { UserAvatar } from "@/components/UserPicker";
 import {
   Tooltip as UITooltip,
@@ -164,23 +164,10 @@ const JobDetail = () => {
         </CardContent>
       </Card>
 
-      {/* Tabs */}
-      <Tabs defaultValue="pipeline" className="mt-2">
-        <TabsList>
-          <TabsTrigger value="pipeline">Pipeline</TabsTrigger>
-          <TabsTrigger value="interview-plan">Interview Plan</TabsTrigger>
-        </TabsList>
-        <TabsContent value="pipeline">
-          <div className="pt-4">
-            <PipelineBoard stages={jobStages} jobId={job.id} />
-          </div>
-        </TabsContent>
-        <TabsContent value="interview-plan">
-          <div className="pt-4">
-            <InterviewPlan jobId={job.id} />
-          </div>
-        </TabsContent>
-      </Tabs>
+      {/* Pipeline */}
+      <div className="mt-6">
+        <PipelineBoard stages={jobStages} jobId={job.id} />
+      </div>
       {job && <EditJobDialog open={editOpen} onOpenChange={setEditOpen} job={job} />}
     </div>
   );
