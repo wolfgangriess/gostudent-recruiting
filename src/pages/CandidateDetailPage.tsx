@@ -278,7 +278,7 @@ const CandidateDetailPage = () => {
                         {isOffer && (
                           <div className="text-center py-6 space-y-3">
                             <p className="text-sm text-muted-foreground">No offers have been created for this job</p>
-                            <Button size="sm" className="font-semibold">
+                            <Button size="sm" className="font-semibold" onClick={() => setShowOfferDialog(true)}>
                               Create offer
                             </Button>
                           </div>
