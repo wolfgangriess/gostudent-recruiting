@@ -12,7 +12,7 @@ import {
 import { useATSStore } from "@/lib/ats-store";
 import { getApplicationTrendData } from "@/lib/mock-data";
 import PipelineBoard from "@/components/PipelineBoard";
-import InterviewPlan from "@/components/InterviewPlan";
+
 import { UserAvatar } from "@/components/UserPicker";
 import {
   Tooltip as UITooltip,
