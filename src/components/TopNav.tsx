@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Briefcase, Users, BarChart3, ChevronDown, Plus, UserPlus, Share2, LayoutDashboard } from "lucide-react";
+import { Briefcase, Users, BarChart3, ChevronDown, Plus, UserPlus, Share2, LayoutDashboard, UserCircle, Settings } from "lucide-react";
 import gostudentIcon from "@/assets/gostudent-icon.png";
 import {
   DropdownMenu,
@@ -54,7 +54,7 @@ const TopNav = () => {
             })}
           </nav>
 
-          <div className="ml-auto">
+          <div className="ml-auto flex items-center gap-1">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="secondary" size="sm" className="gap-1 rounded-lg font-medium text-[13px] h-8 px-3">
@@ -77,6 +77,12 @@ const TopNav = () => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-primary-foreground/65 hover:text-primary-foreground hover:bg-primary-foreground/10">
+              <UserCircle className="h-4.5 w-4.5" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-primary-foreground/65 hover:text-primary-foreground hover:bg-primary-foreground/10">
+              <Settings className="h-4 w-4" />
+            </Button>
           </div>
         </div>
       </header>
