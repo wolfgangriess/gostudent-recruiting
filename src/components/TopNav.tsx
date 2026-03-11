@@ -19,7 +19,6 @@ const navItems = [
   { to: "/jobs", label: "Jobs", icon: Briefcase },
   { to: "/candidates", label: "Candidates", icon: Users },
   { to: "/reports", label: "Reports", icon: BarChart3 },
-  { to: "/job-descriptions", label: "Job Descriptions", icon: FileText },
 ];
 
 const TopNav = () => {
