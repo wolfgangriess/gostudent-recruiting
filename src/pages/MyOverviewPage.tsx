@@ -9,6 +9,7 @@ import { CandidateDetailDialog } from "@/components/CandidateDetailDialog";
 import { UpcomingInterviewsDialog } from "@/components/UpcomingInterviewsDialog";
 import { ScorecardsDialog } from "@/components/ScorecardsDialog";
 import { NewApplicationsDialog } from "@/components/NewApplicationsDialog";
+import { NeedsDecisionDialog } from "@/components/NeedsDecisionDialog";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -34,6 +35,8 @@ const MyOverviewPage = () => {
   const [scorecardDialogCandidates, setScorecardDialogCandidates] = useState<Candidate[]>([]);
   const [showApplicationsDialog, setShowApplicationsDialog] = useState(false);
   const [applicationDialogCandidates, setApplicationDialogCandidates] = useState<Candidate[]>([]);
+  const [showDecisionDialog, setShowDecisionDialog] = useState(false);
+  const [decisionDialogCandidates, setDecisionDialogCandidates] = useState<Candidate[]>([]);
   const [perfPeriod, setPerfPeriod] = useState("90");
   const [perfJob, setPerfJob] = useState("all");
 
@@ -242,6 +245,9 @@ const MyOverviewPage = () => {
                       } else if (task.label === "New Applications to Review") {
                         setApplicationDialogCandidates(task.candidates);
                         setShowApplicationsDialog(true);
+                      } else if (task.label === "Needs Decision") {
+                        setDecisionDialogCandidates(task.candidates);
+                        setShowDecisionDialog(true);
                       } else {
                         setSelectedCandidate(task.candidates[0]);
                       }
@@ -422,6 +428,11 @@ const MyOverviewPage = () => {
         open={showApplicationsDialog}
         onOpenChange={setShowApplicationsDialog}
         candidates={applicationDialogCandidates}
+      />
+      <NeedsDecisionDialog
+        open={showDecisionDialog}
+        onOpenChange={setShowDecisionDialog}
+        candidates={decisionDialogCandidates}
       />
     </div>
   );
