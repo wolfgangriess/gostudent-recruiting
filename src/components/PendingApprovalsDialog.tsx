@@ -21,7 +21,7 @@ const APPROVAL_TYPES = [
 ];
 
 export const PendingApprovalsDialog = ({ open, onOpenChange, candidates }: Props) => {
-  const { jobs } = useATSStore();
+  const { jobs, users } = useATSStore();
   const [showOnlyMine, setShowOnlyMine] = useState(true);
   const [activeTypes, setActiveTypes] = useState<Set<string>>(
     new Set(APPROVAL_TYPES.map((t) => t.id))
