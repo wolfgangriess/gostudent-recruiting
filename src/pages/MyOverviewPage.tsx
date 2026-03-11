@@ -429,6 +429,11 @@ const MyOverviewPage = () => {
         onOpenChange={setShowApplicationsDialog}
         candidates={applicationDialogCandidates}
       />
+      <NeedsDecisionDialog
+        open={showDecisionDialog}
+        onOpenChange={setShowDecisionDialog}
+        candidates={decisionDialogCandidates}
+      />
     </div>
   );
 };
