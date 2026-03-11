@@ -10,6 +10,7 @@ import { UpcomingInterviewsDialog } from "@/components/UpcomingInterviewsDialog"
 import { ScorecardsDialog } from "@/components/ScorecardsDialog";
 import { NewApplicationsDialog } from "@/components/NewApplicationsDialog";
 import { NeedsDecisionDialog } from "@/components/NeedsDecisionDialog";
+import { CandidatesToScheduleDialog } from "@/components/CandidatesToScheduleDialog";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -37,6 +38,8 @@ const MyOverviewPage = () => {
   const [applicationDialogCandidates, setApplicationDialogCandidates] = useState<Candidate[]>([]);
   const [showDecisionDialog, setShowDecisionDialog] = useState(false);
   const [decisionDialogCandidates, setDecisionDialogCandidates] = useState<Candidate[]>([]);
+  const [showScheduleDialog, setShowScheduleDialog] = useState(false);
+  const [scheduleDialogCandidates, setScheduleDialogCandidates] = useState<Candidate[]>([]);
   const [perfPeriod, setPerfPeriod] = useState("90");
   const [perfJob, setPerfJob] = useState("all");
 
@@ -248,6 +251,9 @@ const MyOverviewPage = () => {
                       } else if (task.label === "Needs Decision") {
                         setDecisionDialogCandidates(task.candidates);
                         setShowDecisionDialog(true);
+                      } else if (task.label === "Candidates to Schedule") {
+                        setScheduleDialogCandidates(task.candidates);
+                        setShowScheduleDialog(true);
                       } else {
                         setSelectedCandidate(task.candidates[0]);
                       }
@@ -433,6 +439,11 @@ const MyOverviewPage = () => {
         open={showDecisionDialog}
         onOpenChange={setShowDecisionDialog}
         candidates={decisionDialogCandidates}
+      />
+      <CandidatesToScheduleDialog
+        open={showScheduleDialog}
+        onOpenChange={setShowScheduleDialog}
+        candidates={scheduleDialogCandidates}
       />
     </div>
   );
