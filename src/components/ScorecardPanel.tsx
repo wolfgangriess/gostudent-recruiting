@@ -26,41 +26,6 @@ const ratingIcons: Record<RatingType, React.ReactNode> = {
   text: <MessageSquare className="h-3 w-3" />,
 };
 
-/* ── Common dimension presets ─────────────────────────────────────── */
-const COMMON_DIMENSIONS: { category: string; items: { question: string; ratingType: RatingType }[] }[] = [
-  {
-    category: "Core Competencies",
-    items: [
-      { question: "Technical Skills", ratingType: "scale" },
-      { question: "Problem Solving", ratingType: "scale" },
-      { question: "Communication", ratingType: "scale" },
-      { question: "Leadership Potential", ratingType: "scale" },
-    ],
-  },
-  {
-    category: "Culture & Fit",
-    items: [
-      { question: "Culture Fit", ratingType: "yes_no" },
-      { question: "Team Collaboration", ratingType: "scale" },
-      { question: "Motivation & Drive", ratingType: "scale" },
-    ],
-  },
-  {
-    category: "Role-Specific",
-    items: [
-      { question: "Relevant Experience", ratingType: "scale" },
-      { question: "Domain Knowledge", ratingType: "scale" },
-      { question: "Portfolio / Work Samples", ratingType: "scale" },
-    ],
-  },
-  {
-    category: "Overall",
-    items: [
-      { question: "Overall Recommendation", ratingType: "scale" },
-      { question: "Additional Notes", ratingType: "text" },
-    ],
-  },
-];
 
 /* ── Scale rating component ──────────────────────────────────────── */
 const ScaleInput = ({ value, onChange }: { value: number; onChange: (v: number) => void }) => (
@@ -153,35 +118,6 @@ const ScorecardPanel = ({ candidateId, jobId }: Props) => {
 
   return (
     <div className="space-y-4">
-      {/* Common dimensions reference */}
-      <Collapsible>
-        <CollapsibleTrigger className="flex w-full items-center gap-2 rounded-lg border border-border bg-muted/30 px-4 py-2.5 text-left hover:bg-muted/50 transition-colors">
-          <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
-          <span className="text-xs font-semibold text-foreground">Common Scorecard Dimensions</span>
-          <Badge variant="secondary" className="ml-auto text-[10px]">Reference</Badge>
-        </CollapsibleTrigger>
-        <CollapsibleContent>
-          <div className="mt-2 grid grid-cols-2 gap-3">
-            {COMMON_DIMENSIONS.map((cat) => (
-              <div key={cat.category} className="rounded-lg border border-border bg-card p-3">
-                <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide mb-2">
-                  {cat.category}
-                </p>
-                <div className="space-y-1.5">
-                  {cat.items.map((item) => (
-                    <div key={item.question} className="flex items-center justify-between">
-                      <span className="text-xs text-foreground">{item.question}</span>
-                      <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                        {ratingIcons[item.ratingType]} {ratingLabels[item.ratingType]}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </CollapsibleContent>
-      </Collapsible>
 
       {/* Per-stage scorecards */}
       {jobStages.map((stage) => {
