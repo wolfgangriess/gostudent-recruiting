@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { CreateOfferDialog } from "@/components/CreateOfferDialog";
 import ScorecardPanel from "@/components/ScorecardPanel";
+import ActivityFeed from "@/components/ActivityFeed";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   ChevronLeft, ChevronDown, FileText, Mail, Plus, RefreshCw,
