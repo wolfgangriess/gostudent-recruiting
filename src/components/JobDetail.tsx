@@ -164,23 +164,10 @@ const JobDetail = () => {
         </CardContent>
       </Card>
 
-      {/* Tabs */}
-      <Tabs defaultValue="pipeline" className="mt-2">
-        <TabsList>
-          <TabsTrigger value="pipeline">Pipeline</TabsTrigger>
-          <TabsTrigger value="interview-plan">Interview Plan</TabsTrigger>
-        </TabsList>
-        <TabsContent value="pipeline">
-          <div className="pt-4">
-            <PipelineBoard stages={jobStages} jobId={job.id} />
-          </div>
-        </TabsContent>
-        <TabsContent value="interview-plan">
-          <div className="pt-4">
-            <InterviewPlan jobId={job.id} />
-          </div>
-        </TabsContent>
-      </Tabs>
+      {/* Pipeline */}
+      <div className="mt-6">
+        <PipelineBoard stages={jobStages} jobId={job.id} />
+      </div>
       {job && <EditJobDialog open={editOpen} onOpenChange={setEditOpen} job={job} />}
     </div>
   );
