@@ -68,7 +68,7 @@ const JobDetail = () => {
       <div className="mb-8 flex items-start justify-between">
         <div className="flex items-center gap-3">
           <div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-foreground">{job.name}</h1>
+            <h1>{job.name}</h1>
             <div className="mt-2 flex flex-wrap items-center gap-2">
               <Badge className="rounded-lg bg-accent/30 text-accent-foreground border-0 font-medium">{job.department}</Badge>
               <span className="text-sm text-muted-foreground">{job.location}</span>
@@ -121,7 +121,7 @@ const JobDetail = () => {
               <metric.icon className={`h-5 w-5 ${metric.highlight ? "text-primary" : "text-muted-foreground/50"}`} />
             </CardHeader>
             <CardContent>
-              <div className={`text-3xl font-extrabold ${metric.highlight ? "text-primary" : "text-foreground"}`}>
+              <div className={`text-2xl font-bold ${metric.highlight ? "text-primary" : "text-foreground"}`}>
                 {metric.value}
               </div>
             </CardContent>

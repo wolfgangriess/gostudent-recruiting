@@ -28,11 +28,11 @@ const TopNav = () => {
 
   return (
     <>
-      <header className="sticky top-0 z-50 border-b border-primary/10 bg-primary shadow-sm">
-        <div className="mx-auto flex h-16 max-w-7xl items-center gap-10 px-4 sm:px-6">
+      <header className="sticky top-0 z-50 border-b border-primary/10 bg-primary">
+        <div className="mx-auto flex h-12 max-w-7xl items-center gap-8 px-4 sm:px-6">
           <Link to="/" className="flex items-center gap-2">
-            <img src={gostudentLogo} alt="GoStudent" className="h-7 w-7" />
-            <span className="text-sm font-bold tracking-tight text-primary-foreground">GoStudentRecruiting</span>
+            <img src={gostudentLogo} alt="GoStudent" className="h-6 w-6" />
+            <span className="text-[13px] font-semibold text-primary-foreground">GoStudentRecruiting</span>
           </Link>
           <nav className="flex items-center gap-1">
             {navItems.map((item) => {
@@ -41,10 +41,10 @@ const TopNav = () => {
                 <Link
                   key={item.to}
                   to={item.to}
-                  className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-all ${
+                  className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-medium transition-all ${
                     active
                       ? "bg-primary-foreground/20 text-primary-foreground"
-                      : "text-primary-foreground/70 hover:bg-primary-foreground/10 hover:text-primary-foreground"
+                      : "text-primary-foreground/65 hover:bg-primary-foreground/10 hover:text-primary-foreground"
                   }`}
                 >
                   <item.icon className="h-4 w-4" />
@@ -57,7 +57,7 @@ const TopNav = () => {
           <div className="ml-auto">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="secondary" size="sm" className="gap-1.5 rounded-xl font-semibold">
+                <Button variant="secondary" size="sm" className="gap-1 rounded-lg font-medium text-[13px] h-8 px-3">
                   Add
                   <ChevronDown className="h-3.5 w-3.5" />
                 </Button>

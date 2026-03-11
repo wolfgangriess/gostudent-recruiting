@@ -164,16 +164,16 @@ const MyOverviewPage = () => {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-      <h1 className="text-3xl font-extrabold tracking-tight text-foreground mb-6">My Dashboard</h1>
+      <h1 className="mb-6">My Dashboard</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* My Interviews */}
         <Card className="lg:col-span-2">
           <CardContent className="pt-5 pb-5 px-5">
-            <div className="flex items-center gap-2 mb-4">
-              <Calendar className="h-4.5 w-4.5 text-primary" />
-              <h2 className="text-base font-bold text-foreground">My Interviews</h2>
-              <Badge variant="secondary" className="ml-1 text-xs">{myInterviews.length}</Badge>
+            <div className="flex items-center gap-2 mb-3">
+              <Calendar className="h-4 w-4 text-primary" />
+              <h2>My Interviews</h2>
+              <Badge variant="secondary" className="ml-1 text-[11px] h-5 px-1.5">{myInterviews.length}</Badge>
             </div>
             {myInterviews.length === 0 ? (
               <p className="text-sm text-muted-foreground">You have no upcoming interviews.</p>
@@ -222,8 +222,8 @@ const MyOverviewPage = () => {
         <Card>
           <CardContent className="pt-0 pb-4 px-0">
             <div className="flex items-center gap-2 px-5 pt-5 pb-3">
-              <ClipboardList className="h-4.5 w-4.5 text-primary" />
-              <h2 className="text-base font-bold text-foreground">My Tasks</h2>
+              <ClipboardList className="h-4 w-4 text-primary" />
+              <h2>My Tasks</h2>
             </div>
             <div className="divide-y divide-border">
               {taskItems.map((task) => (
@@ -276,10 +276,10 @@ const MyOverviewPage = () => {
         {/* My Approvals */}
         <Card className="lg:col-span-3">
           <CardContent className="pt-5 pb-5 px-5">
-            <div className="flex items-center gap-2 mb-4">
-              <CheckCircle2 className="h-4.5 w-4.5 text-primary" />
-              <h2 className="text-base font-bold text-foreground">My Approvals</h2>
-              <Badge variant="secondary" className="ml-1 text-xs">{myApprovals.length}</Badge>
+            <div className="flex items-center gap-2 mb-3">
+              <CheckCircle2 className="h-4 w-4 text-primary" />
+              <h2>My Approvals</h2>
+              <Badge variant="secondary" className="ml-1 text-[11px] h-5 px-1.5">{myApprovals.length}</Badge>
             </div>
             {myApprovals.length === 0 ? (
               <p className="text-sm text-muted-foreground">You have no jobs or offers to approve.</p>
