@@ -86,10 +86,6 @@ const TopNav = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem onClick={() => navigate("/settings")} className="gap-2 cursor-pointer">
-                  <Settings className="h-4 w-4" />
-                  Account Settings
-                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => toast.info("Login/Logout coming soon")} className="gap-2 cursor-pointer">
                   <LogOut className="h-4 w-4" />
                   Log out
