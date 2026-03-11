@@ -22,6 +22,7 @@ const navItems = [
 
 const TopNav = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [addJobOpen, setAddJobOpen] = useState(false);
   const [addCandidateOpen, setAddCandidateOpen] = useState(false);
   const [addReferralOpen, setAddReferralOpen] = useState(false);
