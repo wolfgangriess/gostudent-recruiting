@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Star, ClipboardList } from "lucide-react";
+import { Star, ClipboardList, FileText, Linkedin, ExternalLink } from "lucide-react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
