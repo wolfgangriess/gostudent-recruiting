@@ -233,6 +233,9 @@ const MyOverviewPage = () => {
                       if (task.label === "Upcoming Interviews Today") {
                         setInterviewDialogCandidates(task.candidates);
                         setShowInterviewsDialog(true);
+                      } else if (task.label === "Scorecards Due") {
+                        setScorecardDialogCandidates(task.candidates);
+                        setShowScorecardsDialog(true);
                       } else {
                         setSelectedCandidate(task.candidates[0]);
                       }
