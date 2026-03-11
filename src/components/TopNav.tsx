@@ -31,8 +31,8 @@ const TopNav = () => {
       <header className="sticky top-0 z-50 border-b border-primary/10 bg-primary">
         <div className="mx-auto flex h-12 max-w-7xl items-center gap-8 px-4 sm:px-6">
           <Link to="/" className="flex items-center gap-2">
-            <img src={gostudentLogo} alt="GoStudent" className="h-6 w-6 brightness-0 invert" />
-            <span className="text-[13px] font-semibold text-primary-foreground">GoStudentRecruiting</span>
+            <img src={gostudentIcon} alt="GoStudent" className="h-7 w-7 brightness-0 invert" />
+            <span className="text-[13px] font-semibold text-primary-foreground">GoStudent Recruiting</span>
           </Link>
           <nav className="flex items-center gap-1">
             {navItems.map((item) => {
