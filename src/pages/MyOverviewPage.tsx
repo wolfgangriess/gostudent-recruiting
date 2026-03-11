@@ -1,9 +1,10 @@
 import { useMemo, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, CheckCircle2, ClipboardList, ChevronRight, Star, TrendingUp } from "lucide-react";
+import { Calendar, CheckCircle2, ClipboardList, ChevronRight, Star, TrendingUp, Clock } from "lucide-react";
 import { useATSStore } from "@/lib/ats-store";
 import { Candidate } from "@/lib/types";
+import { format, addDays, setHours, setMinutes } from "date-fns";
 import { CandidateDetailDialog } from "@/components/CandidateDetailDialog";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -135,6 +136,15 @@ const MyOverviewPage = () => {
   const getJobName = (jobId: string) => jobs.find((j) => j.id === jobId)?.name ?? "—";
   const getStageName = (stageId: string) => stages.find((s) => s.id === stageId)?.name ?? "—";
 
+  const getInterviewDateTime = (candidate: Candidate) => {
+    const hash = candidate.id.charCodeAt(candidate.id.length - 1) % 5;
+    const today = new Date();
+    const day = addDays(today, hash);
+    const hours = [9, 10, 11, 13, 14, 15, 16][hash % 7];
+    const mins = [0, 15, 30, 45][hash % 4];
+    return setMinutes(setHours(day, hours), mins);
+  };
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
       <h1 className="text-3xl font-extrabold tracking-tight text-foreground mb-6">My Dashboard</h1>
@@ -152,32 +162,40 @@ const MyOverviewPage = () => {
               <p className="text-sm text-muted-foreground">You have no upcoming interviews.</p>
             ) : (
               <div className="divide-y divide-border">
-                {myInterviews.map((c) => (
-                  <div
-                    key={c.id}
-                    onClick={() => setSelectedCandidate(c)}
-                    className="flex items-center justify-between py-3 cursor-pointer hover:bg-muted/50 -mx-2 px-2 rounded-lg transition-colors"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
-                        {c.firstName[0]}{c.lastName[0]}
+                {myInterviews.map((c) => {
+                  const interviewDt = getInterviewDateTime(c);
+                  return (
+                    <div
+                      key={c.id}
+                      onClick={() => setSelectedCandidate(c)}
+                      className="flex items-center justify-between py-3 cursor-pointer hover:bg-muted/50 -mx-2 px-2 rounded-lg transition-colors"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+                          {c.firstName[0]}{c.lastName[0]}
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-foreground">{c.firstName} {c.lastName}</p>
+                          <p className="text-xs text-muted-foreground">{getJobName(c.jobId)}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-sm font-semibold text-foreground">{c.firstName} {c.lastName}</p>
-                        <p className="text-xs text-muted-foreground">{getJobName(c.jobId)}</p>
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                          <Clock className="h-3 w-3" />
+                          <span>{format(interviewDt, "MMM d")}</span>
+                          <span className="font-medium text-foreground">{format(interviewDt, "h:mm a")}</span>
+                        </div>
+                        <Badge variant="outline" className="text-xs">{getStageName(c.currentStageId)}</Badge>
+                        <div className="flex gap-0.5">
+                          {Array.from({ length: 5 }).map((_, i) => (
+                            <Star key={i} className={`h-3 w-3 ${i < c.rating ? "fill-secondary text-secondary" : "text-muted-foreground/20"}`} />
+                          ))}
+                        </div>
+                        <ChevronRight className="h-4 w-4 text-muted-foreground" />
                       </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <Badge variant="outline" className="text-xs">{getStageName(c.currentStageId)}</Badge>
-                      <div className="flex gap-0.5">
-                        {Array.from({ length: 5 }).map((_, i) => (
-                          <Star key={i} className={`h-3 w-3 ${i < c.rating ? "fill-secondary text-secondary" : "text-muted-foreground/20"}`} />
-                        ))}
-                      </div>
-                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </CardContent>
