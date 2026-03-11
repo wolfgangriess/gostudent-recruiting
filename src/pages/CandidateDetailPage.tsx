@@ -309,9 +309,7 @@ const CandidateDetailPage = () => {
           )}
 
           {activeTab === "activity" && (
-            <div className="text-sm text-muted-foreground py-8 text-center">
-              Activity feed — coming soon.
-            </div>
+            <ActivityFeed candidate={candidate} />
           )}
 
           {activeTab === "linkedin" && (
