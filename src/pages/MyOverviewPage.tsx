@@ -7,6 +7,7 @@ import { Candidate } from "@/lib/types";
 import { format, addDays, setHours, setMinutes } from "date-fns";
 import { CandidateDetailDialog } from "@/components/CandidateDetailDialog";
 import { UpcomingInterviewsDialog } from "@/components/UpcomingInterviewsDialog";
+import { ScorecardsDialog } from "@/components/ScorecardsDialog";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -27,7 +28,9 @@ const MyOverviewPage = () => {
   const { candidates, jobs, stages, users } = useATSStore();
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
   const [showInterviewsDialog, setShowInterviewsDialog] = useState(false);
+  const [showScorecardsDialog, setShowScorecardsDialog] = useState(false);
   const [interviewDialogCandidates, setInterviewDialogCandidates] = useState<Candidate[]>([]);
+  const [scorecardDialogCandidates, setScorecardDialogCandidates] = useState<Candidate[]>([]);
   const [perfPeriod, setPerfPeriod] = useState("90");
   const [perfJob, setPerfJob] = useState("all");
 
@@ -230,6 +233,9 @@ const MyOverviewPage = () => {
                       if (task.label === "Upcoming Interviews Today") {
                         setInterviewDialogCandidates(task.candidates);
                         setShowInterviewsDialog(true);
+                      } else if (task.label === "Scorecards Due") {
+                        setScorecardDialogCandidates(task.candidates);
+                        setShowScorecardsDialog(true);
                       } else {
                         setSelectedCandidate(task.candidates[0]);
                       }
@@ -399,6 +405,12 @@ const MyOverviewPage = () => {
         open={showInterviewsDialog}
         onOpenChange={setShowInterviewsDialog}
         candidates={interviewDialogCandidates}
+      />
+
+      <ScorecardsDialog
+        open={showScorecardsDialog}
+        onOpenChange={setShowScorecardsDialog}
+        candidates={scorecardDialogCandidates}
       />
     </div>
   );
