@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Search, Star } from "lucide-react";
+import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
