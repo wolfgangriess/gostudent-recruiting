@@ -144,15 +144,37 @@ const SettingsPage = () => {
 
   // Calendar state
   const [calendarConnected, setCalendarConnected] = useState(false);
-  const [availabilitySlots, setAvailabilitySlots] = useState([
-    { day: "Monday", start: "09:00", end: "17:00", enabled: true },
-    { day: "Tuesday", start: "09:00", end: "17:00", enabled: true },
-    { day: "Wednesday", start: "09:00", end: "17:00", enabled: true },
-    { day: "Thursday", start: "09:00", end: "17:00", enabled: true },
-    { day: "Friday", start: "09:00", end: "17:00", enabled: true },
-    { day: "Saturday", start: "09:00", end: "13:00", enabled: false },
-    { day: "Sunday", start: "09:00", end: "13:00", enabled: false },
-  ]);
+  const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+  const [availabilitySlots, setAvailabilitySlots] = useState<Record<string, { id: string; start: string; end: string }[]>>({
+    Monday: [{ id: "m1", start: "09:00", end: "17:00" }],
+    Tuesday: [{ id: "t1", start: "09:00", end: "17:00" }],
+    Wednesday: [{ id: "w1", start: "09:00", end: "17:00" }],
+    Thursday: [{ id: "th1", start: "09:00", end: "17:00" }],
+    Friday: [{ id: "f1", start: "09:00", end: "17:00" }],
+    Saturday: [],
+    Sunday: [],
+  });
+
+  const addSlot = (day: string) => {
+    setAvailabilitySlots((prev) => ({
+      ...prev,
+      [day]: [...(prev[day] || []), { id: `${day}-${Date.now()}`, start: "09:00", end: "17:00" }],
+    }));
+  };
+
+  const removeSlot = (day: string, slotId: string) => {
+    setAvailabilitySlots((prev) => ({
+      ...prev,
+      [day]: prev[day].filter((s) => s.id !== slotId),
+    }));
+  };
+
+  const updateSlot = (day: string, slotId: string, field: "start" | "end", value: string) => {
+    setAvailabilitySlots((prev) => ({
+      ...prev,
+      [day]: prev[day].map((s) => (s.id === slotId ? { ...s, [field]: value } : s)),
+    }));
+  };
 
   // Meeting links state
   const [meetingCalendarConnected, setMeetingCalendarConnected] = useState(false);
@@ -610,23 +632,40 @@ const SettingsPage = () => {
               <p className="text-[11px] text-muted-foreground">Set your default interview availability windows</p>
             </div>
             <div className="divide-y divide-border">
-              {availabilitySlots.map((slot, idx) => (
-                <div key={slot.day} className="flex items-center gap-4 px-5 py-3">
-                  <div className="w-24">
-                    <span className={`text-xs font-medium ${slot.enabled ? "text-foreground" : "text-muted-foreground"}`}>{slot.day}</span>
-                  </div>
-                  <Switch checked={slot.enabled} onCheckedChange={(checked) => setAvailabilitySlots((prev) => prev.map((s, i) => (i === idx ? { ...s, enabled: checked } : s)))} className="scale-75" />
-                  {slot.enabled ? (
-                    <div className="flex items-center gap-2">
-                      <Input type="time" value={slot.start} onChange={(e) => setAvailabilitySlots((prev) => prev.map((s, i) => (i === idx ? { ...s, start: e.target.value } : s)))} className="h-8 text-xs w-28" />
-                      <span className="text-xs text-muted-foreground">to</span>
-                      <Input type="time" value={slot.end} onChange={(e) => setAvailabilitySlots((prev) => prev.map((s, i) => (i === idx ? { ...s, end: e.target.value } : s)))} className="h-8 text-xs w-28" />
+              {DAYS.map((day) => {
+                const slots = availabilitySlots[day] || [];
+                return (
+                  <div key={day} className="px-5 py-3">
+                    <div className="flex items-start gap-4">
+                      <div className="w-24 pt-1.5">
+                        <span className={`text-xs font-medium ${slots.length > 0 ? "text-foreground" : "text-muted-foreground"}`}>{day}</span>
+                      </div>
+                      <div className="flex-1 space-y-2">
+                        {slots.length === 0 ? (
+                          <span className="text-[11px] text-muted-foreground block pt-1.5">Unavailable</span>
+                        ) : (
+                          slots.map((slot) => (
+                            <div key={slot.id} className="flex items-center gap-2">
+                              <Input type="time" value={slot.start} onChange={(e) => updateSlot(day, slot.id, "start", e.target.value)} className="h-8 text-xs w-28" />
+                              <span className="text-xs text-muted-foreground">to</span>
+                              <Input type="time" value={slot.end} onChange={(e) => updateSlot(day, slot.id, "end", e.target.value)} className="h-8 text-xs w-28" />
+                              <button onClick={() => removeSlot(day, slot.id)} className="text-muted-foreground hover:text-destructive transition-colors">
+                                <X className="h-3.5 w-3.5" />
+                              </button>
+                            </div>
+                          ))
+                        )}
+                        <button
+                          onClick={() => addSlot(day)}
+                          className="text-[11px] text-primary hover:underline font-medium flex items-center gap-1"
+                        >
+                          <Plus className="h-3 w-3" /> Add slot
+                        </button>
+                      </div>
                     </div>
-                  ) : (
-                    <span className="text-[11px] text-muted-foreground">Unavailable</span>
-                  )}
-                </div>
-              ))}
+                  </div>
+                );
+              })}
             </div>
             <div className="border-t border-border px-5 py-3 flex justify-end">
               <Button size="sm" className="text-xs h-8" onClick={() => toast.success("Availability saved")}>Save availability</Button>
