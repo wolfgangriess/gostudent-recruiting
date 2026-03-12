@@ -67,7 +67,9 @@ const DocumentTemplatesSettings = () => {
   const [search, setSearch] = useState("");
   const [addOpen, setAddOpen] = useState(false);
   const [newName, setNewName] = useState("");
-
+  const [newOffice, setNewOffice] = useState("all");
+  const [newDepartment, setNewDepartment] = useState("all");
+  const [newEmploymentType, setNewEmploymentType] = useState("all");
   const filtered = templates.filter((t) => {
     if (!search.trim()) return true;
     return t.name.toLowerCase().includes(search.toLowerCase());
