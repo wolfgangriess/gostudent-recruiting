@@ -64,6 +64,40 @@ const settingsMenu: { id: SectionId; label: string; description: string; icon: R
 
 const SettingsPage = () => {
   const { users } = useATSStore();
+  const [userSearch, setUserSearch] = useState("");
+  const [userPermissions, setUserPermissions] = useState<UserPermission[]>(() =>
+    users.map((u) => ({
+      userId: u.id,
+      permissions: u.role === "admin" ? ["basic", "site_admin"] : u.role === "hiring_manager" ? ["basic", "hiring_manager"] : ["basic"],
+    }))
+  );
+
+  const filteredSettingsUsers = useMemo(() => {
+    if (!userSearch.trim()) return users;
+    const q = userSearch.toLowerCase();
+    return users.filter(
+      (u) =>
+        u.firstName.toLowerCase().includes(q) ||
+        u.lastName.toLowerCase().includes(q) ||
+        u.email.toLowerCase().includes(q) ||
+        u.department.toLowerCase().includes(q)
+    );
+  }, [users, userSearch]);
+
+  const toggleUserPermission = (userId: string, perm: PermissionLevel) => {
+    setUserPermissions((prev) =>
+      prev.map((up) => {
+        if (up.userId !== userId) return up;
+        const has = up.permissions.includes(perm);
+        const updated = has ? up.permissions.filter((p) => p !== perm) : [...up.permissions, perm];
+        return { ...up, permissions: updated };
+      })
+    );
+    toast.success("Permission updated");
+  };
+
+  const getUserPermissions = (userId: string) =>
+    userPermissions.find((up) => up.userId === userId)?.permissions || [];
   const [activeSection, setActiveSection] = useState<SectionId>("menu");
 
   // Email permissions state
