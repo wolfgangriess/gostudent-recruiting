@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import EmailTemplatesSettings from "@/components/EmailTemplatesSettings";
 import DocumentTemplatesSettings from "@/components/DocumentTemplatesSettings";
 import ApprovalsSettings from "@/components/ApprovalsSettings";
+import DevCenterSettings from "@/components/DevCenterSettings";
 
 type PermissionLevel = "basic" | "hiring_manager" | "hiring_manager_visibility" | "site_admin";
 
@@ -493,11 +494,7 @@ const SettingsPage = () => {
       )}
 
       {activeSection === "dev-center" && (
-        <div className="rounded-xl border border-border bg-card p-6 text-center space-y-3">
-          <Code className="h-8 w-8 text-muted-foreground/40 mx-auto" />
-          <p className="text-sm font-medium text-foreground">Dev Center</p>
-          <p className="text-xs text-muted-foreground">Configure your job board and development resources.</p>
-        </div>
+        <DevCenterSettings />
       )}
 
       {/* ── Email Permissions ─────────────────────────────────────── */}
