@@ -100,6 +100,36 @@ const SettingsPage = () => {
     userPermissions.find((up) => up.userId === userId)?.permissions || [];
   const [activeSection, setActiveSection] = useState<SectionId>("menu");
 
+  // Permission policies state
+  const [policySettings, setPolicySettings] = useState({
+    candidates_rejection_reason_required: true,
+    candidates_private_on_hire: true,
+    candidates_resume_required: true,
+    candidates_source_required: true,
+    candidates_credit_required: false,
+    referrals_email_required: true,
+    referrals_phone_required: false,
+    referrals_social_required: false,
+    referrals_resume_required: true,
+    referrals_internal_name: false,
+    scheduling_self_reschedule: true,
+    scheduling_calendar_events: false,
+    jobs_reapproval: true,
+    jobs_talent_filter: true,
+    jobs_talent_filter_threshold: 250,
+    jobs_office_required: true,
+    jobs_department_required: true,
+    jobs_requisition_required: true,
+    jobs_opening_required: true,
+    jobs_allow_empty_required: false,
+    jobs_close_reason_required: true,
+    users_coordinator_notify: true,
+  });
+
+  const togglePolicy = (key: keyof typeof policySettings) => {
+    setPolicySettings((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
   // Email permissions state
   const [emailPermissions, setEmailPermissions] = useState<EmailPermission[]>([
     { userId: "user-1", canSendOffers: true, canSendRejections: true, canSendScheduling: true },
@@ -299,10 +329,151 @@ const SettingsPage = () => {
       )}
 
       {activeSection === "permissions" && (
-        <div className="rounded-xl border border-border bg-card p-6 text-center space-y-3">
-          <KeyRound className="h-8 w-8 text-muted-foreground/40 mx-auto" />
-          <p className="text-sm font-medium text-foreground">Permission Policies</p>
-          <p className="text-xs text-muted-foreground">Configure role-based access control for your organization.<br />Admin, Hiring Manager, and Employee roles are supported.</p>
+        <div className="space-y-6">
+          {/* Candidates */}
+          <div>
+            <h3 className="text-sm font-semibold text-foreground mb-3">Candidates</h3>
+            <div className="space-y-2.5">
+              <label className="flex items-center gap-2.5 cursor-pointer">
+                <Checkbox checked={policySettings.candidates_rejection_reason_required} onCheckedChange={() => togglePolicy("candidates_rejection_reason_required")} />
+                <span className="text-sm text-foreground">When rejecting a candidate, make "Rejection Reason" a required field</span>
+              </label>
+              <label className="flex items-center gap-2.5 cursor-pointer">
+                <Checkbox checked={policySettings.candidates_private_on_hire} onCheckedChange={() => togglePolicy("candidates_private_on_hire")} />
+                <span className="text-sm text-foreground">When hiring, make candidates private by default</span>
+              </label>
+            </div>
+            <p className="text-xs text-muted-foreground mt-3 mb-1.5">When creating a candidate…</p>
+            <div className="space-y-2.5">
+              <label className="flex items-center gap-2.5 cursor-pointer">
+                <Checkbox checked={policySettings.candidates_resume_required} onCheckedChange={() => togglePolicy("candidates_resume_required")} />
+                <span className="text-sm text-foreground">Make "Resume" a required field</span>
+              </label>
+              <label className="flex items-center gap-2.5 cursor-pointer">
+                <Checkbox checked={policySettings.candidates_source_required} onCheckedChange={() => togglePolicy("candidates_source_required")} />
+                <span className="text-sm text-foreground">Make "Source" a required field</span>
+              </label>
+              <label className="flex items-center gap-2.5 cursor-pointer">
+                <Checkbox checked={policySettings.candidates_credit_required} onCheckedChange={() => togglePolicy("candidates_credit_required")} />
+                <span className="text-sm text-foreground">Make "Who Gets Credit" a required field</span>
+              </label>
+            </div>
+          </div>
+
+          <hr className="border-border" />
+
+          {/* Referrals */}
+          <div>
+            <h3 className="text-sm font-semibold text-foreground mb-1.5">Referrals</h3>
+            <p className="text-xs text-muted-foreground mb-2.5">When submitting a referral…</p>
+            <div className="space-y-2.5">
+              <label className="flex items-center gap-2.5 cursor-pointer">
+                <Checkbox checked={policySettings.referrals_email_required} onCheckedChange={() => togglePolicy("referrals_email_required")} />
+                <span className="text-sm text-foreground">Make "Email" a required field</span>
+              </label>
+              <label className="flex items-center gap-2.5 cursor-pointer">
+                <Checkbox checked={policySettings.referrals_phone_required} onCheckedChange={() => togglePolicy("referrals_phone_required")} />
+                <span className="text-sm text-foreground">Make "Phone Number" a required field</span>
+              </label>
+              <label className="flex items-center gap-2.5 cursor-pointer">
+                <Checkbox checked={policySettings.referrals_social_required} onCheckedChange={() => togglePolicy("referrals_social_required")} />
+                <span className="text-sm text-foreground">Make "Social Media" a required field</span>
+              </label>
+              <label className="flex items-center gap-2.5 cursor-pointer">
+                <Checkbox checked={policySettings.referrals_resume_required} onCheckedChange={() => togglePolicy("referrals_resume_required")} />
+                <span className="text-sm text-foreground">Make "Resume" a required field</span>
+              </label>
+              <label className="flex items-center gap-2.5 cursor-pointer">
+                <Checkbox checked={policySettings.referrals_internal_name} onCheckedChange={() => togglePolicy("referrals_internal_name")} />
+                <span className="text-sm text-foreground">Display the internal job name instead of the primary job post name</span>
+              </label>
+            </div>
+          </div>
+
+          <hr className="border-border" />
+
+          {/* Scheduling */}
+          <div>
+            <h3 className="text-sm font-semibold text-foreground mb-3">Scheduling</h3>
+            <div className="space-y-2.5">
+              <label className="flex items-center gap-2.5 cursor-pointer">
+                <Checkbox checked={policySettings.scheduling_self_reschedule} onCheckedChange={() => togglePolicy("scheduling_self_reschedule")} />
+                <span className="text-sm text-foreground">Allow candidates to reschedule self-scheduled interviews</span>
+              </label>
+              <label className="flex items-center gap-2.5 cursor-pointer">
+                <Checkbox checked={policySettings.scheduling_calendar_events} onCheckedChange={() => togglePolicy("scheduling_calendar_events")} />
+                <span className="text-sm text-foreground">Send candidate calendar events via connected calendar integration</span>
+              </label>
+            </div>
+          </div>
+
+          <hr className="border-border" />
+
+          {/* Jobs */}
+          <div>
+            <h3 className="text-sm font-semibold text-foreground mb-3">Jobs</h3>
+            <div className="space-y-2.5">
+              <label className="flex items-center gap-2.5 cursor-pointer">
+                <Checkbox checked={policySettings.jobs_reapproval} onCheckedChange={() => togglePolicy("jobs_reapproval")} />
+                <span className="text-sm text-foreground">Reopening a job with approvals should require reapproval</span>
+              </label>
+              <div className="flex items-center gap-2.5">
+                <Checkbox checked={policySettings.jobs_talent_filter} onCheckedChange={() => togglePolicy("jobs_talent_filter")} />
+                <span className="text-sm text-foreground">
+                  Display the talent filtering step during application review when the number of candidates meets or exceeds{" "}
+                  <Input
+                    type="number"
+                    value={policySettings.jobs_talent_filter_threshold}
+                    onChange={(e) => setPolicySettings((prev) => ({ ...prev, jobs_talent_filter_threshold: Number(e.target.value) }))}
+                    className="inline-block w-16 h-6 text-xs px-1.5 mx-1"
+                  />
+                </span>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground mt-3 mb-1.5">When creating a job…</p>
+            <div className="space-y-2.5">
+              <label className="flex items-center gap-2.5 cursor-pointer">
+                <Checkbox checked={policySettings.jobs_office_required} onCheckedChange={() => togglePolicy("jobs_office_required")} />
+                <span className="text-sm text-foreground">Make "Office" a required field</span>
+              </label>
+              <label className="flex items-center gap-2.5 cursor-pointer">
+                <Checkbox checked={policySettings.jobs_department_required} onCheckedChange={() => togglePolicy("jobs_department_required")} />
+                <span className="text-sm text-foreground">Make "Department" a required field</span>
+              </label>
+              <label className="flex items-center gap-2.5 cursor-pointer">
+                <Checkbox checked={policySettings.jobs_requisition_required} onCheckedChange={() => togglePolicy("jobs_requisition_required")} />
+                <span className="text-sm text-foreground">Make "Requisition ID" a required field</span>
+              </label>
+              <label className="flex items-center gap-2.5 cursor-pointer">
+                <Checkbox checked={policySettings.jobs_opening_required} onCheckedChange={() => togglePolicy("jobs_opening_required")} />
+                <span className="text-sm text-foreground">Make "Opening ID" a required field</span>
+              </label>
+              <label className="flex items-center gap-2.5 cursor-pointer">
+                <Checkbox checked={policySettings.jobs_allow_empty_required} onCheckedChange={() => togglePolicy("jobs_allow_empty_required")} />
+                <span className="text-sm text-foreground">Allow empty required fields in template jobs</span>
+              </label>
+            </div>
+            <p className="text-xs text-muted-foreground mt-3 mb-1.5">When closing a job…</p>
+            <div className="space-y-2.5">
+              <label className="flex items-center gap-2.5 cursor-pointer">
+                <Checkbox checked={policySettings.jobs_close_reason_required} onCheckedChange={() => togglePolicy("jobs_close_reason_required")} />
+                <span className="text-sm text-foreground">Make "Close Reason" a required field on jobs and openings</span>
+              </label>
+            </div>
+          </div>
+
+          <hr className="border-border" />
+
+          {/* Users */}
+          <div>
+            <h3 className="text-sm font-semibold text-foreground mb-3">Users</h3>
+            <div className="space-y-2.5">
+              <label className="flex items-center gap-2.5 cursor-pointer">
+                <Checkbox checked={policySettings.users_coordinator_notify} onCheckedChange={() => togglePolicy("users_coordinator_notify")} />
+                <span className="text-sm text-foreground">Coordinators should be notified when their candidates submit interview availability</span>
+              </label>
+            </div>
+          </div>
         </div>
       )}
 
