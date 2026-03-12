@@ -1,19 +1,34 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import {
   ChevronLeft, ChevronRight, Mail, Shield, Calendar, Link2, Plus, X,
   Check, ExternalLink, Users as UsersIcon, Clock, Video,
-  KeyRound, FileText, CheckSquare, Code,
+  KeyRound, FileText, CheckSquare, Code, Search,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { useATSStore } from "@/lib/ats-store";
 import { toast } from "sonner";
+
+type PermissionLevel = "basic" | "hiring_manager" | "hiring_manager_visibility" | "site_admin";
+
+interface UserPermission {
+  userId: string;
+  permissions: PermissionLevel[];
+}
+
+const PERMISSION_LABELS: { key: PermissionLevel; label: string; description: string }[] = [
+  { key: "basic", label: "Basic", description: "View jobs & candidates" },
+  { key: "hiring_manager", label: "Hiring Manager", description: "Manage assigned jobs" },
+  { key: "hiring_manager_visibility", label: "HM Visibility", description: "See all HM data" },
+  { key: "site_admin", label: "Site Admin", description: "Full system access" },
+];
 
 /* ── Types ────────────────────────────────────────────────────────── */
 interface EmailPermission {
@@ -49,6 +64,40 @@ const settingsMenu: { id: SectionId; label: string; description: string; icon: R
 
 const SettingsPage = () => {
   const { users } = useATSStore();
+  const [userSearch, setUserSearch] = useState("");
+  const [userPermissions, setUserPermissions] = useState<UserPermission[]>(() =>
+    users.map((u) => ({
+      userId: u.id,
+      permissions: u.role === "admin" ? ["basic", "site_admin"] : u.role === "hiring_manager" ? ["basic", "hiring_manager"] : ["basic"],
+    }))
+  );
+
+  const filteredSettingsUsers = useMemo(() => {
+    if (!userSearch.trim()) return users;
+    const q = userSearch.toLowerCase();
+    return users.filter(
+      (u) =>
+        u.firstName.toLowerCase().includes(q) ||
+        u.lastName.toLowerCase().includes(q) ||
+        u.email.toLowerCase().includes(q) ||
+        u.department.toLowerCase().includes(q)
+    );
+  }, [users, userSearch]);
+
+  const toggleUserPermission = (userId: string, perm: PermissionLevel) => {
+    setUserPermissions((prev) =>
+      prev.map((up) => {
+        if (up.userId !== userId) return up;
+        const has = up.permissions.includes(perm);
+        const updated = has ? up.permissions.filter((p) => p !== perm) : [...up.permissions, perm];
+        return { ...up, permissions: updated };
+      })
+    );
+    toast.success("Permission updated");
+  };
+
+  const getUserPermissions = (userId: string) =>
+    userPermissions.find((up) => up.userId === userId)?.permissions || [];
   const [activeSection, setActiveSection] = useState<SectionId>("menu");
 
   // Email permissions state
@@ -184,24 +233,67 @@ const SettingsPage = () => {
               <Plus className="h-3 w-3" /> Invite user
             </Button>
           </div>
-          <div className="divide-y divide-border">
-            {users.map((u) => (
-              <div key={u.id} className="flex items-center justify-between px-5 py-3">
-                <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary">
-                    {u.firstName[0]}{u.lastName[0]}
-                  </div>
-                  <div>
-                    <p className="text-xs font-medium text-foreground">{u.firstName} {u.lastName}</p>
-                    <p className="text-[10px] text-muted-foreground">{u.email}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge variant="secondary" className="text-[10px] capitalize">{u.role.replace("_", " ")}</Badge>
-                  <span className="text-[10px] text-muted-foreground">{u.department}</span>
-                </div>
-              </div>
+
+          {/* Search */}
+          <div className="border-b border-border px-5 py-3">
+            <div className="relative">
+              <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                value={userSearch}
+                onChange={(e) => setUserSearch(e.target.value)}
+                placeholder="Search by name, email, or department…"
+                className="pl-8 h-8 text-xs"
+              />
+            </div>
+          </div>
+
+          {/* Table header */}
+          <div className="grid grid-cols-[1fr_90px_90px_90px_90px] items-center gap-1 px-5 py-2.5 bg-muted/30 border-b border-border">
+            <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Employee</span>
+            {PERMISSION_LABELS.map((p) => (
+              <span key={p.key} className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide text-center" title={p.description}>
+                {p.label}
+              </span>
             ))}
+          </div>
+
+          {/* User rows */}
+          <div className="divide-y divide-border max-h-[400px] overflow-y-auto">
+            {filteredSettingsUsers.length === 0 ? (
+              <div className="px-5 py-8 text-center">
+                <UsersIcon className="h-6 w-6 text-muted-foreground/40 mx-auto mb-2" />
+                <p className="text-xs text-muted-foreground">No employees match your search</p>
+              </div>
+            ) : (
+              filteredSettingsUsers.map((u) => {
+                const perms = getUserPermissions(u.id);
+                return (
+                  <div key={u.id} className="grid grid-cols-[1fr_90px_90px_90px_90px] items-center gap-1 px-5 py-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary shrink-0">
+                        {u.firstName[0]}{u.lastName[0]}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs font-medium text-foreground truncate">{u.firstName} {u.lastName}</p>
+                        <p className="text-[10px] text-muted-foreground truncate">{u.email}</p>
+                      </div>
+                    </div>
+                    {PERMISSION_LABELS.map((p) => (
+                      <div key={p.key} className="flex justify-center">
+                        <Checkbox
+                          checked={perms.includes(p.key)}
+                          onCheckedChange={() => toggleUserPermission(u.id, p.key)}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                );
+              })
+            )}
+          </div>
+
+          <div className="border-t border-border px-5 py-2.5 bg-muted/20">
+            <p className="text-[10px] text-muted-foreground">{filteredSettingsUsers.length} of {users.length} employees shown</p>
           </div>
         </div>
       )}
