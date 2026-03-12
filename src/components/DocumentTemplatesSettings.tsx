@@ -249,28 +249,89 @@ const DocumentTemplatesSettings = () => {
         </div>
       </div>
 
-      {/* Add template dialog */}
-      <Dialog open={addOpen} onOpenChange={setAddOpen}>
-        <DialogContent className="sm:max-w-md">
+      <Dialog open={addOpen} onOpenChange={(v) => { setAddOpen(v); if (!v) { setNewName(""); setNewOffice("all"); setNewDepartment("all"); setNewEmploymentType("all"); } }}>
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle className="text-base">Add Offer Template</DialogTitle>
+            <DialogTitle className="text-base">Add offer template</DialogTitle>
           </DialogHeader>
-          <div className="space-y-3 py-2">
+          <div className="space-y-4 py-1">
+            {/* Template name */}
             <div>
-              <label className="text-xs font-medium text-foreground mb-1.5 block">Template Name *</label>
+              <label className="text-xs font-medium text-foreground mb-1.5 block">Template name *</label>
               <Input
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
-                placeholder="e.g. Offer Letter France - 2024"
+                placeholder="Template name *"
                 className="h-9 text-sm"
               />
             </div>
-            <div className="rounded-lg border border-dashed border-border bg-muted/20 p-6 text-center">
-              <Upload className="h-6 w-6 text-muted-foreground/50 mx-auto mb-2" />
-              <p className="text-xs text-muted-foreground">
-                Drag & drop your .docx template here, or{" "}
-                <button className="text-primary hover:underline font-medium">browse</button>
-              </p>
+
+            {/* File upload */}
+            <div>
+              <label className="text-xs font-medium text-foreground mb-1 block">Upload offer template</label>
+              <button className="text-xs text-primary hover:underline font-medium">Select file</button>
+              <p className="text-[10px] text-muted-foreground mt-0.5">Only .docx files are supported.</p>
+            </div>
+
+            <Separator />
+
+            {/* Template availability */}
+            <div className="space-y-3.5">
+              <div>
+                <h4 className="text-sm font-semibold text-foreground">Template availability</h4>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Control if this template is available as an option when generating an offer document. Availability can be based on office, department, employment type, or custom offer fields.
+                </p>
+              </div>
+
+              <div>
+                <label className="text-xs font-medium text-foreground mb-1.5 block">Offices</label>
+                <Select value={newOffice} onValueChange={setNewOffice}>
+                  <SelectTrigger className="h-9 text-sm"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all" className="text-xs">All selected</SelectItem>
+                    {LOCATIONS.map((l) => (
+                      <SelectItem key={l} value={l} className="text-xs">{l}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <label className="text-xs font-medium text-foreground mb-1.5 block">Departments</label>
+                <Select value={newDepartment} onValueChange={setNewDepartment}>
+                  <SelectTrigger className="h-9 text-sm"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all" className="text-xs">All selected</SelectItem>
+                    {DEPARTMENTS.map((d) => (
+                      <SelectItem key={d} value={d} className="text-xs">{d}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <label className="text-xs font-medium text-foreground mb-1.5 block">Employment types</label>
+                <Select value={newEmploymentType} onValueChange={setNewEmploymentType}>
+                  <SelectTrigger className="h-9 text-sm"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all" className="text-xs">All selected</SelectItem>
+                    <SelectItem value="full-time" className="text-xs">Full-time</SelectItem>
+                    <SelectItem value="part-time" className="text-xs">Part-time</SelectItem>
+                    <SelectItem value="contract" className="text-xs">Contract</SelectItem>
+                    <SelectItem value="internship" className="text-xs">Internship</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <label className="text-xs font-medium text-foreground mb-0.5 block">
+                  Custom offer fields <span className="text-muted-foreground">ⓘ</span>
+                </label>
+                <button className="text-xs text-primary hover:underline font-medium flex items-center gap-1">
+                  <Plus className="h-3 w-3" /> Add custom offer field
+                </button>
+              </div>
             </div>
           </div>
           <DialogFooter>
