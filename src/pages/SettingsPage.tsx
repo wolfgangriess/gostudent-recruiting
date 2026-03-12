@@ -1,19 +1,34 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import {
   ChevronLeft, ChevronRight, Mail, Shield, Calendar, Link2, Plus, X,
   Check, ExternalLink, Users as UsersIcon, Clock, Video,
-  KeyRound, FileText, CheckSquare, Code,
+  KeyRound, FileText, CheckSquare, Code, Search,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { useATSStore } from "@/lib/ats-store";
 import { toast } from "sonner";
+
+type PermissionLevel = "basic" | "hiring_manager" | "hiring_manager_visibility" | "site_admin";
+
+interface UserPermission {
+  userId: string;
+  permissions: PermissionLevel[];
+}
+
+const PERMISSION_LABELS: { key: PermissionLevel; label: string; description: string }[] = [
+  { key: "basic", label: "Basic", description: "View jobs & candidates" },
+  { key: "hiring_manager", label: "Hiring Manager", description: "Manage assigned jobs" },
+  { key: "hiring_manager_visibility", label: "HM Visibility", description: "See all HM data" },
+  { key: "site_admin", label: "Site Admin", description: "Full system access" },
+];
 
 /* ── Types ────────────────────────────────────────────────────────── */
 interface EmailPermission {
