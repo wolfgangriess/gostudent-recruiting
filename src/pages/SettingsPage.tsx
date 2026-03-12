@@ -100,6 +100,36 @@ const SettingsPage = () => {
     userPermissions.find((up) => up.userId === userId)?.permissions || [];
   const [activeSection, setActiveSection] = useState<SectionId>("menu");
 
+  // Permission policies state
+  const [policySettings, setPolicySettings] = useState({
+    candidates_rejection_reason_required: true,
+    candidates_private_on_hire: true,
+    candidates_resume_required: true,
+    candidates_source_required: true,
+    candidates_credit_required: false,
+    referrals_email_required: true,
+    referrals_phone_required: false,
+    referrals_social_required: false,
+    referrals_resume_required: true,
+    referrals_internal_name: false,
+    scheduling_self_reschedule: true,
+    scheduling_calendar_events: false,
+    jobs_reapproval: true,
+    jobs_talent_filter: true,
+    jobs_talent_filter_threshold: 250,
+    jobs_office_required: true,
+    jobs_department_required: true,
+    jobs_requisition_required: true,
+    jobs_opening_required: true,
+    jobs_allow_empty_required: false,
+    jobs_close_reason_required: true,
+    users_coordinator_notify: true,
+  });
+
+  const togglePolicy = (key: keyof typeof policySettings) => {
+    setPolicySettings((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
   // Email permissions state
   const [emailPermissions, setEmailPermissions] = useState<EmailPermission[]>([
     { userId: "user-1", canSendOffers: true, canSendRejections: true, canSendScheduling: true },
