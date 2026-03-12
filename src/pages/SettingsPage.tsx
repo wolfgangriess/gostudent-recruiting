@@ -489,11 +489,7 @@ const SettingsPage = () => {
       )}
 
       {activeSection === "approvals" && (
-        <div className="rounded-xl border border-border bg-card p-6 text-center space-y-3">
-          <CheckSquare className="h-8 w-8 text-muted-foreground/40 mx-auto" />
-          <p className="text-sm font-medium text-foreground">Approvals</p>
-          <p className="text-xs text-muted-foreground">Manage default approval workflows for offers and job requisitions.</p>
-        </div>
+        <ApprovalsSettings />
       )}
 
       {activeSection === "dev-center" && (
