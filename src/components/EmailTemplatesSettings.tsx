@@ -1,6 +1,6 @@
 import { useState } from "react";
 import {
-  Plus, X, Search, ChevronLeft, Pencil, Copy, Trash2,
+  Plus, X, Search, ChevronLeft, Pencil, Copy, Trash2, Mail,
   Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight,
   List, ListOrdered, Code, Link2, Image, Braces, Minus,
 } from "lucide-react";
