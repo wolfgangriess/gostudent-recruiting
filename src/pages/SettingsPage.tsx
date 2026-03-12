@@ -144,15 +144,37 @@ const SettingsPage = () => {
 
   // Calendar state
   const [calendarConnected, setCalendarConnected] = useState(false);
-  const [availabilitySlots, setAvailabilitySlots] = useState([
-    { day: "Monday", start: "09:00", end: "17:00", enabled: true },
-    { day: "Tuesday", start: "09:00", end: "17:00", enabled: true },
-    { day: "Wednesday", start: "09:00", end: "17:00", enabled: true },
-    { day: "Thursday", start: "09:00", end: "17:00", enabled: true },
-    { day: "Friday", start: "09:00", end: "17:00", enabled: true },
-    { day: "Saturday", start: "09:00", end: "13:00", enabled: false },
-    { day: "Sunday", start: "09:00", end: "13:00", enabled: false },
-  ]);
+  const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+  const [availabilitySlots, setAvailabilitySlots] = useState<Record<string, { id: string; start: string; end: string }[]>>({
+    Monday: [{ id: "m1", start: "09:00", end: "17:00" }],
+    Tuesday: [{ id: "t1", start: "09:00", end: "17:00" }],
+    Wednesday: [{ id: "w1", start: "09:00", end: "17:00" }],
+    Thursday: [{ id: "th1", start: "09:00", end: "17:00" }],
+    Friday: [{ id: "f1", start: "09:00", end: "17:00" }],
+    Saturday: [],
+    Sunday: [],
+  });
+
+  const addSlot = (day: string) => {
+    setAvailabilitySlots((prev) => ({
+      ...prev,
+      [day]: [...(prev[day] || []), { id: `${day}-${Date.now()}`, start: "09:00", end: "17:00" }],
+    }));
+  };
+
+  const removeSlot = (day: string, slotId: string) => {
+    setAvailabilitySlots((prev) => ({
+      ...prev,
+      [day]: prev[day].filter((s) => s.id !== slotId),
+    }));
+  };
+
+  const updateSlot = (day: string, slotId: string, field: "start" | "end", value: string) => {
+    setAvailabilitySlots((prev) => ({
+      ...prev,
+      [day]: prev[day].map((s) => (s.id === slotId ? { ...s, [field]: value } : s)),
+    }));
+  };
 
   // Meeting links state
   const [meetingCalendarConnected, setMeetingCalendarConnected] = useState(false);
