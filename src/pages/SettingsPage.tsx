@@ -16,6 +16,7 @@ import {
 import { useATSStore } from "@/lib/ats-store";
 import { toast } from "sonner";
 import EmailTemplatesSettings from "@/components/EmailTemplatesSettings";
+import DocumentTemplatesSettings from "@/components/DocumentTemplatesSettings";
 
 type PermissionLevel = "basic" | "hiring_manager" | "hiring_manager_visibility" | "site_admin";
 
@@ -483,11 +484,7 @@ const SettingsPage = () => {
       )}
 
       {activeSection === "documents" && (
-        <div className="rounded-xl border border-border bg-card p-6 text-center space-y-3">
-          <FileText className="h-8 w-8 text-muted-foreground/40 mx-auto" />
-          <p className="text-sm font-medium text-foreground">Documents</p>
-          <p className="text-xs text-muted-foreground">Configure offer templates and e-signature agreements for your entire organization.</p>
-        </div>
+        <DocumentTemplatesSettings />
       )}
 
       {activeSection === "approvals" && (
