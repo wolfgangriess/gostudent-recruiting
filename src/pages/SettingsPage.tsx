@@ -479,11 +479,7 @@ const SettingsPage = () => {
       )}
 
       {activeSection === "email-templates" && (
-        <div className="rounded-xl border border-border bg-card p-6 text-center space-y-3">
-          <Mail className="h-8 w-8 text-muted-foreground/40 mx-auto" />
-          <p className="text-sm font-medium text-foreground">Email Templates</p>
-          <p className="text-xs text-muted-foreground">Configure templates for offer letters, rejections, and scheduling emails.</p>
-        </div>
+        <EmailTemplatesSettings />
       )}
 
       {activeSection === "documents" && (
