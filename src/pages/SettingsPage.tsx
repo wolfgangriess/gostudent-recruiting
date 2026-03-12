@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select";
 import { useATSStore } from "@/lib/ats-store";
 import { toast } from "sonner";
+import EmailTemplatesSettings from "@/components/EmailTemplatesSettings";
 
 type PermissionLevel = "basic" | "hiring_manager" | "hiring_manager_visibility" | "site_admin";
 
