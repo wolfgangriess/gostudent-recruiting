@@ -2,6 +2,23 @@ import { create } from "zustand";
 import { Job, Candidate, PipelineStage, User, ScorecardTemplate, ScorecardCriterion, ScorecardEvaluation } from "./types";
 import { initialJobs, initialCandidates, initialStages, initialUsers, initialScorecardTemplates } from "./mock-data";
 
+export interface Interview {
+  id: string;
+  candidateId: string;
+  jobId: string;
+  stageId: string;
+  title: string;
+  startTime: string;
+  endTime: string;
+  location?: string;
+  meetingLink?: string;
+  description?: string;
+  googleEventId?: string;
+  status: "scheduled" | "completed" | "cancelled";
+  attendees: { email: string; name: string }[];
+  createdAt: string;
+}
+
 interface ATSStore {
   // Data
   jobs: Job[];
@@ -10,6 +27,13 @@ interface ATSStore {
   users: User[];
   scorecardTemplates: ScorecardTemplate[];
   evaluations: ScorecardEvaluation[];
+  interviews: Interview[];
+
+  // Google Calendar
+  googleCalendarConnected: boolean;
+  googleCalendarEmail: string | null;
+  connectGoogleCalendar: (email: string) => void;
+  disconnectGoogleCalendar: () => void;
 
   // Jobs
   addJob: (job: Job) => void;
@@ -34,6 +58,11 @@ interface ATSStore {
   getScorecardTemplate: (stageId: string) => ScorecardTemplate | undefined;
   addEvaluation: (evaluation: ScorecardEvaluation) => void;
   getEvaluationsForCandidate: (candidateId: string, stageId?: string) => ScorecardEvaluation[];
+
+  // Interviews
+  addInterview: (interview: Interview) => void;
+  updateInterviewStatus: (id: string, status: Interview["status"]) => void;
+  getInterviewsForCandidate: (candidateId: string) => Interview[];
 
   // Users
   getUserById: (id: string) => User | undefined;
