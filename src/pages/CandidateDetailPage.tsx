@@ -71,6 +71,7 @@ const CandidateDetailPage = () => {
 
   const tabs = [
     { id: "stages", label: "Stages", icon: Briefcase },
+    { id: "interviews", label: "Interviews", icon: Calendar },
     { id: "scorecards", label: "Scorecards", icon: Star },
     { id: "offer", label: "Offer", icon: ClipboardList },
     { id: "activity", label: "Activity", icon: Activity },
