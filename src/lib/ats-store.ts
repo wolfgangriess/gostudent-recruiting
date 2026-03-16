@@ -168,5 +168,15 @@ export const useATSStore = create<ATSStore>((set, get) => ({
     return stageId ? evals.filter((e) => e.stageId === stageId) : evals;
   },
 
+
+  // Interviews
+  addInterview: (interview) => set((s) => ({ interviews: [...s.interviews, interview] })),
+  updateInterviewStatus: (id, status) =>
+    set((s) => ({
+      interviews: s.interviews.map((i) => (i.id === id ? { ...i, status } : i)),
+    })),
+  getInterviewsForCandidate: (candidateId) =>
+    get().interviews.filter((i) => i.candidateId === candidateId),
+
   getUserById: (id) => get().users.find((u) => u.id === id),
 }));
