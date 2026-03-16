@@ -2,6 +2,23 @@ import { create } from "zustand";
 import { Job, Candidate, PipelineStage, User, ScorecardTemplate, ScorecardCriterion, ScorecardEvaluation } from "./types";
 import { initialJobs, initialCandidates, initialStages, initialUsers, initialScorecardTemplates } from "./mock-data";
 
+export interface Interview {
+  id: string;
+  candidateId: string;
+  jobId: string;
+  stageId: string;
+  title: string;
+  startTime: string;
+  endTime: string;
+  location?: string;
+  meetingLink?: string;
+  description?: string;
+  googleEventId?: string;
+  status: "scheduled" | "completed" | "cancelled";
+  attendees: { email: string; name: string }[];
+  createdAt: string;
+}
+
 interface ATSStore {
   // Data
   jobs: Job[];
@@ -10,6 +27,13 @@ interface ATSStore {
   users: User[];
   scorecardTemplates: ScorecardTemplate[];
   evaluations: ScorecardEvaluation[];
+  interviews: Interview[];
+
+  // Google Calendar
+  googleCalendarConnected: boolean;
+  googleCalendarEmail: string | null;
+  connectGoogleCalendar: (email: string) => void;
+  disconnectGoogleCalendar: () => void;
 
   // Jobs
   addJob: (job: Job) => void;
@@ -35,6 +59,11 @@ interface ATSStore {
   addEvaluation: (evaluation: ScorecardEvaluation) => void;
   getEvaluationsForCandidate: (candidateId: string, stageId?: string) => ScorecardEvaluation[];
 
+  // Interviews
+  addInterview: (interview: Interview) => void;
+  updateInterviewStatus: (id: string, status: Interview["status"]) => void;
+  getInterviewsForCandidate: (candidateId: string) => Interview[];
+
   // Users
   getUserById: (id: string) => User | undefined;
 }
@@ -46,6 +75,11 @@ export const useATSStore = create<ATSStore>((set, get) => ({
   users: initialUsers,
   scorecardTemplates: initialScorecardTemplates,
   evaluations: [],
+  interviews: [],
+  googleCalendarConnected: false,
+  googleCalendarEmail: null,
+  connectGoogleCalendar: (email) => set({ googleCalendarConnected: true, googleCalendarEmail: email }),
+  disconnectGoogleCalendar: () => set({ googleCalendarConnected: false, googleCalendarEmail: null }),
 
   addJob: (job) => set((s) => ({ jobs: [...s.jobs, job] })),
   updateJob: (id, updates) =>
@@ -133,6 +167,16 @@ export const useATSStore = create<ATSStore>((set, get) => ({
     const evals = get().evaluations.filter((e) => e.candidateId === candidateId);
     return stageId ? evals.filter((e) => e.stageId === stageId) : evals;
   },
+
+
+  // Interviews
+  addInterview: (interview) => set((s) => ({ interviews: [...s.interviews, interview] })),
+  updateInterviewStatus: (id, status) =>
+    set((s) => ({
+      interviews: s.interviews.map((i) => (i.id === id ? { ...i, status } : i)),
+    })),
+  getInterviewsForCandidate: (candidateId) =>
+    get().interviews.filter((i) => i.candidateId === candidateId),
 
   getUserById: (id) => get().users.find((u) => u.id === id),
 }));

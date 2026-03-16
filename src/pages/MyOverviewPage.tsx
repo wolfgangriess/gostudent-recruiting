@@ -30,7 +30,7 @@ const TIME_PERIODS = [
 ];
 
 const MyOverviewPage = () => {
-  const { candidates, jobs, stages, users } = useATSStore();
+  const { candidates, jobs, stages, users, interviews } = useATSStore();
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
   const [showInterviewsDialog, setShowInterviewsDialog] = useState(false);
   const [showScorecardsDialog, setShowScorecardsDialog] = useState(false);

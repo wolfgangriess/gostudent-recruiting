@@ -5,11 +5,12 @@ import ActivityFeed from "@/components/ActivityFeed";
 import ResumePreviewDialog from "@/components/ResumePreviewDialog";
 import CandidateLinkedInTab from "@/components/CandidateLinkedInTab";
 import CandidateStagesTab from "@/components/CandidateStagesTab";
+import InterviewsTab from "@/components/InterviewsTab";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   ChevronLeft, FileText, Mail,
   MoreHorizontal, MessageSquare, Pin,
-  Briefcase, ClipboardList, Star, Activity, Linkedin,
+  Briefcase, ClipboardList, Star, Activity, Linkedin, Calendar,
   Phone, GitMerge, UserMinus, Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -70,6 +71,7 @@ const CandidateDetailPage = () => {
 
   const tabs = [
     { id: "stages", label: "Stages", icon: Briefcase },
+    { id: "interviews", label: "Interviews", icon: Calendar },
     { id: "scorecards", label: "Scorecards", icon: Star },
     { id: "offer", label: "Offer", icon: ClipboardList },
     { id: "activity", label: "Activity", icon: Activity },
@@ -211,6 +213,10 @@ const CandidateDetailPage = () => {
               currentStageIdx={currentStageIdx}
               onCreateOffer={() => setShowOfferDialog(true)}
             />
+          )}
+
+          {activeTab === "interviews" && (
+            <InterviewsTab candidate={candidate} />
           )}
 
           {activeTab === "scorecards" && (
