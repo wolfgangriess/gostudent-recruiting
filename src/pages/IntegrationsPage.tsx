@@ -38,7 +38,7 @@ const IntegrationsPage = () => {
           <CardContent className="p-0">
             <div className="flex items-center gap-5 p-6">
               {/* Icon */}
-              <div className="h-14 w-14 rounded-xl bg-[hsl(var(--primary))]/10 flex items-center justify-center shrink-0">
+              <div className="h-14 w-14 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                 <svg viewBox="0 0 24 24" className="h-8 w-8" fill="none">
                   <rect x="3" y="3" width="18" height="18" rx="3" fill="#4285F4" />
                   <rect x="5" y="9" width="14" height="1.5" rx="0.5" fill="white" />
