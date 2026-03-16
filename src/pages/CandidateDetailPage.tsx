@@ -5,11 +5,12 @@ import ActivityFeed from "@/components/ActivityFeed";
 import ResumePreviewDialog from "@/components/ResumePreviewDialog";
 import CandidateLinkedInTab from "@/components/CandidateLinkedInTab";
 import CandidateStagesTab from "@/components/CandidateStagesTab";
+import InterviewsTab from "@/components/InterviewsTab";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   ChevronLeft, FileText, Mail,
   MoreHorizontal, MessageSquare, Pin,
-  Briefcase, ClipboardList, Star, Activity, Linkedin,
+  Briefcase, ClipboardList, Star, Activity, Linkedin, Calendar,
   Phone, GitMerge, UserMinus, Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
