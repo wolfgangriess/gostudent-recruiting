@@ -75,6 +75,11 @@ export const useATSStore = create<ATSStore>((set, get) => ({
   users: initialUsers,
   scorecardTemplates: initialScorecardTemplates,
   evaluations: [],
+  interviews: [],
+  googleCalendarConnected: false,
+  googleCalendarEmail: null,
+  connectGoogleCalendar: (email) => set({ googleCalendarConnected: true, googleCalendarEmail: email }),
+  disconnectGoogleCalendar: () => set({ googleCalendarConnected: false, googleCalendarEmail: null }),
 
   addJob: (job) => set((s) => ({ jobs: [...s.jobs, job] })),
   updateJob: (id, updates) =>
