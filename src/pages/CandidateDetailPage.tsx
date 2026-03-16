@@ -215,6 +215,10 @@ const CandidateDetailPage = () => {
             />
           )}
 
+          {activeTab === "interviews" && (
+            <InterviewsTab candidate={candidate} />
+          )}
+
           {activeTab === "scorecards" && (
             <ScorecardPanel candidateId={candidate.id} jobId={candidate.jobId} />
           )}
