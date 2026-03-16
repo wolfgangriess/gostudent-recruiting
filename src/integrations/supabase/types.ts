@@ -14,7 +14,128 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      integrations: {
+        Row: {
+          access_token: string | null
+          connected_email: string | null
+          created_at: string
+          expires_at: string | null
+          id: string
+          provider: string
+          refresh_token: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token?: string | null
+          connected_email?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          provider?: string
+          refresh_token?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token?: string | null
+          connected_email?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          provider?: string
+          refresh_token?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      interview_attendees: {
+        Row: {
+          created_at: string
+          id: string
+          interview_id: string
+          user_email: string
+          user_name: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          interview_id: string
+          user_email: string
+          user_name?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          interview_id?: string
+          user_email?: string
+          user_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "interview_attendees_interview_id_fkey"
+            columns: ["interview_id"]
+            isOneToOne: false
+            referencedRelation: "interviews"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      interviews: {
+        Row: {
+          candidate_id: string
+          created_at: string
+          created_by_id: string | null
+          description: string | null
+          end_time: string
+          google_event_id: string | null
+          id: string
+          job_id: string
+          location: string | null
+          meeting_link: string | null
+          stage_id: string
+          start_time: string
+          status: Database["public"]["Enums"]["interview_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          candidate_id: string
+          created_at?: string
+          created_by_id?: string | null
+          description?: string | null
+          end_time: string
+          google_event_id?: string | null
+          id?: string
+          job_id: string
+          location?: string | null
+          meeting_link?: string | null
+          stage_id: string
+          start_time: string
+          status?: Database["public"]["Enums"]["interview_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          candidate_id?: string
+          created_at?: string
+          created_by_id?: string | null
+          description?: string | null
+          end_time?: string
+          google_event_id?: string | null
+          id?: string
+          job_id?: string
+          location?: string | null
+          meeting_link?: string | null
+          stage_id?: string
+          start_time?: string
+          status?: Database["public"]["Enums"]["interview_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +144,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      interview_status: "scheduled" | "completed" | "cancelled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +271,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      interview_status: ["scheduled", "completed", "cancelled"],
+    },
   },
 } as const
