@@ -19,7 +19,7 @@ import EmailTemplatesSettings from "@/components/EmailTemplatesSettings";
 import DocumentTemplatesSettings from "@/components/DocumentTemplatesSettings";
 import ApprovalsSettings from "@/components/ApprovalsSettings";
 import DevCenterSettings from "@/components/DevCenterSettings";
-
+import ConnectionStatusDashboard from "@/components/ConnectionStatusDashboard";
 
 type PermissionLevel = "basic" | "hiring_manager" | "hiring_manager_visibility" | "site_admin";
 
