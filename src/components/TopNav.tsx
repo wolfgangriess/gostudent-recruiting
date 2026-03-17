@@ -100,14 +100,23 @@ const TopNav = () => {
             </DropdownMenu>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-primary-foreground/65 hover:text-primary-foreground hover:bg-primary-foreground/10">
-                  <UserCircle className="h-4.5 w-4.5" />
+                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full p-0">
+                  <Avatar className="h-7 w-7">
+                    <AvatarImage src={avatarUrl} alt={fullName} />
+                    <AvatarFallback className="bg-primary-foreground/20 text-primary-foreground text-[11px] font-semibold">
+                      {initials}
+                    </AvatarFallback>
+                  </Avatar>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem onClick={() => toast.info("Login/Logout coming soon")} className="gap-2 cursor-pointer">
+              <DropdownMenuContent align="end" className="w-52">
+                <div className="px-2 py-1.5 border-b border-border mb-1">
+                  <p className="text-sm font-medium text-foreground truncate">{fullName}</p>
+                  <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                </div>
+                <DropdownMenuItem onClick={handleSignOut} className="gap-2 cursor-pointer text-destructive focus:text-destructive">
                   <LogOut className="h-4 w-4" />
-                  Log out
+                  Sign out
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
