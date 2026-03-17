@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Briefcase, Users, BarChart3, ChevronDown, UserPlus, Share2, LayoutDashboard, Settings, LogOut, Plug } from "lucide-react";
+import { Briefcase, Users, BarChart3, ChevronDown, UserPlus, Share2, LayoutDashboard, Settings, LogOut } from "lucide-react";
 import gostudentIcon from "@/assets/recruiting-logo.png";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
@@ -21,7 +21,6 @@ const navItems = [
   { to: "/jobs", label: "Jobs", icon: Briefcase },
   { to: "/candidates", label: "Candidates", icon: Users },
   { to: "/reports", label: "Reports", icon: BarChart3 },
-  { to: "/integrations", label: "Integrations", icon: Plug },
 ];
 
 const TopNav = () => {
