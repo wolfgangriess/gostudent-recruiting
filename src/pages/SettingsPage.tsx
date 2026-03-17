@@ -67,7 +67,7 @@ const settingsMenu: { id: SectionId; label: string; description: string; icon: R
   { id: "meetings", label: "Meeting Links", description: "Generate shareable meeting links for interviews", icon: Video },
   { id: "approvals", label: "Approvals", description: "Manage default approval workflows", icon: CheckSquare },
   { id: "dev-center", label: "Dev Center", description: "Configure your job board, development resources", icon: Code },
-  
+  { id: "connections", label: "Connected Services", description: "View status of Google Calendar, Gmail, and SSO connections", icon: Link2 },
 ];
 
 const SettingsPage = () => {
