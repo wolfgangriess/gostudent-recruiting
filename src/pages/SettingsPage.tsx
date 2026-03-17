@@ -523,6 +523,10 @@ const SettingsPage = () => {
         <DevCenterSettings />
       )}
 
+      {activeSection === "connections" && (
+        <ConnectionStatusDashboard />
+      )}
+
 
       {/* ── Email Permissions ─────────────────────────────────────── */}
       {activeSection === "email" && (
