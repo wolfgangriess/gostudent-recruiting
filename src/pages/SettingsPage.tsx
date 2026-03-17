@@ -522,9 +522,6 @@ const SettingsPage = () => {
         <DevCenterSettings />
       )}
 
-      {activeSection === "integrations" && (
-        <IntegrationsSettings />
-      )}
 
       {/* ── Email Permissions ─────────────────────────────────────── */}
       {activeSection === "email" && (
