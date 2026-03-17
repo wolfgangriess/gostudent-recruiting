@@ -13,7 +13,7 @@ import ReportsPage from "./pages/ReportsPage.tsx";
 import JobPostPage from "./pages/JobPostPage.tsx";
 import MyOverviewPage from "./pages/MyOverviewPage.tsx";
 import SettingsPage from "./pages/SettingsPage.tsx";
-import IntegrationsPage from "./pages/IntegrationsPage.tsx";
+
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
