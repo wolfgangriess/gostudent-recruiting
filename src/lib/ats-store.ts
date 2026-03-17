@@ -29,11 +29,6 @@ interface ATSStore {
   evaluations: ScorecardEvaluation[];
   interviews: Interview[];
 
-  // Google Calendar
-  googleCalendarConnected: boolean;
-  googleCalendarEmail: string | null;
-  connectGoogleCalendar: (email: string) => void;
-  disconnectGoogleCalendar: () => void;
 
   // Jobs
   addJob: (job: Job) => void;
@@ -76,10 +71,6 @@ export const useATSStore = create<ATSStore>((set, get) => ({
   scorecardTemplates: initialScorecardTemplates,
   evaluations: [],
   interviews: [],
-  googleCalendarConnected: false,
-  googleCalendarEmail: null,
-  connectGoogleCalendar: (email) => set({ googleCalendarConnected: true, googleCalendarEmail: email }),
-  disconnectGoogleCalendar: () => set({ googleCalendarConnected: false, googleCalendarEmail: null }),
 
   addJob: (job) => set((s) => ({ jobs: [...s.jobs, job] })),
   updateJob: (id, updates) =>
