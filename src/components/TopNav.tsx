@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Briefcase, Users, BarChart3, ChevronDown, Plus, UserPlus, Share2, LayoutDashboard, UserCircle, Settings, LogOut, LogIn, Plug } from "lucide-react";
+import { Briefcase, Users, BarChart3, ChevronDown, UserPlus, Share2, LayoutDashboard, Settings, LogOut, Plug } from "lucide-react";
 import gostudentIcon from "@/assets/recruiting-logo.png";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
