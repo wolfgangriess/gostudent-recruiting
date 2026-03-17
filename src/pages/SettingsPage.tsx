@@ -54,7 +54,8 @@ type SectionId =
   | "email"
   | "availability"
   | "meetings"
-  ;
+  | "connections";
+
 
 const settingsMenu: { id: SectionId; label: string; description: string; icon: React.ElementType }[] = [
   { id: "users", label: "Users", description: "Manage your team members, or invite new users", icon: UsersIcon },
