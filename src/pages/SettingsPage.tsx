@@ -19,7 +19,7 @@ import EmailTemplatesSettings from "@/components/EmailTemplatesSettings";
 import DocumentTemplatesSettings from "@/components/DocumentTemplatesSettings";
 import ApprovalsSettings from "@/components/ApprovalsSettings";
 import DevCenterSettings from "@/components/DevCenterSettings";
-
+import ConnectionStatusDashboard from "@/components/ConnectionStatusDashboard";
 
 type PermissionLevel = "basic" | "hiring_manager" | "hiring_manager_visibility" | "site_admin";
 
@@ -54,7 +54,8 @@ type SectionId =
   | "email"
   | "availability"
   | "meetings"
-  ;
+  | "connections";
+
 
 const settingsMenu: { id: SectionId; label: string; description: string; icon: React.ElementType }[] = [
   { id: "users", label: "Users", description: "Manage your team members, or invite new users", icon: UsersIcon },
@@ -66,7 +67,7 @@ const settingsMenu: { id: SectionId; label: string; description: string; icon: R
   { id: "meetings", label: "Meeting Links", description: "Generate shareable meeting links for interviews", icon: Video },
   { id: "approvals", label: "Approvals", description: "Manage default approval workflows", icon: CheckSquare },
   { id: "dev-center", label: "Dev Center", description: "Configure your job board, development resources", icon: Code },
-  
+  { id: "connections", label: "Connected Services", description: "View status of Google Calendar, Gmail, and SSO connections", icon: Link2 },
 ];
 
 const SettingsPage = () => {
@@ -520,6 +521,10 @@ const SettingsPage = () => {
 
       {activeSection === "dev-center" && (
         <DevCenterSettings />
+      )}
+
+      {activeSection === "connections" && (
+        <ConnectionStatusDashboard />
       )}
 
 
