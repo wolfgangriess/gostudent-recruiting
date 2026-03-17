@@ -66,7 +66,7 @@ const settingsMenu: { id: SectionId; label: string; description: string; icon: R
   { id: "meetings", label: "Meeting Links", description: "Generate shareable meeting links for interviews", icon: Video },
   { id: "approvals", label: "Approvals", description: "Manage default approval workflows", icon: CheckSquare },
   { id: "dev-center", label: "Dev Center", description: "Configure your job board, development resources", icon: Code },
-  { id: "integrations", label: "Integrations", description: "Connect external services to streamline your hiring workflow", icon: Link2 },
+  
 ];
 
 const SettingsPage = () => {
