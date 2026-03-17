@@ -521,6 +521,10 @@ const SettingsPage = () => {
         <DevCenterSettings />
       )}
 
+      {activeSection === "integrations" && (
+        <IntegrationsSettings />
+      )}
+
       {/* ── Email Permissions ─────────────────────────────────────── */}
       {activeSection === "email" && (
         <div className="space-y-4">
