@@ -27,9 +27,25 @@ const navItems = [
 const TopNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user, signOut } = useAuth();
   const [addJobOpen, setAddJobOpen] = useState(false);
   const [addCandidateOpen, setAddCandidateOpen] = useState(false);
   const [addReferralOpen, setAddReferralOpen] = useState(false);
+
+  const userMeta = user?.user_metadata;
+  const avatarUrl = userMeta?.avatar_url || userMeta?.picture;
+  const fullName = userMeta?.full_name || userMeta?.name || user?.email || "";
+  const initials = fullName
+    .split(" ")
+    .map((n: string) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+
+  const handleSignOut = async () => {
+    await signOut();
+    toast.success("Signed out successfully");
+  };
 
   return (
     <>
