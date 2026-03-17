@@ -29,11 +29,6 @@ interface ATSStore {
   evaluations: ScorecardEvaluation[];
   interviews: Interview[];
 
-  // Google Calendar
-  googleCalendarConnected: boolean;
-  googleCalendarEmail: string | null;
-  connectGoogleCalendar: (email: string) => void;
-  disconnectGoogleCalendar: () => void;
 
   // Jobs
   addJob: (job: Job) => void;
