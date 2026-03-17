@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/select";
 import { useATSStore } from "@/lib/ats-store";
 import { Candidate } from "@/lib/types";
+import { useGoogleCalendarIntegration } from "@/hooks/useGoogleCalendarIntegration";
 import { toast } from "sonner";
 
 const DURATION_OPTIONS = [
@@ -43,7 +44,8 @@ interface ScheduleInterviewDialogProps {
 }
 
 const ScheduleInterviewDialog = ({ open, onOpenChange, candidate }: ScheduleInterviewDialogProps) => {
-  const { jobs, stages, users, googleCalendarConnected, addInterview } = useATSStore();
+  const { jobs, stages, users, addInterview } = useATSStore();
+  const { connected: googleCalendarConnected } = useGoogleCalendarIntegration();
   const job = jobs.find((j) => j.id === candidate.jobId);
   const jobStages = stages.filter((s) => s.jobId === candidate.jobId).sort((a, b) => a.order - b.order);
   const currentStage = stages.find((s) => s.id === candidate.currentStageId);
@@ -109,7 +111,6 @@ const ScheduleInterviewDialog = ({ open, onOpenChange, candidate }: ScheduleInte
       return { email: u?.email ?? "", name: u ? `${u.firstName} ${u.lastName}` : "" };
     });
 
-    // Simulate API delay
     await new Promise((r) => setTimeout(r, 800));
 
     addInterview({
@@ -149,7 +150,6 @@ const ScheduleInterviewDialog = ({ open, onOpenChange, candidate }: ScheduleInte
         </DialogHeader>
 
         <div className="space-y-4 py-2">
-          {/* Title */}
           <div className="space-y-1.5">
             <Label className="text-xs font-medium">Interview Title</Label>
             <Input
@@ -159,7 +159,6 @@ const ScheduleInterviewDialog = ({ open, onOpenChange, candidate }: ScheduleInte
             />
           </div>
 
-          {/* Stage */}
           <div className="space-y-1.5">
             <Label className="text-xs font-medium">Interview Stage</Label>
             <Select value={stageId} onValueChange={setStageId}>
@@ -174,7 +173,6 @@ const ScheduleInterviewDialog = ({ open, onOpenChange, candidate }: ScheduleInte
             </Select>
           </div>
 
-          {/* Date & Time Row */}
           <div className="grid grid-cols-3 gap-3">
             <div className="space-y-1.5">
               <Label className="text-xs font-medium">Date</Label>
@@ -228,7 +226,6 @@ const ScheduleInterviewDialog = ({ open, onOpenChange, candidate }: ScheduleInte
             </div>
           </div>
 
-          {/* Attendees */}
           <div className="space-y-1.5">
             <Label className="text-xs font-medium flex items-center gap-1.5">
               <Users className="h-3.5 w-3.5" />
@@ -254,7 +251,6 @@ const ScheduleInterviewDialog = ({ open, onOpenChange, candidate }: ScheduleInte
             </div>
           </div>
 
-          {/* Location */}
           <div className="space-y-1.5">
             <Label className="text-xs font-medium flex items-center gap-1.5">
               <MapPin className="h-3.5 w-3.5" />
@@ -268,7 +264,6 @@ const ScheduleInterviewDialog = ({ open, onOpenChange, candidate }: ScheduleInte
             />
           </div>
 
-          {/* Meeting Link (manual, if no Google Calendar) */}
           {!googleCalendarConnected && (
             <div className="space-y-1.5">
               <Label className="text-xs font-medium flex items-center gap-1.5">
@@ -284,7 +279,6 @@ const ScheduleInterviewDialog = ({ open, onOpenChange, candidate }: ScheduleInte
             </div>
           )}
 
-          {/* Description */}
           <div className="space-y-1.5">
             <Label className="text-xs font-medium flex items-center gap-1.5">
               <FileText className="h-3.5 w-3.5" />
@@ -299,7 +293,6 @@ const ScheduleInterviewDialog = ({ open, onOpenChange, candidate }: ScheduleInte
             />
           </div>
 
-          {/* Google Calendar toggles */}
           {googleCalendarConnected && (
             <div className="rounded-lg border border-border p-3 space-y-3 bg-muted/30">
               <div className="flex items-center justify-between">
