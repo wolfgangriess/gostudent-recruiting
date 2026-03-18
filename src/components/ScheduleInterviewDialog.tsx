@@ -22,6 +22,7 @@ import { useATSStore } from "@/lib/ats-store";
 import { Candidate } from "@/lib/types";
 import { useGoogleCalendarIntegration } from "@/hooks/useGoogleCalendarIntegration";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const DURATION_OPTIONS = [
   { value: "30", label: "30 min" },
@@ -111,7 +112,33 @@ const ScheduleInterviewDialog = ({ open, onOpenChange, candidate }: ScheduleInte
       return { email: u?.email ?? "", name: u ? `${u.firstName} ${u.lastName}` : "" };
     });
 
-    await new Promise((r) => setTimeout(r, 800));
+    let googleEventId: string | undefined;
+    let finalMeetingLink = meetingLink;
+
+    // If Google Calendar is connected and user wants calendar event
+    if (addToCalendar && googleCalendarConnected) {
+      try {
+        const { data, error } = await supabase.functions.invoke("google-calendar-api", {
+          body: {
+            action: "create_event",
+            summary: title,
+            description,
+            startTime: startDate.toISOString(),
+            endTime: endDate.toISOString(),
+            attendees: attendeesList,
+            location,
+            createMeetLink: addMeetLink,
+          },
+        });
+
+        if (error) throw error;
+        googleEventId = data?.googleEventId;
+        if (data?.meetingLink) finalMeetingLink = data.meetingLink;
+      } catch (err) {
+        console.error("Failed to create Google Calendar event:", err);
+        toast.error("Could not create calendar event, but interview will still be saved.");
+      }
+    }
 
     addInterview({
       id: `interview-${Date.now()}`,
@@ -122,17 +149,17 @@ const ScheduleInterviewDialog = ({ open, onOpenChange, candidate }: ScheduleInte
       startTime: startDate.toISOString(),
       endTime: endDate.toISOString(),
       location,
-      meetingLink: addMeetLink && googleCalendarConnected ? `https://meet.google.com/${Math.random().toString(36).slice(2, 10)}` : meetingLink,
+      meetingLink: finalMeetingLink,
       description,
       status: "scheduled",
       attendees: attendeesList,
-      googleEventId: addToCalendar && googleCalendarConnected ? `gcal-${Date.now()}` : undefined,
+      googleEventId,
       createdAt: new Date().toISOString(),
     });
 
     setSaving(false);
     toast.success("Interview scheduled!", {
-      description: addToCalendar && googleCalendarConnected
+      description: googleEventId
         ? "Calendar event created and invites sent."
         : undefined,
     });
