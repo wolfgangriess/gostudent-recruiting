@@ -22,6 +22,7 @@ import { useATSStore } from "@/lib/ats-store";
 import { Candidate } from "@/lib/types";
 import { useGoogleCalendarIntegration } from "@/hooks/useGoogleCalendarIntegration";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const DURATION_OPTIONS = [
   { value: "30", label: "30 min" },
