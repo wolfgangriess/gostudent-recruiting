@@ -48,6 +48,21 @@ export const useGoogleCalendarIntegration = () => {
     refresh();
   }, [refresh]);
 
+  // Check for callback params on mount
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("gcal_connected") === "true") {
+      // Clean URL and refresh
+      window.history.replaceState({}, "", window.location.pathname);
+      refresh();
+    }
+    const gcalError = params.get("gcal_error");
+    if (gcalError) {
+      window.history.replaceState({}, "", window.location.pathname);
+      console.error("Google Calendar connection error:", gcalError);
+    }
+  }, [refresh]);
+
   const expired = useMemo(() => {
     if (!integration?.expires_at) return false;
     return new Date(integration.expires_at) < new Date();
@@ -62,33 +77,21 @@ export const useGoogleCalendarIntegration = () => {
 
     setMutating(true);
 
-    if (integration?.id) {
-      const { error } = await supabase
-        .from("integrations")
-        .update({
-          connected_email: user.email ?? null,
-          expires_at: null,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", integration.id);
+    try {
+      // Call edge function to get Google OAuth URL
+      const { data, error } = await supabase.functions.invoke("google-calendar-auth");
 
-      setMutating(false);
       if (error) throw error;
-      await refresh();
-      return;
+      if (data?.url) {
+        // Redirect to Google OAuth consent screen
+        window.location.href = data.url;
+      } else {
+        throw new Error("No authorization URL returned");
+      }
+    } finally {
+      setMutating(false);
     }
-
-    const { error } = await supabase.from("integrations").insert({
-      user_id: user.id,
-      provider: "google_calendar",
-      connected_email: user.email ?? null,
-      expires_at: null,
-    });
-
-    setMutating(false);
-    if (error) throw error;
-    await refresh();
-  }, [integration?.id, refresh, user]);
+  }, [user]);
 
   const disconnect = useCallback(async () => {
     if (!user) {
