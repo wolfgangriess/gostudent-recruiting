@@ -632,7 +632,7 @@ const SettingsPage = () => {
               {calendarConnected ? (
                 <div className="flex items-center gap-2">
                   <Badge className="bg-green-600/10 text-green-700 border-green-600/20 text-[10px] gap-1"><Check className="h-3 w-3" /> Connected</Badge>
-                  <Button variant="ghost" size="sm" className="text-xs h-7 text-muted-foreground" onClick={() => setCalendarConnected(false)}>Disconnect</Button>
+                  <Button variant="ghost" size="sm" className="text-xs h-7 text-muted-foreground" onClick={() => void googleCalendar.disconnect().then(() => toast.success("Google Calendar disconnected.")).catch(() => toast.error("Failed to disconnect."))}>Disconnect</Button>
                 </div>
               ) : (
                 <Button size="sm" className="text-xs h-8 gap-1.5" onClick={() => handleConnectCalendar("availability")}>
