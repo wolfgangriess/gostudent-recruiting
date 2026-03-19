@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
+import { useGoogleCalendarIntegration } from "@/hooks/useGoogleCalendarIntegration";
 import {
   ChevronLeft, ChevronRight, Mail, Shield, Calendar, Link2, Plus, X,
   Check, ExternalLink, Users as UsersIcon, Clock, Video,
@@ -147,7 +148,7 @@ const SettingsPage = () => {
   const [selectedUserId, setSelectedUserId] = useState("");
 
   // Calendar state
-  const [calendarConnected, setCalendarConnected] = useState(false);
+  const googleCalendar = useGoogleCalendarIntegration();
   const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
   const [availabilitySlots, setAvailabilitySlots] = useState<Record<string, { id: string; start: string; end: string }[]>>({
     Monday: [{ id: "m1", start: "09:00", end: "17:00" }],
@@ -182,6 +183,7 @@ const SettingsPage = () => {
 
   // Meeting links state
   const [meetingCalendarConnected, setMeetingCalendarConnected] = useState(false);
+  const calendarConnected = googleCalendar.connected;
   const [defaultDuration, setDefaultDuration] = useState("30");
   const [meetingLinks, setMeetingLinks] = useState<{ id: string; name: string; duration: string; link: string }[]>([]);
 
@@ -211,13 +213,18 @@ const SettingsPage = () => {
     toast.success("Permission removed");
   };
 
-  const handleConnectCalendar = (type: "availability" | "meetings") => {
-    if (type === "availability") {
-      setCalendarConnected(true);
-      toast.success("Google Calendar connected for availability");
-    } else {
-      setMeetingCalendarConnected(true);
-      toast.success("Google Calendar connected for meeting links");
+  const handleConnectCalendar = async (type: "availability" | "meetings") => {
+    try {
+      if (type === "meetings" && googleCalendar.connected) {
+        // If already connected via availability, just flip local meeting state
+        setMeetingCalendarConnected(true);
+        toast.success("Google Calendar connected for meeting links");
+        return;
+      }
+      await googleCalendar.connect();
+      // OAuth redirect will happen — no toast needed here
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to connect Google Calendar.");
     }
   };
 
@@ -625,7 +632,7 @@ const SettingsPage = () => {
               {calendarConnected ? (
                 <div className="flex items-center gap-2">
                   <Badge className="bg-green-600/10 text-green-700 border-green-600/20 text-[10px] gap-1"><Check className="h-3 w-3" /> Connected</Badge>
-                  <Button variant="ghost" size="sm" className="text-xs h-7 text-muted-foreground" onClick={() => setCalendarConnected(false)}>Disconnect</Button>
+                  <Button variant="ghost" size="sm" className="text-xs h-7 text-muted-foreground" onClick={() => void googleCalendar.disconnect().then(() => toast.success("Google Calendar disconnected.")).catch(() => toast.error("Failed to disconnect."))}>Disconnect</Button>
                 </div>
               ) : (
                 <Button size="sm" className="text-xs h-8 gap-1.5" onClick={() => handleConnectCalendar("availability")}>
