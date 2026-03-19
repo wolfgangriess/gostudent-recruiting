@@ -148,7 +148,7 @@ const SettingsPage = () => {
   const [selectedUserId, setSelectedUserId] = useState("");
 
   // Calendar state
-  const [calendarConnected, setCalendarConnected] = useState(false);
+  const googleCalendar = useGoogleCalendarIntegration();
   const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
   const [availabilitySlots, setAvailabilitySlots] = useState<Record<string, { id: string; start: string; end: string }[]>>({
     Monday: [{ id: "m1", start: "09:00", end: "17:00" }],
