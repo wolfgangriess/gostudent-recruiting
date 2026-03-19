@@ -184,6 +184,7 @@ const SettingsPage = () => {
   // Meeting links state
   const [meetingCalendarConnected, setMeetingCalendarConnected] = useState(false);
   const calendarConnected = googleCalendar.connected;
+  const [defaultDuration, setDefaultDuration] = useState("30");
   const [meetingLinks, setMeetingLinks] = useState<{ id: string; name: string; duration: string; link: string }[]>([]);
 
   const availableUsersForEmail = users.filter(
