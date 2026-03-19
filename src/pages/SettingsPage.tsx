@@ -212,13 +212,18 @@ const SettingsPage = () => {
     toast.success("Permission removed");
   };
 
-  const handleConnectCalendar = (type: "availability" | "meetings") => {
-    if (type === "availability") {
-      setCalendarConnected(true);
-      toast.success("Google Calendar connected for availability");
-    } else {
-      setMeetingCalendarConnected(true);
-      toast.success("Google Calendar connected for meeting links");
+  const handleConnectCalendar = async (type: "availability" | "meetings") => {
+    try {
+      if (type === "meetings" && googleCalendar.connected) {
+        // If already connected via availability, just flip local meeting state
+        setMeetingCalendarConnected(true);
+        toast.success("Google Calendar connected for meeting links");
+        return;
+      }
+      await googleCalendar.connect();
+      // OAuth redirect will happen — no toast needed here
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to connect Google Calendar.");
     }
   };
 
