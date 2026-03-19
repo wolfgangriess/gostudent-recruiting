@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
+import { useGoogleCalendarIntegration } from "@/hooks/useGoogleCalendarIntegration";
 import {
   ChevronLeft, ChevronRight, Mail, Shield, Calendar, Link2, Plus, X,
   Check, ExternalLink, Users as UsersIcon, Clock, Video,
