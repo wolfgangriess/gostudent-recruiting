@@ -1,8 +1,9 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
@@ -18,8 +19,13 @@ const CandidatesPage = () => {
   const [filterJob, setFilterJob] = useState("all");
   const [filterStage, setFilterStage] = useState("all");
   const [filterSource, setFilterSource] = useState("all");
+  // BUG 3 FIX: paginated display instead of hard slice(0,50)
+  const [visibleCount, setVisibleCount] = useState(50);
 
   const sources = useMemo(() => [...new Set(candidates.map((c) => c.source))].sort(), [candidates]);
+
+  // Reset pagination when filters change
+  useEffect(() => { setVisibleCount(50); }, [search, filterJob, filterStage, filterSource]);
 
   const filtered = useMemo(() => {
     return candidates.filter((c) => {
@@ -105,7 +111,7 @@ const CandidatesPage = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filtered.slice(0, 50).map((c) => (
+            {filtered.slice(0, visibleCount).map((c) => (
               <TableRow
                 key={c.id}
                 className="cursor-pointer transition-colors hover:bg-primary/[0.03]"
@@ -139,6 +145,13 @@ const CandidatesPage = () => {
           </TableBody>
         </Table>
       </div>
+      {filtered.length > visibleCount && (
+        <div className="mt-4 flex justify-center">
+          <Button variant="outline" onClick={() => setVisibleCount((prev) => prev + 50)}>
+            Load more ({filtered.length - visibleCount} remaining)
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

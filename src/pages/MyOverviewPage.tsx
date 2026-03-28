@@ -1,10 +1,11 @@
 import { useMemo, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, CheckCircle2, ClipboardList, ChevronRight, Star, TrendingUp, Clock, FileText, Linkedin, ExternalLink } from "lucide-react";
+import { Calendar, CheckCircle2, ClipboardList, ChevronRight, TrendingUp, Clock } from "lucide-react";
 import { useATSStore } from "@/lib/ats-store";
 import { Candidate } from "@/lib/types";
-import { format, addDays, setHours, setMinutes } from "date-fns";
+import { format, addDays, setHours, setMinutes, isToday, subDays } from "date-fns";
+import { useAuth } from "@/hooks/useAuth";
 import { CandidateDetailDialog } from "@/components/CandidateDetailDialog";
 import { UpcomingInterviewsDialog } from "@/components/UpcomingInterviewsDialog";
 import { ScorecardsDialog } from "@/components/ScorecardsDialog";
@@ -20,8 +21,6 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
 
-const CURRENT_USER_ID = "user-1";
-
 const TIME_PERIODS = [
   { value: "30", label: "Last 30 days" },
   { value: "90", label: "Last 90 days" },
@@ -30,7 +29,11 @@ const TIME_PERIODS = [
 ];
 
 const MyOverviewPage = () => {
-  const { candidates, jobs, stages, users, interviews } = useATSStore();
+  // BUG 1 FIX: use real auth user instead of hardcoded "user-1"
+  const { user } = useAuth();
+  const CURRENT_USER_ID = user?.id ?? "";
+
+  const { candidates, jobs, stages, users, interviews, getEvaluationsForCandidate } = useATSStore();
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
   const [showInterviewsDialog, setShowInterviewsDialog] = useState(false);
   const [showScorecardsDialog, setShowScorecardsDialog] = useState(false);
@@ -78,18 +81,37 @@ const MyOverviewPage = () => {
     const phoneScreenCandidates = byStage("Phone Screen");
     const appliedCandidates = byStage("Applied");
     const offerCandidates = byStage("Offer");
+    const twoDaysAgo = subDays(new Date(), 2);
+
+    // BUG 2 FIX: each task item uses its own correct filtering logic
+    const upcomingInterviewsToday = interviewCandidates.filter((c) => {
+      // TODO: Replace with real interview.scheduledAt from Supabase interviews table
+      const dt = c.scheduledAt ? new Date(c.scheduledAt) : getInterviewDateTime(c);
+      return isToday(dt);
+    });
+
+    const scorecardsDue = interviewCandidates.filter((c) => {
+      const evals = getEvaluationsForCandidate(c.id, c.currentStageId);
+      return evals.length === 0;
+    });
+
+    const needsDecision = interviewCandidates.filter((c) => {
+      // Candidates whose interview was more than 2 days ago with no outcome
+      const dt = c.scheduledAt ? new Date(c.scheduledAt) : getInterviewDateTime(c);
+      const hasOutcome = getEvaluationsForCandidate(c.id, c.currentStageId).length > 0;
+      return dt < twoDaysAgo && !hasOutcome;
+    });
 
     return [
-      { label: "Upcoming Interviews Today", candidates: interviewCandidates },
-      { label: "Scorecards Due", candidates: interviewCandidates },
+      { label: "Upcoming Interviews Today", candidates: upcomingInterviewsToday },
+      { label: "Scorecards Due", candidates: scorecardsDue },
       { label: "New Applications to Review", candidates: appliedCandidates },
-      
-      { label: "Needs Decision", candidates: interviewCandidates },
+      { label: "Needs Decision", candidates: needsDecision },
       { label: "Candidates to Schedule", candidates: phoneScreenCandidates },
       { label: "Offers", candidates: offerCandidates },
       { label: "Pending Approvals", candidates: offerCandidates },
     ];
-  }, [candidates, jobs, stages]);
+  }, [candidates, jobs, stages, interviews]);
 
   const myRecruiterJobs = useMemo(
     () => jobs.filter((j) => j.recruiters.includes(CURRENT_USER_ID)),
@@ -133,11 +155,14 @@ const MyOverviewPage = () => {
       const weekEnd = new Date(weekStart);
       weekEnd.setDate(weekEnd.getDate() + 7);
       const weekOffers = myCandidates.filter((c) => {
-        const d = new Date(c.appliedAt);
+        // BUG 6 FIX: bin by stageChangedAt (when they reached Offer/Hired stage)
+        // TODO: stageChangedAt needs to be populated when stage transitions are recorded in Supabase
+        const d = new Date(c.stageChangedAt ?? c.appliedAt);
         return offerStageIds.includes(c.currentStageId) && d >= weekStart && d < weekEnd;
       }).length;
       const weekAccepted = myCandidates.filter((c) => {
-        const d = new Date(c.appliedAt);
+        // TODO: stageChangedAt needs to be populated when stage transitions are recorded in Supabase
+        const d = new Date(c.stageChangedAt ?? c.appliedAt);
         return hiredStageIds.includes(c.currentStageId) && d >= weekStart && d < weekEnd;
       }).length;
       weeks.push({
@@ -153,7 +178,12 @@ const MyOverviewPage = () => {
   const getJobName = (jobId: string) => jobs.find((j) => j.id === jobId)?.name ?? "—";
   const getStageName = (stageId: string) => stages.find((s) => s.id === stageId)?.name ?? "—";
 
-  const getInterviewDateTime = (candidate: Candidate) => {
+  const getInterviewDateTime = (candidate: Candidate): Date => {
+    // TODO: Replace with real interview.scheduledAt from Supabase interviews table
+    if (candidate.scheduledAt) {
+      return new Date(candidate.scheduledAt);
+    }
+    // Temporary hash-based fallback until Supabase data is available
     const hash = candidate.id.charCodeAt(candidate.id.length - 1) % 5;
     const today = new Date();
     const day = addDays(today, hash);
@@ -181,6 +211,12 @@ const MyOverviewPage = () => {
               <div className="divide-y divide-border">
                 {myInterviews.map((c) => {
                   const interviewDt = getInterviewDateTime(c);
+                  // BUG 4 FIX: real Google Calendar event-creation URL
+                  const dtFmt = (d: Date) => format(d, "yyyyMMdd'T'HHmmss");
+                  const endDt = new Date(interviewDt.getTime() + 60 * 60 * 1000); // +1 hour default
+                  const calTitle = encodeURIComponent(`Interview: ${c.firstName} ${c.lastName} — ${getJobName(c.jobId)}`);
+                  const calDates = `${dtFmt(interviewDt)}/${dtFmt(endDt)}`;
+                  const calUrl = `https://calendar.google.com/calendar/r/eventedit?text=${calTitle}&dates=${calDates}&details=${encodeURIComponent(`Interview for ${getJobName(c.jobId)}`)}`;
                   return (
                     <div
                       key={c.id}
@@ -195,7 +231,7 @@ const MyOverviewPage = () => {
                           <p className="text-sm font-semibold text-foreground">{c.firstName} {c.lastName}</p>
                           <p className="text-xs text-muted-foreground">{getJobName(c.jobId)}</p>
                           <div className="flex items-center gap-2 mt-1">
-                            <a href="#" onClick={(e) => e.stopPropagation()} className="inline-flex items-center gap-0.5 text-[11px] text-primary hover:underline">
+                            <a href={calUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="inline-flex items-center gap-0.5 text-[11px] text-primary hover:underline">
                               <Calendar className="h-3 w-3" /> Calendar
                             </a>
                           </div>
@@ -292,8 +328,9 @@ const MyOverviewPage = () => {
                   const salaryMin = approvalJob?.salaryMin ?? 0;
                   const salaryMax = approvalJob?.salaryMax ?? 0;
                   const currency = approvalJob?.salaryCurrency ?? "USD";
-                  // Mock offered salary within range
-                  const offeredSalary = salaryMin + Math.round((salaryMax - salaryMin) * 0.7);
+                  // BUG 5 FIX: use real offeredSalary from candidate record
+                  // TODO: populate c.offeredSalary when offer is created in Supabase
+                  const offeredSalary = c.offeredSalary ?? Math.round((salaryMin + salaryMax) / 2);
                   const fmt = (n: number) => n.toLocaleString("en-US", { style: "currency", currency, maximumFractionDigits: 0 });
 
                   return (

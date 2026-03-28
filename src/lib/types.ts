@@ -84,6 +84,20 @@ export interface Candidate {
   avatarUrl?: string;
   createdAt: string;
   updatedAt: string;
+  /** Actual salary offered to this candidate. If undefined, falls back to midpoint. */
+  offeredSalary?: number;
+  /**
+   * ISO datetime when the candidate last changed pipeline stage.
+   * TODO: Populate this field when stage transitions are recorded in Supabase.
+   * Used for performance trend chart binning (falls back to appliedAt until populated).
+   */
+  stageChangedAt?: string;
+  /**
+   * ISO datetime of the candidate's next scheduled interview.
+   * TODO: Replace getInterviewDateTime hash fallback with this field once
+   * interviews are stored in the Supabase interviews table.
+   */
+  scheduledAt?: string;
 }
 
 export interface PipelineStage {
