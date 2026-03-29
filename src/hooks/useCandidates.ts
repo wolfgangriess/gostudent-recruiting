@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { CandidateRow, CandidateInsert, CandidateUpdate } from "@/integrations/supabase/app-types";
@@ -12,9 +13,28 @@ export const candidateKeys = {
 
 // ---- Queries ----
 
-/** Fetch all candidates, returning camelCase Candidate[] */
-export const useAllCandidates = () =>
-  useQuery({
+/** Fetch all candidates with Realtime subscription for live pipeline updates */
+export const useAllCandidates = () => {
+  const queryClient = useQueryClient();
+
+  // PROMPT 5: Realtime subscription — invalidate on any INSERT/UPDATE/DELETE
+  useEffect(() => {
+    const channel = supabase
+      .channel("candidates-realtime")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "candidates" },
+        () => {
+          queryClient.invalidateQueries({ queryKey: candidateKeys.all });
+        }
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
+
+  return useQuery({
     queryKey: candidateKeys.all,
     queryFn: async (): Promise<Candidate[]> => {
       const { data, error } = await supabase
@@ -25,6 +45,7 @@ export const useAllCandidates = () =>
       return mapCandidates((data ?? []) as CandidateRow[]);
     },
   });
+};
 
 /** Fetch a single candidate by id, returning camelCase Candidate */
 export const useCandidate = (id: string) =>
