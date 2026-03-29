@@ -18,6 +18,7 @@ import {
 import { useJobs } from "@/hooks/useJobs";
 import { useUsers } from "@/hooks/useUsers";
 import { useCreateOffer } from "@/hooks/useOffers";
+import { useSendEmail } from "@/hooks/useGmail";
 
 interface Props {
   open: boolean;
@@ -51,6 +52,7 @@ export const CreateOfferDialog = ({ open, onOpenChange, candidate }: Props) => {
   const { data: jobs = [] } = useJobs();
   const { data: users = [] } = useUsers();
   const createOffer = useCreateOffer();
+  const sendEmail = useSendEmail();
   const job = jobs.find((j) => j.id === candidate.jobId);
 
   const [form, setForm] = useState({
@@ -103,6 +105,24 @@ export const CreateOfferDialog = ({ open, onOpenChange, candidate }: Props) => {
     }, {
       onSuccess: () => {
         toast.success(`Offer created for ${form.firstName} ${form.lastName}`);
+        if (candidate.email) {
+          const jobName = job?.name ?? "the position";
+          const salaryFormatted = fmt(offeredSalary);
+          sendEmail.mutate({
+            to: candidate.email,
+            subject: `Offer Letter — ${jobName} at GoStudent`,
+            body: `<p>Dear ${form.firstName},</p>
+<p>We are delighted to extend an offer for the <strong>${jobName}</strong> role at GoStudent.</p>
+<ul>
+  <li><strong>Start date:</strong> ${form.startDate}</li>
+  <li><strong>Salary:</strong> ${salaryFormatted}</li>
+  <li><strong>Contract type:</strong> ${form.contractType}</li>
+  <li><strong>Location:</strong> ${form.location}</li>
+</ul>
+<p>Please review this offer and let us know if you have any questions. We look forward to welcoming you to the team!</p>
+<p>Best regards,<br/>GoStudent Recruiting Team</p>`,
+          });
+        }
         onOpenChange(false);
       },
       onError: () => {

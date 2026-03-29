@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/select";
 import { Candidate } from "@/lib/types";
 import { useGoogleCalendarIntegration } from "@/hooks/useGoogleCalendarIntegration";
+import { useSendEmail } from "@/hooks/useGmail";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useCreateInterview } from "@/hooks/useInterviews";
@@ -53,6 +54,7 @@ const ScheduleInterviewDialog = ({ open, onOpenChange, candidate }: ScheduleInte
   const { data: users = [] } = useUsers();
   const createInterview = useCreateInterview();
   const { connected: googleCalendarConnected } = useGoogleCalendarIntegration();
+  const sendEmail = useSendEmail();
 
   const job = jobs.find((j) => j.id === candidate.jobId);
   const jobStages = stages.filter((s) => s.jobId === candidate.jobId).sort((a, b) => a.order - b.order);
@@ -179,6 +181,28 @@ const ScheduleInterviewDialog = ({ open, onOpenChange, candidate }: ScheduleInte
               : "Calendar event created and invites sent."
             : undefined,
         });
+
+        // Send confirmation email to candidate
+        if (candidate.email) {
+          const meetPart = finalMeetingLink
+            ? `<p>Join via Google Meet: <a href="${finalMeetingLink}">${finalMeetingLink}</a></p>`
+            : "";
+          sendEmail.mutate({
+            to: candidate.email,
+            subject: `Interview Confirmation: ${title}`,
+            body: `<p>Dear ${candidate.firstName},</p>
+<p>Your interview has been scheduled:</p>
+<ul>
+  <li><strong>Title:</strong> ${title}</li>
+  <li><strong>Date:</strong> ${format(startDate, "MMMM d, yyyy")}</li>
+  <li><strong>Time:</strong> ${format(startDate, "h:mm a")} – ${format(endDate, "h:mm a")}</li>
+  ${location ? `<li><strong>Location:</strong> ${location}</li>` : ""}
+</ul>
+${meetPart}
+<p>Best regards,<br/>GoStudent Recruiting Team</p>`,
+          });
+        }
+
         onOpenChange(false);
       },
       onError: () => {

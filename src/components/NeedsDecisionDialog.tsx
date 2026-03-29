@@ -6,6 +6,7 @@ import { Candidate } from "@/lib/types";
 import { useJobs } from "@/hooks/useJobs";
 import { useStages } from "@/hooks/useStages";
 import { useUpdateCandidateStage } from "@/hooks/useCandidates";
+import { useSendEmail } from "@/hooks/useGmail";
 import { ThumbsUp, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 
@@ -43,6 +44,7 @@ export const NeedsDecisionDialog = ({ open, onOpenChange, candidates }: Props) =
   const { data: jobs = [] } = useJobs();
   const { data: stages = [] } = useStages();
   const { mutate: updateStage } = useUpdateCandidateStage();
+  const sendEmail = useSendEmail();
 
   const getJobName = (jobId: string) => jobs.find((j) => j.id === jobId)?.name ?? "—";
   const getStageName = (stageId: string) => stages.find((s) => s.id === stageId)?.name ?? "—";
@@ -69,11 +71,33 @@ export const NeedsDecisionDialog = ({ open, onOpenChange, candidates }: Props) =
       const nextStage = jobStages[currentIdx + 1];
       updateStage({ candidateId: c.id, newStageId: nextStage.id });
       toast.success(`${c.firstName} ${c.lastName} advanced to ${nextStage.name}`);
+      if (c.email) {
+        const jobName = jobs.find((j) => j.id === c.jobId)?.name ?? "the position";
+        sendEmail.mutate({
+          to: c.email,
+          subject: `Update on your application — ${jobName}`,
+          body: `<p>Dear ${c.firstName},</p>
+<p>We're pleased to let you know that you've been advanced to the next stage in our recruitment process for <strong>${jobName}</strong>.</p>
+<p>Our team will be in touch shortly with next steps.</p>
+<p>Best regards,<br/>GoStudent Recruiting Team</p>`,
+        });
+      }
     }
   };
 
   const handleReject = (c: Candidate) => {
     toast.info(`${c.firstName} ${c.lastName} rejected`);
+    if (c.email) {
+      const jobName = jobs.find((j) => j.id === c.jobId)?.name ?? "the position";
+      sendEmail.mutate({
+        to: c.email,
+        subject: `Update on your application — ${jobName}`,
+        body: `<p>Dear ${c.firstName},</p>
+<p>Thank you for your interest in the <strong>${jobName}</strong> role at GoStudent and for taking the time to go through our selection process.</p>
+<p>After careful consideration, we will not be moving forward with your application at this time. We appreciate your effort and wish you the best in your search.</p>
+<p>Best regards,<br/>GoStudent Recruiting Team</p>`,
+      });
+    }
   };
 
   return (

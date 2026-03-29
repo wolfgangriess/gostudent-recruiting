@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Candidate } from "@/lib/types";
 import { useJobs } from "@/hooks/useJobs";
 import { format } from "date-fns";
@@ -8,9 +9,11 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import {
-  ChevronRight, Users, Briefcase, MapPin, Clock, FileText, Linkedin, ExternalLink, Building2,
+  ChevronRight, Users, Briefcase, MapPin, Clock, FileText, Linkedin, ExternalLink, Building2, Mail,
 } from "lucide-react";
 import { CandidateDetailDialog } from "@/components/CandidateDetailDialog";
+import { useSendEmail } from "@/hooks/useGmail";
+import { toast } from "sonner";
 
 interface Props {
   open: boolean;
@@ -23,6 +26,24 @@ export const NewApplicationsDialog = ({ open, onOpenChange, candidates }: Props)
   const [selectedJobId, setSelectedJobId] = useState("all");
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
   const [showJobDetail, setShowJobDetail] = useState<string | null>(null);
+  const sendEmail = useSendEmail();
+
+  const handleSendAcknowledgement = (c: Candidate, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!c.email) { toast.error("No email on file for this candidate."); return; }
+    const jobName = jobs.find((j) => j.id === c.jobId)?.name ?? "the position";
+    sendEmail.mutate({
+      to: c.email,
+      subject: `Application Received — ${jobName}`,
+      body: `<p>Dear ${c.firstName},</p>
+<p>Thank you for applying for the <strong>${jobName}</strong> role at GoStudent. We have received your application and will review it shortly.</p>
+<p>Our team will be in touch if your profile matches our requirements.</p>
+<p>Best regards,<br/>GoStudent Recruiting Team</p>`,
+    }, {
+      onSuccess: () => toast.success(`Acknowledgement sent to ${c.email}`),
+      onError: (err) => toast.error(`Failed to send email: ${(err as Error).message}`),
+    });
+  };
 
   // Unique jobs that have applicants
   const applicantJobs = useMemo(() => {
@@ -150,9 +171,16 @@ export const NewApplicationsDialog = ({ open, onOpenChange, candidates }: Props)
                       <p className="text-[11px] text-muted-foreground capitalize">{c.source}</p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <a href="#" onClick={(e) => e.stopPropagation()} className="text-primary hover:text-primary/80">
-                        <FileText className="h-3.5 w-3.5" />
-                      </a>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 w-7 p-0 text-muted-foreground hover:text-primary"
+                        title="Send acknowledgement email"
+                        onClick={(e) => handleSendAcknowledgement(c, e)}
+                        disabled={sendEmail.isPending}
+                      >
+                        <Mail className="h-3.5 w-3.5" />
+                      </Button>
                       <a
                         href={`https://linkedin.com/in/${c.firstName.toLowerCase()}-${c.lastName.toLowerCase()}`}
                         target="_blank" rel="noopener noreferrer"
