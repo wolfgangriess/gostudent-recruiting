@@ -1,9 +1,10 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Candidate } from "@/lib/types";
-import { useATSStore } from "@/lib/ats-store";
+import { useJobs } from "@/hooks/useJobs";
+import { useStages } from "@/hooks/useStages";
 import { format, addDays, setHours, setMinutes } from "date-fns";
-import { Calendar, ChevronRight, Clock, Video } from "lucide-react";
+import { Calendar, ChevronRight, Video } from "lucide-react";
 import { toast } from "sonner";
 import { CandidateDetailDialog } from "@/components/CandidateDetailDialog";
 import { useState } from "react";
@@ -40,7 +41,8 @@ const INTERVIEW_TYPES = [
 ];
 
 export const UpcomingInterviewsDialog = ({ open, onOpenChange, candidates }: Props) => {
-  const { jobs, stages } = useATSStore();
+  const { data: jobs = [] } = useJobs();
+  const { data: stages = [] } = useStages();
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
 
   const getJobName = (jobId: string) => jobs.find((j) => j.id === jobId)?.name ?? "—";

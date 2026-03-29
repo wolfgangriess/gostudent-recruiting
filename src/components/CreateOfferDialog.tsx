@@ -9,13 +9,15 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Candidate, Job } from "@/lib/types";
-import { useATSStore } from "@/lib/ats-store";
+import { Candidate } from "@/lib/types";
 import { toast } from "sonner";
 import { HelpCircle } from "lucide-react";
 import {
   Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useJobs } from "@/hooks/useJobs";
+import { useUsers } from "@/hooks/useUsers";
+import { useCreateOffer } from "@/hooks/useOffers";
 
 interface Props {
   open: boolean;
@@ -46,7 +48,9 @@ const FieldLabel = ({ label, required, tooltip }: { label: string; required?: bo
 );
 
 export const CreateOfferDialog = ({ open, onOpenChange, candidate }: Props) => {
-  const { jobs, users } = useATSStore();
+  const { data: jobs = [] } = useJobs();
+  const { data: users = [] } = useUsers();
+  const createOffer = useCreateOffer();
   const job = jobs.find((j) => j.id === candidate.jobId);
 
   const [form, setForm] = useState({
@@ -82,8 +86,29 @@ export const CreateOfferDialog = ({ open, onOpenChange, candidate }: Props) => {
       toast.error("Please fill in all required fields");
       return;
     }
-    toast.success(`Offer created for ${form.firstName} ${form.lastName}`);
-    onOpenChange(false);
+
+    const offeredSalary = parseFloat(form.salary);
+    if (isNaN(offeredSalary)) {
+      toast.error("Please enter a valid salary");
+      return;
+    }
+
+    createOffer.mutate({
+      candidate_id: candidate.id,
+      job_id: candidate.jobId,
+      offered_salary: offeredSalary,
+      status: "pending",
+      notes: form.notesApprover || null,
+      created_by: null,
+    }, {
+      onSuccess: () => {
+        toast.success(`Offer created for ${form.firstName} ${form.lastName}`);
+        onOpenChange(false);
+      },
+      onError: () => {
+        toast.error("Failed to create offer. Please try again.");
+      },
+    });
   };
 
   const salaryMin = job?.salaryMin ?? 0;
@@ -309,7 +334,7 @@ export const CreateOfferDialog = ({ open, onOpenChange, candidate }: Props) => {
 
         <DialogFooter className="mt-4">
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={handleSave}>Save</Button>
+          <Button onClick={handleSave} disabled={createOffer.isPending}>Save</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

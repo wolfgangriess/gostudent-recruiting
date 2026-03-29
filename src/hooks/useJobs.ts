@@ -1,6 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { JobRow, JobInsert, JobUpdate } from "@/integrations/supabase/app-types";
+import { mapJob, mapJobs } from "@/lib/mappers";
+import type { Job } from "@/lib/types";
 
 // ---- Query keys ----
 export const jobKeys = {
@@ -10,32 +12,33 @@ export const jobKeys = {
 
 // ---- Queries ----
 
-/** Fetch all jobs ordered by creation date descending */
+/** Fetch all jobs, returning camelCase Job[] */
 export const useJobs = () =>
   useQuery({
     queryKey: jobKeys.all,
-    queryFn: async (): Promise<JobRow[]> => {
+    queryFn: async (): Promise<Job[]> => {
       const { data, error } = await supabase
         .from("jobs")
         .select("*")
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return (data ?? []) as JobRow[];
+      return mapJobs((data ?? []) as JobRow[]);
     },
   });
 
-/** Fetch a single job by id */
+/** Fetch a single job by id, returning camelCase Job */
 export const useJob = (id: string) =>
   useQuery({
     queryKey: jobKeys.detail(id),
-    queryFn: async (): Promise<JobRow | null> => {
+    queryFn: async (): Promise<Job | null> => {
       const { data, error } = await supabase
         .from("jobs")
         .select("*")
         .eq("id", id)
         .maybeSingle();
       if (error) throw error;
-      return (data as JobRow | null) ?? null;
+      const row = (data as JobRow | null) ?? null;
+      return row ? mapJob(row) : null;
     },
     enabled: !!id,
   });
@@ -46,14 +49,14 @@ export const useJob = (id: string) =>
 export const useCreateJob = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (job: JobInsert): Promise<JobRow> => {
+    mutationFn: async (job: JobInsert): Promise<Job> => {
       const { data, error } = await supabase
         .from("jobs")
         .insert(job)
         .select()
         .single();
       if (error) throw error;
-      return data as JobRow;
+      return mapJob(data as JobRow);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: jobKeys.all });

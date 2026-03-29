@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Candidate } from "@/lib/types";
-import { useATSStore } from "@/lib/ats-store";
+import { useJobs } from "@/hooks/useJobs";
 import { Gift } from "lucide-react";
 import { CreateOfferDialog } from "@/components/CreateOfferDialog";
 
@@ -19,7 +19,7 @@ const OFFER_STATUSES = [
 ];
 
 export const OffersDialog = ({ open, onOpenChange, candidates }: Props) => {
-  const { jobs } = useATSStore();
+  const { data: jobs = [] } = useJobs();
   const [offerCandidate, setOfferCandidate] = useState<Candidate | null>(null);
 
   const getJobName = (jobId: string) => jobs.find((j) => j.id === jobId)?.name ?? "—";

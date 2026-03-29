@@ -10,10 +10,14 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { useATSStore } from "@/lib/ats-store";
+import { useAllCandidates } from "@/hooks/useCandidates";
+import { useJobs } from "@/hooks/useJobs";
+import { useStages } from "@/hooks/useStages";
 
 const CandidatesPage = () => {
-  const { candidates, jobs, stages } = useATSStore();
+  const { data: candidates = [], isLoading, error } = useAllCandidates();
+  const { data: jobs = [] } = useJobs();
+  const { data: stages = [] } = useStages();
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [filterJob, setFilterJob] = useState("all");
@@ -46,6 +50,9 @@ const CandidatesPage = () => {
 
   const getJobName = (jobId: string) => jobs.find((j) => j.id === jobId)?.name ?? "—";
   const getStageName = (stageId: string) => stages.find((s) => s.id === stageId)?.name ?? "—";
+
+  if (isLoading) return <div className="flex items-center justify-center p-8"><div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full" /></div>
+  if (error) return <div className="p-8 text-sm text-destructive">Something went wrong. Please refresh.</div>
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">

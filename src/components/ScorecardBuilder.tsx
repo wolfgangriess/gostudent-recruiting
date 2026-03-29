@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Trash2, Star, CheckCircle, MessageSquare } from "lucide-react";
 import {
   Dialog,
@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useATSStore } from "@/lib/ats-store";
+import { useScorecardTemplate, useUpsertScorecardTemplate } from "@/hooks/useScorecards";
 import { ScorecardCriterion, RatingType } from "@/lib/types";
 
 interface Props {
@@ -39,11 +39,16 @@ const ratingLabels: Record<RatingType, string> = {
 };
 
 const ScorecardBuilder = ({ stageId, stageName, open, onOpenChange }: Props) => {
-  const { getScorecardTemplate, setScorecardTemplate } = useATSStore();
-  const existing = getScorecardTemplate(stageId);
-  const [criteria, setCriteria] = useState<ScorecardCriterion[]>(
-    existing?.criteria ?? []
-  );
+  const { data: template } = useScorecardTemplate(stageId);
+  const upsertTemplate = useUpsertScorecardTemplate();
+  const [criteria, setCriteria] = useState<ScorecardCriterion[]>([]);
+
+  // Sync criteria state when template loads
+  useEffect(() => {
+    if (template?.criteria) {
+      setCriteria(template.criteria as ScorecardCriterion[]);
+    }
+  }, [template]);
 
   const addCriterion = () => {
     setCriteria([
@@ -66,7 +71,7 @@ const ScorecardBuilder = ({ stageId, stageName, open, onOpenChange }: Props) => 
 
   const handleSave = () => {
     const valid = criteria.filter((c) => c.question.trim());
-    setScorecardTemplate(stageId, valid);
+    upsertTemplate.mutate({ stage_id: stageId, criteria: valid });
     onOpenChange(false);
   };
 

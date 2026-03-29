@@ -2,10 +2,12 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import type { Tables } from "@/integrations/supabase/types";
+import { mapUser, mapUsers } from "@/lib/mappers";
+import type { User } from "@/lib/types";
 
 type ProfileRow = Tables<"profiles">;
 
-interface UserWithRole extends ProfileRow {
+interface ProfileWithRole extends ProfileRow {
   role: string | null;
 }
 
@@ -17,19 +19,17 @@ export const userKeys = {
 
 // ---- Queries ----
 
-/** Fetch all users (profiles joined with their role) */
+/** Fetch all users, returning camelCase User[] */
 export const useUsers = () =>
   useQuery({
     queryKey: userKeys.all,
-    queryFn: async (): Promise<UserWithRole[]> => {
-      // Fetch profiles
+    queryFn: async (): Promise<User[]> => {
       const { data: profiles, error: profilesError } = await supabase
         .from("profiles")
         .select("*")
         .order("first_name", { ascending: true });
       if (profilesError) throw profilesError;
 
-      // Fetch roles
       const { data: roles, error: rolesError } = await supabase
         .from("user_roles")
         .select("user_id, role");
@@ -37,19 +37,21 @@ export const useUsers = () =>
 
       const roleMap = new Map((roles ?? []).map((r) => [r.user_id, r.role]));
 
-      return (profiles ?? []).map((p) => ({
+      const withRoles: ProfileWithRole[] = (profiles ?? []).map((p) => ({
         ...p,
         role: roleMap.get(p.id) ?? "employee",
       }));
+
+      return mapUsers(withRoles);
     },
   });
 
-/** Fetch the current authenticated user's full profile */
+/** Fetch the current authenticated user's full profile, returning camelCase User */
 export const useCurrentUser = () => {
   const { user } = useAuth();
   return useQuery({
     queryKey: userKeys.current,
-    queryFn: async (): Promise<UserWithRole | null> => {
+    queryFn: async (): Promise<User | null> => {
       if (!user) return null;
 
       const { data: profile, error: profileError } = await supabase
@@ -65,9 +67,8 @@ export const useCurrentUser = () => {
         .eq("user_id", user.id)
         .maybeSingle();
 
-      return profile
-        ? { ...profile, role: roleRow?.role ?? "employee" }
-        : null;
+      if (!profile) return null;
+      return mapUser({ ...profile, role: roleRow?.role ?? "employee" });
     },
     enabled: !!user,
   });

@@ -1,6 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { CandidateRow, CandidateInsert, CandidateUpdate } from "@/integrations/supabase/app-types";
+import { mapCandidate, mapCandidates } from "@/lib/mappers";
+import type { Candidate } from "@/lib/types";
 
 // ---- Query keys ----
 export const candidateKeys = {
@@ -10,32 +12,33 @@ export const candidateKeys = {
 
 // ---- Queries ----
 
-/** Fetch all candidates, joined with job name and stage name */
+/** Fetch all candidates, returning camelCase Candidate[] */
 export const useAllCandidates = () =>
   useQuery({
     queryKey: candidateKeys.all,
-    queryFn: async (): Promise<CandidateRow[]> => {
+    queryFn: async (): Promise<Candidate[]> => {
       const { data, error } = await supabase
         .from("candidates")
         .select("*")
         .order("applied_at", { ascending: false });
       if (error) throw error;
-      return (data ?? []) as CandidateRow[];
+      return mapCandidates((data ?? []) as CandidateRow[]);
     },
   });
 
-/** Fetch a single candidate by id */
+/** Fetch a single candidate by id, returning camelCase Candidate */
 export const useCandidate = (id: string) =>
   useQuery({
     queryKey: candidateKeys.detail(id),
-    queryFn: async (): Promise<CandidateRow | null> => {
+    queryFn: async (): Promise<Candidate | null> => {
       const { data, error } = await supabase
         .from("candidates")
         .select("*")
         .eq("id", id)
         .maybeSingle();
       if (error) throw error;
-      return (data as CandidateRow | null) ?? null;
+      const row = (data as CandidateRow | null) ?? null;
+      return row ? mapCandidate(row) : null;
     },
     enabled: !!id,
   });
@@ -46,14 +49,14 @@ export const useCandidate = (id: string) =>
 export const useCreateCandidate = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (candidate: CandidateInsert): Promise<CandidateRow> => {
+    mutationFn: async (candidate: CandidateInsert): Promise<Candidate> => {
       const { data, error } = await supabase
         .from("candidates")
         .insert(candidate)
         .select()
         .single();
       if (error) throw error;
-      return data as CandidateRow;
+      return mapCandidate(data as CandidateRow);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: candidateKeys.all });
@@ -86,14 +89,14 @@ export const useUpdateCandidateStage = () => {
       // Cancel any outgoing refetches
       await queryClient.cancelQueries({ queryKey: candidateKeys.all });
 
-      // Snapshot previous value
-      const previous = queryClient.getQueryData<CandidateRow[]>(candidateKeys.all);
+      // Snapshot previous value (camelCase Candidate[])
+      const previous = queryClient.getQueryData<Candidate[]>(candidateKeys.all);
 
       // Optimistically update the cache
-      queryClient.setQueryData<CandidateRow[]>(candidateKeys.all, (old) =>
+      queryClient.setQueryData<Candidate[]>(candidateKeys.all, (old) =>
         (old ?? []).map((c) =>
           c.id === candidateId
-            ? { ...c, current_stage_id: newStageId, stage_changed_at: new Date().toISOString() }
+            ? { ...c, currentStageId: newStageId, stageChangedAt: new Date().toISOString() }
             : c
         )
       );

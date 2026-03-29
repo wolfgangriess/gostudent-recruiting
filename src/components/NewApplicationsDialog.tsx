@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Candidate } from "@/lib/types";
-import { useATSStore } from "@/lib/ats-store";
+import { useJobs } from "@/hooks/useJobs";
 import { format } from "date-fns";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -19,7 +19,7 @@ interface Props {
 }
 
 export const NewApplicationsDialog = ({ open, onOpenChange, candidates }: Props) => {
-  const { jobs, stages } = useATSStore();
+  const { data: jobs = [] } = useJobs();
   const [selectedJobId, setSelectedJobId] = useState("all");
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
   const [showJobDetail, setShowJobDetail] = useState<string | null>(null);

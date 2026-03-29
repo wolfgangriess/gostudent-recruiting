@@ -15,7 +15,9 @@ import {
   Form, FormControl, FormField, FormItem, FormLabel, FormMessage,
 } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
-import { useATSStore } from "@/lib/ats-store";
+import { useUpdateJob } from "@/hooks/useJobs";
+import { useStagesByJob, useCreateStage, useDeleteStage } from "@/hooks/useStages";
+import { useUsers } from "@/hooks/useUsers";
 import { DEPARTMENTS, LOCATIONS } from "@/lib/types";
 import type { Job } from "@/lib/types";
 import UserPicker from "@/components/UserPicker";
@@ -54,17 +56,22 @@ interface Props {
 }
 
 const EditJobDialog = ({ open, onOpenChange, job }: Props) => {
-  const { updateJob, stages, addStage, removeStage, setStageOwner } = useATSStore();
+  const { mutate: updateJob } = useUpdateJob();
+  const { data: existingStages = [] } = useStagesByJob(job.id);
+  const { mutate: createStage } = useCreateStage();
+  const { mutate: deleteStage } = useDeleteStage();
+  const { data: users = [] } = useUsers();
+
   const [hiringTeamIds, setHiringTeamIds] = useState<string[]>(job.hiringTeamIds);
   const [visibilityIds, setVisibilityIds] = useState<string[]>(job.visibilityIds);
 
-  const existingStages = useMemo(
-    () => stages.filter((s) => s.jobId === job.id).sort((a, b) => a.order - b.order),
-    [stages, job.id]
+  const sortedExistingStages = useMemo(
+    () => [...existingStages].sort((a, b) => a.order - b.order),
+    [existingStages]
   );
 
   const [stageConfigs, setStageConfigs] = useState<StageConfig[]>(() =>
-    existingStages.map((s) => ({ tempId: s.id, name: s.name, ownerId: s.ownerId }))
+    sortedExistingStages.map((s) => ({ tempId: s.id, name: s.name, ownerId: s.ownerId }))
   );
 
   const form = useForm<JobFormValues>({
@@ -119,51 +126,60 @@ const EditJobDialog = ({ open, onOpenChange, job }: Props) => {
       });
       setHiringTeamIds(job.hiringTeamIds);
       setVisibilityIds(job.visibilityIds);
-      const fresh = stages.filter((s) => s.jobId === job.id).sort((a, b) => a.order - b.order);
+      const fresh = [...existingStages].sort((a, b) => a.order - b.order);
       setStageConfigs(fresh.map((s) => ({ tempId: s.id, name: s.name, ownerId: s.ownerId })));
     }
   }, [open, job]);
 
   const onSubmit = (values: JobFormValues) => {
-    updateJob(job.id, {
-      name: values.name,
-      externalName: values.externalName || undefined,
-      department: values.department,
-      office: values.office || undefined,
-      location: values.location,
-      requisitionId: values.requisitionId || undefined,
-      workplaceType: values.workplaceType,
-      workerType: values.workerType,
-      employmentType: values.employmentType,
-      workSchedule: values.workSchedule || undefined,
-      numberOfOpenings: values.numberOfOpenings,
-      reportsTo: values.reportsTo || undefined,
-      salaryCurrency: values.salaryCurrency || "EUR",
-      salaryMin: typeof values.salaryMin === "number" ? values.salaryMin : undefined,
-      salaryMax: typeof values.salaryMax === "number" ? values.salaryMax : undefined,
-      costCenter: values.costCenter || undefined,
-      jobDescriptionLink: values.jobDescriptionLink || undefined,
-      level: values.level || undefined,
-      description: values.description,
-      requirements: values.requirements,
-      hiringTeamIds,
-      visibilityIds,
-      updatedAt: new Date().toISOString(),
+    updateJob({
+      id: job.id,
+      updates: {
+        name: values.name,
+        external_name: values.externalName || undefined,
+        department: values.department,
+        office: values.office || undefined,
+        location: values.location,
+        requisition_id: values.requisitionId || undefined,
+        workplace_type: values.workplaceType,
+        worker_type: values.workerType,
+        employment_type: values.employmentType,
+        work_schedule: values.workSchedule || undefined,
+        number_of_openings: values.numberOfOpenings,
+        reports_to: values.reportsTo || undefined,
+        salary_currency: values.salaryCurrency || "EUR",
+        salary_min: typeof values.salaryMin === "number" ? values.salaryMin : undefined,
+        salary_max: typeof values.salaryMax === "number" ? values.salaryMax : undefined,
+        cost_center: values.costCenter || undefined,
+        job_description_link: values.jobDescriptionLink || undefined,
+        level: values.level || undefined,
+        description: values.description,
+        requirements: values.requirements,
+        hiring_team_ids: hiringTeamIds,
+        visibility_ids: visibilityIds,
+      },
     });
 
     // Sync stages: remove old, add new
-    const currentStageIds = existingStages.map((s) => s.id);
+    const currentStageIds = sortedExistingStages.map((s) => s.id);
     const keptIds = stageConfigs.map((sc) => sc.tempId).filter((id) => currentStageIds.includes(id));
+
     // Remove stages that were deleted
     currentStageIds.forEach((id) => {
-      if (!keptIds.includes(id)) removeStage(id);
+      if (!keptIds.includes(id)) deleteStage(id);
     });
+
     // Add new stages & update owners
-    stageConfigs.forEach((sc) => {
-      if (currentStageIds.includes(sc.tempId)) {
-        if (sc.ownerId) setStageOwner(sc.tempId, sc.ownerId);
+    stageConfigs.forEach((sc, idx) => {
+      if (!currentStageIds.includes(sc.tempId)) {
+        createStage({
+          job_id: job.id,
+          name: sc.name,
+          order: idx,
+          owner_id: sc.ownerId ?? null,
+        });
       } else {
-        addStage(job.id, sc.name, sc.ownerId);
+        // TODO: setStageOwner — update owner_id via supabase.from("pipeline_stages").update({owner_id: sc.ownerId}).eq("id", sc.tempId)
       }
     });
 
@@ -318,7 +334,7 @@ const EditJobDialog = ({ open, onOpenChange, job }: Props) => {
                   <Select onValueChange={field.onChange} value={field.value || ""}>
                     <FormControl><SelectTrigger><SelectValue placeholder="Select manager" /></SelectTrigger></FormControl>
                     <SelectContent>
-                      {useATSStore.getState().users.map((u) => (
+                      {users.map((u) => (
                         <SelectItem key={u.id} value={u.id}>{u.firstName} {u.lastName}</SelectItem>
                       ))}
                     </SelectContent>

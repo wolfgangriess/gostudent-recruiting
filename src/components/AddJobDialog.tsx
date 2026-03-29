@@ -28,10 +28,14 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
-import { useATSStore } from "@/lib/ats-store";
 import { DEPARTMENTS, LOCATIONS, PIPELINE_STAGES } from "@/lib/types";
 import UserPicker from "@/components/UserPicker";
 import StageConfigurator from "@/components/StageConfigurator";
+import { useCreateJob } from "@/hooks/useJobs";
+import { useCreateStage } from "@/hooks/useStages";
+import { useUsers } from "@/hooks/useUsers";
+import type { JobInsert } from "@/integrations/supabase/app-types";
+import { toast } from "sonner";
 
 const jobSchema = z.object({
   name: z.string().trim().min(1, "Job name is required").max(100),
@@ -76,7 +80,9 @@ const defaultStages: StageConfig[] = PIPELINE_STAGES.map((name, i) => ({
 
 const AddJobDialog = ({ open, onOpenChange }: Props) => {
   const navigate = useNavigate();
-  const { addJob, addStage, setStageOwner } = useATSStore();
+  const createJob = useCreateJob();
+  const createStage = useCreateStage();
+  const { data: users = [] } = useUsers();
   const [hiringTeamIds, setHiringTeamIds] = useState<string[]>([]);
   const [visibilityIds, setVisibilityIds] = useState<string[]>([]);
   const [stageConfigs, setStageConfigs] = useState<StageConfig[]>(defaultStages);
@@ -108,51 +114,57 @@ const AddJobDialog = ({ open, onOpenChange }: Props) => {
   });
 
   const onSubmit = (values: JobFormValues) => {
-    const now = new Date().toISOString();
-    const jobId = `job-${Date.now()}`;
-
-    addJob({
-      id: jobId,
+    const jobInsert: JobInsert = {
       name: values.name,
-      externalName: values.externalName || undefined,
+      external_name: values.externalName || null,
       department: values.department,
-      office: values.office || undefined,
+      office: values.office || null,
       location: values.location,
-      requisitionId: values.requisitionId || undefined,
-      workplaceType: values.workplaceType,
-      workerType: values.workerType,
-      employmentType: values.employmentType,
-      workSchedule: values.workSchedule || undefined,
-      numberOfOpenings: values.numberOfOpenings,
-      reportsTo: values.reportsTo || undefined,
-      salaryCurrency: values.salaryCurrency || "EUR",
-      salaryMin: typeof values.salaryMin === "number" ? values.salaryMin : undefined,
-      salaryMax: typeof values.salaryMax === "number" ? values.salaryMax : undefined,
-      costCenter: values.costCenter || undefined,
-      jobDescriptionLink: values.jobDescriptionLink || undefined,
-      level: values.level || undefined,
+      requisition_id: values.requisitionId || null,
+      workplace_type: values.workplaceType,
+      worker_type: values.workerType,
+      employment_type: values.employmentType,
+      work_schedule: values.workSchedule || null,
+      number_of_openings: values.numberOfOpenings,
+      reports_to: values.reportsTo || null,
+      salary_currency: values.salaryCurrency || "EUR",
+      salary_min: typeof values.salaryMin === "number" ? values.salaryMin : null,
+      salary_max: typeof values.salaryMax === "number" ? values.salaryMax : null,
+      cost_center: values.costCenter || null,
+      job_description_link: values.jobDescriptionLink || null,
+      level: values.level || null,
       description: values.description,
       requirements: values.requirements,
-      hiringManager: "",
+      hiring_manager: "",
       recruiters: [],
-      hiringTeamIds,
-      visibilityIds,
+      hiring_team_ids: hiringTeamIds,
+      visibility_ids: visibilityIds,
       status: "open",
-      createdAt: now,
-      updatedAt: now,
-    });
+    };
 
-    // Create stages
-    stageConfigs.forEach((sc) => {
-      addStage(jobId, sc.name, sc.ownerId);
-    });
+    createJob.mutate(jobInsert, {
+      onSuccess: (newJob) => {
+        // Create stages for the new job
+        stageConfigs.forEach((sc, idx) => {
+          createStage.mutate({
+            name: sc.name,
+            job_id: newJob.id,
+            order: idx + 1,
+            owner_id: sc.ownerId || null,
+          });
+        });
 
-    form.reset();
-    setHiringTeamIds([]);
-    setVisibilityIds([]);
-    setStageConfigs(defaultStages);
-    onOpenChange(false);
-    navigate(`/jobs/${jobId}/post`);
+        form.reset();
+        setHiringTeamIds([]);
+        setVisibilityIds([]);
+        setStageConfigs(defaultStages);
+        onOpenChange(false);
+        navigate(`/jobs/${newJob.id}/post`);
+      },
+      onError: () => {
+        toast.error("Failed to create job. Please try again.");
+      },
+    });
   };
 
   return (
@@ -303,7 +315,7 @@ const AddJobDialog = ({ open, onOpenChange }: Props) => {
                   <Select onValueChange={field.onChange} value={field.value || ""}>
                     <FormControl><SelectTrigger><SelectValue placeholder="Select manager" /></SelectTrigger></FormControl>
                     <SelectContent>
-                      {useATSStore.getState().users.map((u) => (
+                      {users.map((u) => (
                         <SelectItem key={u.id} value={u.id}>{u.firstName} {u.lastName}</SelectItem>
                       ))}
                     </SelectContent>
@@ -424,7 +436,7 @@ const AddJobDialog = ({ open, onOpenChange }: Props) => {
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
-              <Button type="submit">Create Job</Button>
+              <Button type="submit" disabled={createJob.isPending}>Create Job</Button>
             </div>
           </form>
         </Form>

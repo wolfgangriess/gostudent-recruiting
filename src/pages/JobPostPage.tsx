@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useATSStore } from "@/lib/ats-store";
+import { useJobs } from "@/hooks/useJobs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -56,7 +56,7 @@ interface CustomQuestion {
 const JobPostPage = () => {
   const { jobId } = useParams<{ jobId: string }>();
   const navigate = useNavigate();
-  const { jobs } = useATSStore();
+  const { data: jobs = [], isLoading, error } = useJobs();
   const job = jobs.find((j) => j.id === jobId);
 
   const [postName, setPostName] = useState(job?.externalName || job?.name || "");
@@ -97,6 +97,22 @@ const JobPostPage = () => {
   const [sendConfirmationEmail, setSendConfirmationEmail] = useState(false);
   const [autoPublish, setAutoPublish] = useState(false);
   const [confirmationPage, setConfirmationPage] = useState<"default" | "customize">("default");
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <p className="text-muted-foreground">Loading job…</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <p className="text-destructive">Failed to load job data.</p>
+      </div>
+    );
+  }
 
   if (!job) {
     return (

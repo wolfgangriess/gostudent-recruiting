@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useGoogleCalendarIntegration } from "@/hooks/useGoogleCalendarIntegration";
 import {
@@ -14,7 +14,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { useATSStore } from "@/lib/ats-store";
+import { useUsers } from "@/hooks/useUsers";
 import { toast } from "sonner";
 import EmailTemplatesSettings from "@/components/EmailTemplatesSettings";
 import DocumentTemplatesSettings from "@/components/DocumentTemplatesSettings";
@@ -72,14 +72,21 @@ const settingsMenu: { id: SectionId; label: string; description: string; icon: R
 ];
 
 const SettingsPage = () => {
-  const { users } = useATSStore();
+  const { data: users = [] } = useUsers();
   const [userSearch, setUserSearch] = useState("");
-  const [userPermissions, setUserPermissions] = useState<UserPermission[]>(() =>
-    users.map((u) => ({
-      userId: u.id,
-      permissions: u.role === "admin" ? ["basic", "site_admin"] : u.role === "hiring_manager" ? ["basic", "hiring_manager"] : ["basic"],
-    }))
-  );
+  const [userPermissions, setUserPermissions] = useState<UserPermission[]>([]);
+
+  // Initialise permissions once users have loaded
+  useEffect(() => {
+    if (users.length > 0 && userPermissions.length === 0) {
+      setUserPermissions(
+        users.map((u) => ({
+          userId: u.id,
+          permissions: u.role === "admin" ? ["basic", "site_admin"] : u.role === "hiring_manager" ? ["basic", "hiring_manager"] : ["basic"],
+        }))
+      );
+    }
+  }, [users]);
 
   const filteredSettingsUsers = useMemo(() => {
     if (!userSearch.trim()) return users;

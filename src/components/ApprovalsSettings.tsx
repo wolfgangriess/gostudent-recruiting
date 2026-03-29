@@ -7,7 +7,7 @@ import {
 import {
   Collapsible, CollapsibleContent, CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { useATSStore } from "@/lib/ats-store";
+import { useUsers } from "@/hooks/useUsers";
 import { toast } from "sonner";
 import { DEPARTMENTS } from "@/lib/types";
 
@@ -252,7 +252,7 @@ const ApprovalGroupCard = ({
 
 /* ── Main ──────────────────────────────────────────────────── */
 const ApprovalsSettings = () => {
-  const { users } = useATSStore();
+  const { data: users = [] } = useUsers();
   const [groups, setGroups] = useState<ApprovalGroup[]>([
     {
       id: "g-1", label: "All New Jobs", scope: "All New Jobs", removable: false,

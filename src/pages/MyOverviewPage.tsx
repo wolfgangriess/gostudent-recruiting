@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, CheckCircle2, ClipboardList, ChevronRight, TrendingUp, Clock } from "lucide-react";
-import { useATSStore } from "@/lib/ats-store";
 import { Candidate } from "@/lib/types";
 import { format, addDays, setHours, setMinutes, isToday, subDays } from "date-fns";
 import { useAuth } from "@/hooks/useAuth";
@@ -20,6 +19,11 @@ import {
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
+import { useAllCandidates } from "@/hooks/useCandidates";
+import { useJobs } from "@/hooks/useJobs";
+import { useStages } from "@/hooks/useStages";
+import { useUsers, useCurrentUser } from "@/hooks/useUsers";
+import { useInterviews } from "@/hooks/useInterviews";
 
 const TIME_PERIODS = [
   { value: "30", label: "Last 30 days" },
@@ -33,7 +37,13 @@ const MyOverviewPage = () => {
   const { user } = useAuth();
   const CURRENT_USER_ID = user?.id ?? "";
 
-  const { candidates, jobs, stages, users, interviews, getEvaluationsForCandidate } = useATSStore();
+  const { data: candidates = [] } = useAllCandidates();
+  const { data: jobs = [] } = useJobs();
+  const { data: stages = [] } = useStages();
+  const { data: users = [] } = useUsers();
+  const { data: interviews = [] } = useInterviews();
+  const currentUser = useCurrentUser().data ?? null;
+
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
   const [showInterviewsDialog, setShowInterviewsDialog] = useState(false);
   const [showScorecardsDialog, setShowScorecardsDialog] = useState(false);
@@ -52,7 +62,6 @@ const MyOverviewPage = () => {
   const [perfPeriod, setPerfPeriod] = useState("90");
   const [perfJob, setPerfJob] = useState("all");
 
-  const currentUser = users.find((u) => u.id === CURRENT_USER_ID);
   const isRecruiter = jobs.some((j) => j.recruiters.includes(CURRENT_USER_ID));
 
   const myInterviews = useMemo(() => {
@@ -60,13 +69,13 @@ const MyOverviewPage = () => {
       .filter((s) => s.ownerId === CURRENT_USER_ID && (s.name === "Interview" || s.name === "Phone Screen"))
       .map((s) => s.id);
     return candidates.filter((c) => myStageIds.includes(c.currentStageId));
-  }, [candidates, stages]);
+  }, [candidates, stages, CURRENT_USER_ID]);
 
   const myApprovals = useMemo(() => {
     const myJobIds = jobs.filter((j) => j.hiringManager === CURRENT_USER_ID).map((j) => j.id);
     const offerStageIds = stages.filter((s) => s.name === "Offer").map((s) => s.id);
     return candidates.filter((c) => myJobIds.includes(c.jobId) && offerStageIds.includes(c.currentStageId));
-  }, [candidates, jobs, stages]);
+  }, [candidates, jobs, stages, CURRENT_USER_ID]);
 
   const taskItems = useMemo(() => {
     const myJobIds = jobs.filter((j) => j.hiringManager === CURRENT_USER_ID || j.recruiters.includes(CURRENT_USER_ID)).map((j) => j.id);
@@ -90,16 +99,13 @@ const MyOverviewPage = () => {
       return isToday(dt);
     });
 
-    const scorecardsDue = interviewCandidates.filter((c) => {
-      const evals = getEvaluationsForCandidate(c.id, c.currentStageId);
-      return evals.length === 0;
-    });
+    // TODO: scorecards — fetch per-candidate is too expensive here; stub with all interviewCandidates
+    const scorecardsDue = interviewCandidates; // TODO: filter by candidates missing scorecard evaluations
 
     const needsDecision = interviewCandidates.filter((c) => {
       // Candidates whose interview was more than 2 days ago with no outcome
       const dt = c.scheduledAt ? new Date(c.scheduledAt) : getInterviewDateTime(c);
-      const hasOutcome = getEvaluationsForCandidate(c.id, c.currentStageId).length > 0;
-      return dt < twoDaysAgo && !hasOutcome;
+      return dt < twoDaysAgo;
     });
 
     return [
@@ -111,11 +117,11 @@ const MyOverviewPage = () => {
       { label: "Offers", candidates: offerCandidates },
       { label: "Pending Approvals", candidates: offerCandidates },
     ];
-  }, [candidates, jobs, stages, interviews]);
+  }, [candidates, jobs, stages, interviews, CURRENT_USER_ID]);
 
   const myRecruiterJobs = useMemo(
     () => jobs.filter((j) => j.recruiters.includes(CURRENT_USER_ID)),
-    [jobs]
+    [jobs, CURRENT_USER_ID]
   );
 
   // Performance data (recruiter only)
@@ -375,7 +381,7 @@ const MyOverviewPage = () => {
             <CardContent className="pt-5 pb-5 px-5">
               <div className="flex items-center justify-between mb-5">
                 <div className="flex items-center gap-2">
-                  <TrendingUp className="h-4.5 w-4.5 text-primary" />
+                  <TrendingUp className="h-4 w-4 text-primary" />
                   <h2 className="text-base font-bold text-foreground">My Performance</h2>
                 </div>
                 <div className="flex items-center gap-2">

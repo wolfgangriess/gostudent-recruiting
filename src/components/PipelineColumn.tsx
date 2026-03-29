@@ -1,6 +1,5 @@
 import { useDroppable } from "@dnd-kit/core";
 import { PipelineStage, Candidate } from "@/lib/types";
-import { useATSStore } from "@/lib/ats-store";
 import CandidateCard from "@/components/CandidateCard";
 import { UserAvatar } from "@/components/UserPicker";
 import {
@@ -8,6 +7,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useUsers } from "@/hooks/useUsers";
 
 interface Props {
   stage: PipelineStage;
@@ -24,7 +24,8 @@ const stageColorDots: Record<string, string> = {
 
 const PipelineColumn = ({ stage, candidates }: Props) => {
   const { setNodeRef, isOver } = useDroppable({ id: stage.id });
-  const owner = useATSStore((s) => stage.ownerId ? s.users.find((u) => u.id === stage.ownerId) : undefined);
+  const { data: users = [] } = useUsers();
+  const owner = stage.ownerId ? users.find((u) => u.id === stage.ownerId) : undefined;
 
   return (
     <div

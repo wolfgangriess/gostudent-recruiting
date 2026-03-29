@@ -1,6 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { PipelineStageRow, PipelineStageInsert } from "@/integrations/supabase/app-types";
+import { mapStage, mapStages } from "@/lib/mappers";
+import type { PipelineStage } from "@/lib/types";
 
 // ---- Query keys ----
 export const stageKeys = {
@@ -10,17 +12,17 @@ export const stageKeys = {
 
 // ---- Queries ----
 
-/** Fetch all pipeline stages ordered by job + position */
+/** Fetch all pipeline stages, returning camelCase PipelineStage[] */
 export const useStages = () =>
   useQuery({
     queryKey: stageKeys.all,
-    queryFn: async (): Promise<PipelineStageRow[]> => {
+    queryFn: async (): Promise<PipelineStage[]> => {
       const { data, error } = await supabase
         .from("pipeline_stages")
         .select("*")
         .order("order", { ascending: true });
       if (error) throw error;
-      return (data ?? []) as PipelineStageRow[];
+      return mapStages((data ?? []) as PipelineStageRow[]);
     },
   });
 
@@ -28,14 +30,14 @@ export const useStages = () =>
 export const useStagesByJob = (jobId: string) =>
   useQuery({
     queryKey: stageKeys.byJob(jobId),
-    queryFn: async (): Promise<PipelineStageRow[]> => {
+    queryFn: async (): Promise<PipelineStage[]> => {
       const { data, error } = await supabase
         .from("pipeline_stages")
         .select("*")
         .eq("job_id", jobId)
         .order("order", { ascending: true });
       if (error) throw error;
-      return (data ?? []) as PipelineStageRow[];
+      return mapStages((data ?? []) as PipelineStageRow[]);
     },
     enabled: !!jobId,
   });
@@ -46,14 +48,14 @@ export const useStagesByJob = (jobId: string) =>
 export const useCreateStage = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (stage: PipelineStageInsert): Promise<PipelineStageRow> => {
+    mutationFn: async (stage: PipelineStageInsert): Promise<PipelineStage> => {
       const { data, error } = await supabase
         .from("pipeline_stages")
         .insert(stage)
         .select()
         .single();
       if (error) throw error;
-      return data as PipelineStageRow;
+      return mapStage(data as PipelineStageRow);
     },
     onSuccess: (_data, stage) => {
       queryClient.invalidateQueries({ queryKey: stageKeys.all });

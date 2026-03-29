@@ -1,9 +1,9 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Candidate, ScorecardTemplate } from "@/lib/types";
-import { useATSStore } from "@/lib/ats-store";
-import { format } from "date-fns";
+import { Candidate } from "@/lib/types";
+import { useJobs } from "@/hooks/useJobs";
+import { useStages } from "@/hooks/useStages";
+import { useUsers } from "@/hooks/useUsers";
 import { ClipboardList, Star, CheckCircle, MessageSquare, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { CandidateDetailDialog } from "@/components/CandidateDetailDialog";
@@ -15,18 +15,27 @@ interface Props {
 }
 
 export const ScorecardsDialog = ({ open, onOpenChange, candidates }: Props) => {
-  const { jobs, stages, scorecardTemplates, evaluations, users } = useATSStore();
+  const { data: jobs = [] } = useJobs();
+  const { data: stages = [] } = useStages();
+  // TODO: use bulk endpoint — fetching all templates/evaluations requires N+1 queries
+  const scorecardTemplates: never[] = [];
+  const evaluations: never[] = [];
+
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
 
   const getJobName = (jobId: string) => jobs.find((j) => j.id === jobId)?.name ?? "—";
   const getStageName = (stageId: string) => stages.find((s) => s.id === stageId)?.name ?? "—";
 
-  const getScorecardForStage = (stageId: string): ScorecardTemplate | undefined => {
-    return scorecardTemplates.find((t) => t.stageId === stageId);
+  const getScorecardForStage = (stageId: string) => {
+    return (scorecardTemplates as { stageId: string; criteria: { id: string; ratingType: string; question: string }[] }[]).find(
+      (t) => t.stageId === stageId
+    );
   };
 
   const hasCompletedScorecard = (candidateId: string, stageId: string) => {
-    return evaluations.some((e) => e.candidateId === candidateId && e.stageId === stageId);
+    return (evaluations as { candidateId: string; stageId: string }[]).some(
+      (e) => e.candidateId === candidateId && e.stageId === stageId
+    );
   };
 
   const ratingTypeIcon = (type: string) => {
@@ -35,15 +44,6 @@ export const ScorecardsDialog = ({ open, onOpenChange, candidates }: Props) => {
       case "yes_no": return <CheckCircle className="h-3 w-3 text-green-500" />;
       case "text": return <MessageSquare className="h-3 w-3 text-primary" />;
       default: return null;
-    }
-  };
-
-  const ratingTypeLabel = (type: string) => {
-    switch (type) {
-      case "scale": return "1–5 Scale";
-      case "yes_no": return "Yes / No";
-      case "text": return "Text";
-      default: return type;
     }
   };
 

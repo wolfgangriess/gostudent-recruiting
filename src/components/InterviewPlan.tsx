@@ -17,7 +17,10 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, Plus, Trash2, Pencil, Check, X, ClipboardList } from "lucide-react";
-import { useATSStore } from "@/lib/ats-store";
+import { useAllCandidates } from "@/hooks/useCandidates";
+import { useStages, useCreateStage, useDeleteStage } from "@/hooks/useStages";
+import { useUsers } from "@/hooks/useUsers";
+import { useJob } from "@/hooks/useJobs";
 import { PipelineStage } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,6 +35,9 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { UserAvatar } from "@/components/UserPicker";
 import ScorecardBuilder from "@/components/ScorecardBuilder";
+import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
+import { stageKeys } from "@/hooks/useStages";
 
 interface Props {
   jobId: string;
@@ -45,7 +51,6 @@ const SortableStageRow = ({
   onSetOwner,
   ownerUser,
   eligibleUsers,
-  scorecardCount,
   onOpenScorecard,
 }: {
   stage: PipelineStage;
@@ -55,7 +60,6 @@ const SortableStageRow = ({
   onSetOwner: (ownerId: string | undefined) => void;
   ownerUser: any;
   eligibleUsers: any[];
-  scorecardCount: number;
   onOpenScorecard: () => void;
 }) => {
   const [editing, setEditing] = useState(false);
@@ -138,16 +142,16 @@ const SortableStageRow = ({
         </SelectContent>
       </Select>
 
-      {/* Scorecard button */}
+      {/* Scorecard button — count stubbed to 0; TODO: use bulk scorecard fetch */}
       <Button
         type="button"
         variant="ghost"
         size="sm"
-        className={`h-8 gap-1 text-xs ${scorecardCount > 0 ? "text-primary" : "text-muted-foreground"}`}
+        className="h-8 gap-1 text-xs text-muted-foreground"
         onClick={onOpenScorecard}
       >
         <ClipboardList className="h-3.5 w-3.5" />
-        {scorecardCount > 0 ? `${scorecardCount}` : "Scorecard"}
+        Scorecard
       </Button>
 
       <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
@@ -174,8 +178,35 @@ const SortableStageRow = ({
 };
 
 const InterviewPlan = ({ jobId }: Props) => {
-  const { stages, candidates, users, addStage, removeStage, renameStage, reorderStages, setStageOwner, getScorecardTemplate } =
-    useATSStore();
+  const { data: stages = [] } = useStages();
+  const { data: candidates = [] } = useAllCandidates();
+  const { data: users = [] } = useUsers();
+  const { data: job } = useJob(jobId);
+  const createStage = useCreateStage();
+  const deleteStage = useDeleteStage();
+
+  const queryClient = useQueryClient();
+
+  const renameStage = async (stageId: string, name: string) => {
+    await supabase.from("pipeline_stages").update({ name }).eq("id", stageId);
+    queryClient.invalidateQueries({ queryKey: stageKeys.all });
+  };
+
+  const reorderStages = async (jId: string, orderedIds: string[]) => {
+    await Promise.all(
+      orderedIds.map((id, index) =>
+        supabase.from("pipeline_stages").update({ order: index }).eq("id", id)
+      )
+    );
+    queryClient.invalidateQueries({ queryKey: stageKeys.all });
+    queryClient.invalidateQueries({ queryKey: stageKeys.byJob(jId) });
+  };
+
+  const setStageOwner = async (stageId: string, ownerId: string | undefined) => {
+    await supabase.from("pipeline_stages").update({ owner_id: ownerId ?? null }).eq("id", stageId);
+    queryClient.invalidateQueries({ queryKey: stageKeys.all });
+  };
+
   const [newStageName, setNewStageName] = useState("");
   const [activeStage, setActiveStage] = useState<PipelineStage | null>(null);
   const [scorecardStageId, setScorecardStageId] = useState<string | null>(null);
@@ -183,7 +214,6 @@ const InterviewPlan = ({ jobId }: Props) => {
 
   const jobStages = stages.filter((s) => s.jobId === jobId).sort((a, b) => a.order - b.order);
 
-  const job = useATSStore((s) => s.jobs.find((j) => j.id === jobId));
   const eligibleUsers = users.filter(
     (u) => u.role === "admin" || u.role === "hiring_manager" || (job?.hiringTeamIds.includes(u.id))
   );
@@ -202,13 +232,21 @@ const InterviewPlan = ({ jobId }: Props) => {
     const oldIndex = jobStages.findIndex((s) => s.id === active.id);
     const newIndex = jobStages.findIndex((s) => s.id === over.id);
     const reordered = arrayMove(jobStages, oldIndex, newIndex);
-    reorderStages(jobId, reordered.map((s) => s.id));
+    void reorderStages(jobId, reordered.map((s) => s.id));
   };
 
   const handleAddStage = () => {
     if (!newStageName.trim()) return;
-    addStage(jobId, newStageName.trim());
+    createStage.mutate({
+      job_id: jobId,
+      name: newStageName.trim(),
+      order: jobStages.length,
+    });
     setNewStageName("");
+  };
+
+  const handleRemoveStage = (stageId: string) => {
+    deleteStage.mutate(stageId);
   };
 
   const getCandidateCount = (stageId: string) =>
@@ -233,12 +271,11 @@ const InterviewPlan = ({ jobId }: Props) => {
                 key={stage.id}
                 stage={stage}
                 candidateCount={getCandidateCount(stage.id)}
-                onRemove={() => removeStage(stage.id)}
-                onRename={(name) => renameStage(stage.id, name)}
-                onSetOwner={(ownerId) => setStageOwner(stage.id, ownerId)}
+                onRemove={() => handleRemoveStage(stage.id)}
+                onRename={(name) => void renameStage(stage.id, name)}
+                onSetOwner={(ownerId) => void setStageOwner(stage.id, ownerId)}
                 ownerUser={stage.ownerId ? users.find((u) => u.id === stage.ownerId) : null}
                 eligibleUsers={eligibleUsers}
-                scorecardCount={getScorecardTemplate(stage.id)?.criteria.length ?? 0}
                 onOpenScorecard={() => {
                   setScorecardStageId(stage.id);
                   setScorecardStageName(stage.name);

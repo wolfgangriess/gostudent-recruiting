@@ -26,10 +26,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useATSStore } from "@/lib/ats-store";
+import { useUsers } from "@/hooks/useUsers";
 import { UserAvatar } from "@/components/UserPicker";
 import ScorecardBuilder from "@/components/ScorecardBuilder";
 import type { StageConfig } from "@/components/AddJobDialog";
+import type { PipelineStage } from "@/lib/types";
 
 interface Props {
   stages: StageConfig[];
@@ -37,6 +38,8 @@ interface Props {
   hiringTeamIds: string[];
   /** If provided, this is an existing job — show scorecard config */
   jobId?: string;
+  /** Existing pipeline stages from Supabase (required when jobId is set) */
+  pipelineStages?: PipelineStage[];
 }
 
 const SortableStageItem = ({
@@ -45,14 +48,15 @@ const SortableStageItem = ({
   onRemove,
   onUpdate,
   eligibleUsers,
-  jobId,
+  stageId,
 }: {
   stage: StageConfig;
   index: number;
   onRemove: () => void;
   onUpdate: (updates: Partial<StageConfig>) => void;
   eligibleUsers: { id: string; firstName: string; lastName: string; role: string; department: string }[];
-  jobId?: string;
+  /** Resolved real stage id from pipelineStages, if available */
+  stageId?: string;
 }) => {
   const [scorecardOpen, setScorecardOpen] = useState(false);
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
@@ -63,15 +67,10 @@ const SortableStageItem = ({
     transition,
   };
 
-  const { getScorecardTemplate } = useATSStore();
-
-  // For existing jobs, check if scorecard exists
-  const stageId = jobId
-    ? useATSStore.getState().stages.find(
-        (s) => s.jobId === jobId && s.name === stage.name && s.order === index
-      )?.id
-    : undefined;
-  const hasScorecard = stageId ? !!getScorecardTemplate(stageId) : false;
+  // TODO: fetching per-stage scorecard template here would require N+1 hook calls.
+  // Instead we rely on ScorecardBuilder (opened on demand) which fetches the template lazily.
+  // hasScorecard is left as false until a bulk-fetch endpoint is available.
+  const hasScorecard = false;
 
   return (
     <>
@@ -156,8 +155,8 @@ const SortableStageItem = ({
   );
 };
 
-const StageConfigurator = ({ stages, onChange, hiringTeamIds, jobId }: Props) => {
-  const { users } = useATSStore();
+const StageConfigurator = ({ stages, onChange, hiringTeamIds, jobId, pipelineStages = [] }: Props) => {
+  const { data: users = [] } = useUsers();
   const [activeStage, setActiveStage] = useState<StageConfig | null>(null);
 
   const sensors = useSensors(
@@ -218,17 +217,25 @@ const StageConfigurator = ({ stages, onChange, hiringTeamIds, jobId }: Props) =>
           strategy={verticalListSortingStrategy}
         >
           <div className="flex flex-col gap-2">
-            {stages.map((stage, i) => (
-              <SortableStageItem
-                key={stage.tempId}
-                stage={stage}
-                index={i}
-                onRemove={() => removeStage(stage.tempId)}
-                onUpdate={(updates) => updateStage(stage.tempId, updates)}
-                eligibleUsers={eligibleUsers}
-                jobId={jobId}
-              />
-            ))}
+            {stages.map((stage, i) => {
+              // Resolve the real pipeline stage id for existing jobs
+              const pipelineStage = jobId
+                ? pipelineStages.find(
+                    (s) => s.jobId === jobId && s.name === stage.name && s.order === i
+                  )
+                : undefined;
+              return (
+                <SortableStageItem
+                  key={stage.tempId}
+                  stage={stage}
+                  index={i}
+                  onRemove={() => removeStage(stage.tempId)}
+                  onUpdate={(updates) => updateStage(stage.tempId, updates)}
+                  eligibleUsers={eligibleUsers}
+                  stageId={pipelineStage?.id}
+                />
+              );
+            })}
           </div>
         </SortableContext>
         <DragOverlay>

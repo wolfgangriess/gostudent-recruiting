@@ -19,15 +19,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useATSStore } from "@/lib/ats-store";
 import { DEPARTMENTS, LOCATIONS } from "@/lib/types";
 import AddJobDialog from "@/components/AddJobDialog";
+import { useJobs } from "@/hooks/useJobs";
+import { useAllCandidates } from "@/hooks/useCandidates";
 
 type SortKey = "name" | "department" | "location" | "newCandidates" | "totalCandidates";
 type SortDir = "asc" | "desc";
 
 const JobsList = () => {
-  const { jobs, getNewCandidatesCount, getTotalCandidatesCount } = useATSStore();
+  const { data: jobs = [], isLoading, error } = useJobs();
+  const { data: allCandidates = [] } = useAllCandidates();
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [deptFilter, setDeptFilter] = useState("all");
@@ -35,6 +37,18 @@ const JobsList = () => {
   const [sortKey, setSortKey] = useState<SortKey>("name");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
   const [dialogOpen, setDialogOpen] = useState(false);
+
+  const weekAgo = useMemo(() => {
+    const d = new Date();
+    d.setDate(d.getDate() - 7);
+    return d;
+  }, []);
+
+  const getNewCandidatesCount = (jobId: string) =>
+    allCandidates.filter((c) => c.jobId === jobId && new Date(c.appliedAt) >= weekAgo).length;
+
+  const getTotalCandidatesCount = (jobId: string) =>
+    allCandidates.filter((c) => c.jobId === jobId).length;
 
   const toggleSort = (key: SortKey) => {
     if (sortKey === key) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
@@ -80,7 +94,7 @@ const JobsList = () => {
       return sortDir === "asc" ? cmp : -cmp;
     });
     return list;
-  }, [jobs, search, deptFilter, locFilter, sortKey, sortDir, getNewCandidatesCount, getTotalCandidatesCount]);
+  }, [jobs, allCandidates, search, deptFilter, locFilter, sortKey, sortDir]);
 
   const SortButton = ({ label, column }: { label: string; column: SortKey }) => (
     <button
@@ -91,6 +105,9 @@ const JobsList = () => {
       <ArrowUpDown className="h-3.5 w-3.5" />
     </button>
   );
+
+  if (isLoading) return <div className="flex items-center justify-center p-8"><div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full" /></div>
+  if (error) return <div className="p-8 text-sm text-destructive">Something went wrong. Please refresh.</div>
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">

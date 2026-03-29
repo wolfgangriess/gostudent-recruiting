@@ -9,7 +9,6 @@ import { Badge } from "@/components/ui/badge";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
-import { useATSStore } from "@/lib/ats-store";
 import { getApplicationTrendData } from "@/lib/mock-data";
 import PipelineBoard from "@/components/PipelineBoard";
 
@@ -19,21 +18,27 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useJob } from "@/hooks/useJobs";
+import { useAllCandidates } from "@/hooks/useCandidates";
+import { useStagesByJob } from "@/hooks/useStages";
+import { useUsers } from "@/hooks/useUsers";
 
 const JobDetail = () => {
   const { jobId } = useParams<{ jobId: string }>();
-  const { jobs, candidates, stages, users } = useATSStore();
+  const { data: job, isLoading, error } = useJob(jobId ?? "");
+  const { data: allCandidates = [] } = useAllCandidates();
+  const { data: stages = [] } = useStagesByJob(jobId ?? "");
+  const { data: users = [] } = useUsers();
   const [editOpen, setEditOpen] = useState(false);
-  const job = jobs.find((j) => j.id === jobId);
-
-  const trendData = useMemo(
-    () => (jobId ? getApplicationTrendData(jobId, candidates) : []),
-    [jobId, candidates]
-  );
 
   const jobCandidates = useMemo(
-    () => candidates.filter((c) => c.jobId === jobId),
-    [candidates, jobId]
+    () => allCandidates.filter((c) => c.jobId === jobId),
+    [allCandidates, jobId]
+  );
+
+  const trendData = useMemo(
+    () => (jobId ? getApplicationTrendData(jobId, jobCandidates) : []),
+    [jobId, jobCandidates]
   );
 
   const totalApps = jobCandidates.length;
@@ -42,6 +47,9 @@ const JobDetail = () => {
   const newThisWeek = jobCandidates.filter((c) => new Date(c.appliedAt) >= weekAgo).length;
   const weeksCount = trendData.length || 1;
   const avgPerWeek = Math.round(totalApps / weeksCount);
+
+  if (isLoading) return <div className="flex items-center justify-center p-8"><div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full" /></div>
+  if (error) return <div className="p-8 text-sm text-destructive">Something went wrong. Please refresh.</div>
 
   if (!job) {
     return (
@@ -52,7 +60,7 @@ const JobDetail = () => {
     );
   }
 
-  const jobStages = stages.filter((s) => s.jobId === jobId).sort((a, b) => a.order - b.order);
+  const jobStages = stages.sort((a, b) => a.order - b.order);
   const hiringTeam = users.filter((u) => job.hiringTeamIds.includes(u.id));
 
   return (

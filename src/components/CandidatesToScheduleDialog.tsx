@@ -1,7 +1,8 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Candidate } from "@/lib/types";
-import { useATSStore } from "@/lib/ats-store";
+import { useJobs } from "@/hooks/useJobs";
+import { useStages } from "@/hooks/useStages";
 import { CalendarClock } from "lucide-react";
 import { toast } from "sonner";
 
@@ -20,7 +21,8 @@ const INTERVIEW_TYPES = [
 ];
 
 export const CandidatesToScheduleDialog = ({ open, onOpenChange, candidates }: Props) => {
-  const { jobs, stages } = useATSStore();
+  const { data: jobs = [] } = useJobs();
+  const { data: stages = [] } = useStages();
 
   const getJobName = (jobId: string) => jobs.find((j) => j.id === jobId)?.name ?? "—";
   const getStageName = (stageId: string) => stages.find((s) => s.id === stageId)?.name ?? "—";

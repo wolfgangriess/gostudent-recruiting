@@ -3,7 +3,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Candidate } from "@/lib/types";
-import { useATSStore } from "@/lib/ats-store";
+import { useJobs } from "@/hooks/useJobs";
+import { useStages } from "@/hooks/useStages";
+import { useUpdateCandidateStage } from "@/hooks/useCandidates";
 import { ThumbsUp, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 
@@ -38,7 +40,9 @@ const NEXT_STAGES = [
 ];
 
 export const NeedsDecisionDialog = ({ open, onOpenChange, candidates }: Props) => {
-  const { jobs, stages, moveCandidateToStage } = useATSStore();
+  const { data: jobs = [] } = useJobs();
+  const { data: stages = [] } = useStages();
+  const { mutate: updateStage } = useUpdateCandidateStage();
 
   const getJobName = (jobId: string) => jobs.find((j) => j.id === jobId)?.name ?? "—";
   const getStageName = (stageId: string) => stages.find((s) => s.id === stageId)?.name ?? "—";
@@ -62,8 +66,9 @@ export const NeedsDecisionDialog = ({ open, onOpenChange, candidates }: Props) =
     const jobStages = stages.filter((s) => s.jobId === c.jobId).sort((a, b) => a.order - b.order);
     const currentIdx = jobStages.findIndex((s) => s.id === c.currentStageId);
     if (currentIdx < jobStages.length - 1) {
-      moveCandidateToStage(c.id, jobStages[currentIdx + 1].id);
-      toast.success(`${c.firstName} ${c.lastName} advanced to ${jobStages[currentIdx + 1].name}`);
+      const nextStage = jobStages[currentIdx + 1];
+      updateStage({ candidateId: c.id, newStageId: nextStage.id });
+      toast.success(`${c.firstName} ${c.lastName} advanced to ${nextStage.name}`);
     }
   };
 

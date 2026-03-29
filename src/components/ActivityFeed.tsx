@@ -5,7 +5,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { Candidate } from "@/lib/types";
-import { useATSStore } from "@/lib/ats-store";
+import { useJobs } from "@/hooks/useJobs";
 
 interface Props {
   candidate: Candidate;
@@ -19,7 +19,7 @@ interface ActivityItem {
 }
 
 const ActivityFeed = ({ candidate }: Props) => {
-  const { jobs } = useATSStore();
+  const { data: jobs = [] } = useJobs();
   const job = jobs.find((j) => j.id === candidate.jobId);
 
   const [search, setSearch] = useState("");

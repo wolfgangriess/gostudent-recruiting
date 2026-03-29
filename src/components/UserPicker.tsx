@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { X, Search, Check } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { useATSStore } from "@/lib/ats-store";
+import { useUsers } from "@/hooks/useUsers";
 import { User } from "@/lib/types";
 
 interface Props {
@@ -30,7 +30,7 @@ const roleBadge: Record<string, string> = {
 };
 
 const UserPicker = ({ selectedIds, onChange, label, placeholder = "Search users…", filterRole }: Props) => {
-  const { users } = useATSStore();
+  const { data: users = [] } = useUsers();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);

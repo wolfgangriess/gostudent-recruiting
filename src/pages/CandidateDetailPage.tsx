@@ -22,19 +22,41 @@ import {
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useATSStore } from "@/lib/ats-store";
+import { useAllCandidates, useUpdateCandidateStage } from "@/hooks/useCandidates";
+import { useJobs } from "@/hooks/useJobs";
+import { useStages } from "@/hooks/useStages";
 import { toast } from "sonner";
 
 const CandidateDetailPage = () => {
   const { candidateId } = useParams<{ candidateId: string }>();
   const navigate = useNavigate();
-  const { candidates, jobs, stages, moveCandidateToStage } = useATSStore();
+  const { data: candidates = [], isLoading, error } = useAllCandidates();
+  const { data: jobs = [] } = useJobs();
+  const { data: stages = [] } = useStages();
+  const { mutate: updateStage } = useUpdateCandidateStage();
 
   const candidate = candidates.find((c) => c.id === candidateId);
   const [activeTab, setActiveTab] = useState("stages");
   const [noteText, setNoteText] = useState("");
   const [showOfferDialog, setShowOfferDialog] = useState(false);
   const [showResumeDialog, setShowResumeDialog] = useState(false);
+
+  if (isLoading) {
+    return (
+      <div className="mx-auto max-w-7xl px-4 py-12 text-center">
+        <p className="text-muted-foreground">Loading candidate…</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="mx-auto max-w-7xl px-4 py-12 text-center">
+        <p className="text-destructive">Failed to load candidate data.</p>
+        <Link to="/candidates" className="text-primary hover:underline text-sm mt-2 inline-block">Back to Candidates</Link>
+      </div>
+    );
+  }
 
   if (!candidate) {
     return (
@@ -53,7 +75,7 @@ const CandidateDetailPage = () => {
   const handleMoveStage = () => {
     const nextStage = jobStages[currentStageIdx + 1];
     if (nextStage) {
-      moveCandidateToStage(candidate.id, nextStage.id);
+      updateStage({ candidateId: candidate.id, newStageId: nextStage.id });
       toast.success(`${candidate.firstName} advanced to ${nextStage.name}`);
     } else {
       toast.info("Candidate is already at the final stage");
@@ -63,7 +85,7 @@ const CandidateDetailPage = () => {
   const handleReject = () => {
     const appliedStage = jobStages[0];
     if (appliedStage) {
-      moveCandidateToStage(candidate.id, appliedStage.id);
+      updateStage({ candidateId: candidate.id, newStageId: appliedStage.id });
       toast.success(`${candidate.firstName} has been rejected`);
       navigate("/candidates");
     }

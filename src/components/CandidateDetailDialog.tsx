@@ -6,10 +6,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { useATSStore } from "@/lib/ats-store";
 import { Candidate, ScorecardCriterion } from "@/lib/types";
 import { UserAvatar } from "@/components/UserPicker";
 import { toast } from "sonner";
+import { useJobs } from "@/hooks/useJobs";
+import { useStages } from "@/hooks/useStages";
+import { useUsers } from "@/hooks/useUsers";
+import { useScorecardsByCandidate, useScorecardTemplate, useSubmitScorecard } from "@/hooks/useScorecards";
+import { useUpdateCandidateStage } from "@/hooks/useCandidates";
 
 interface DetailProps {
   candidate: Candidate;
@@ -18,29 +22,42 @@ interface DetailProps {
 }
 
 export const CandidateDetailDialog = ({ candidate, open, onOpenChange }: DetailProps) => {
-  const { jobs, stages, getScorecardTemplate, getEvaluationsForCandidate, addEvaluation, moveCandidateToStage, users } = useATSStore();
+  const { data: jobs = [] } = useJobs();
+  const { data: stages = [] } = useStages();
+  const { data: users = [] } = useUsers();
+  const { data: existingEvals = [] } = useScorecardsByCandidate(candidate.id);
+  const { mutate: updateStage } = useUpdateCandidateStage();
+  const submitScorecard = useSubmitScorecard();
+
   const job = jobs.find((j) => j.id === candidate.jobId);
   const currentStage = stages.find((s) => s.id === candidate.currentStageId);
-  const template = currentStage ? getScorecardTemplate(currentStage.id) : undefined;
-  const existingEvals = getEvaluationsForCandidate(candidate.id, currentStage?.id);
+
+  const { data: template } = useScorecardTemplate(currentStage?.id ?? "");
+
+  const currentStageEvals = existingEvals.filter((e) => e.stage_id === currentStage?.id);
 
   const [scores, setScores] = useState<Record<string, number | boolean | string>>({});
   const [feedback, setFeedback] = useState("");
 
   const handleSubmitEval = () => {
     if (!currentStage) return;
-    addEvaluation({
-      id: `eval-${Date.now()}`,
-      candidateId: candidate.id,
-      stageId: currentStage.id,
-      evaluatorId: "user-1",
+    submitScorecard.mutate({
+      candidate_id: candidate.id,
+      stage_id: currentStage.id,
+      evaluator_id: null,
       scores,
       feedback,
-      completedAt: new Date().toISOString(),
-      createdAt: new Date().toISOString(),
+      completed_at: new Date().toISOString(),
+    }, {
+      onSuccess: () => {
+        setScores({});
+        setFeedback("");
+        toast.success("Evaluation submitted");
+      },
+      onError: () => {
+        toast.error("Failed to submit evaluation");
+      },
     });
-    setScores({});
-    setFeedback("");
   };
 
   return (
@@ -118,14 +135,14 @@ export const CandidateDetailDialog = ({ candidate, open, onOpenChange }: DetailP
           </div>
         </div>
 
-        {existingEvals.length > 0 && (
+        {currentStageEvals.length > 0 && (
           <div className="mt-4">
             <h3 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-1.5">
               <ClipboardList className="h-4 w-4" />
-              Completed Evaluations ({existingEvals.length})
+              Completed Evaluations ({currentStageEvals.length})
             </h3>
-            {existingEvals.map((ev) => {
-              const evaluator = users.find((u) => u.id === ev.evaluatorId);
+            {currentStageEvals.map((ev) => {
+              const evaluator = ev.evaluator_id ? users.find((u) => u.id === ev.evaluator_id) : undefined;
               return (
                 <div key={ev.id} className="mb-2 rounded-lg border border-border bg-muted/30 p-3">
                   <div className="flex items-center gap-2 mb-1">
@@ -134,7 +151,7 @@ export const CandidateDetailDialog = ({ candidate, open, onOpenChange }: DetailP
                       {evaluator ? `${evaluator.firstName} ${evaluator.lastName}` : "Unknown"}
                     </span>
                     <span className="text-xs text-muted-foreground ml-auto">
-                      {new Date(ev.completedAt).toLocaleDateString()}
+                      {new Date(ev.completed_at).toLocaleDateString()}
                     </span>
                   </div>
                   {ev.feedback && <p className="text-xs text-muted-foreground mt-1">{ev.feedback}</p>}
@@ -170,7 +187,7 @@ export const CandidateDetailDialog = ({ candidate, open, onOpenChange }: DetailP
                 className="mt-1"
               />
             </div>
-            <Button className="mt-3 w-full" size="sm" onClick={handleSubmitEval}>
+            <Button className="mt-3 w-full" size="sm" onClick={handleSubmitEval} disabled={submitScorecard.isPending}>
               Submit Evaluation
             </Button>
           </div>
@@ -189,7 +206,7 @@ export const CandidateDetailDialog = ({ candidate, open, onOpenChange }: DetailP
                 const currentIdx = jobStages.findIndex((s) => s.id === candidate.currentStageId);
                 const nextStage = jobStages[currentIdx + 1];
                 if (nextStage) {
-                  moveCandidateToStage(candidate.id, nextStage.id);
+                  updateStage({ candidateId: candidate.id, newStageId: nextStage.id });
                   toast.success(`${candidate.firstName} advanced to ${nextStage.name}`);
                   onOpenChange(false);
                 } else {
@@ -205,10 +222,9 @@ export const CandidateDetailDialog = ({ candidate, open, onOpenChange }: DetailP
               size="sm"
               className="flex-1 gap-1.5 border-destructive/30 text-destructive hover:bg-destructive/10"
               onClick={() => {
-                // Move to first stage as "rejected" (could be extended with a rejected status)
                 const appliedStage = stages.find((s) => s.jobId === candidate.jobId && s.name === "Applied");
                 if (appliedStage) {
-                  moveCandidateToStage(candidate.id, appliedStage.id);
+                  updateStage({ candidateId: candidate.id, newStageId: appliedStage.id });
                   toast.success(`${candidate.firstName} has been rejected`);
                   onOpenChange(false);
                 }

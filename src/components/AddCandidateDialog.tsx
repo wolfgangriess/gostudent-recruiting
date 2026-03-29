@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -17,9 +16,13 @@ import {
 import {
   Form, FormControl, FormField, FormItem, FormLabel, FormMessage,
 } from "@/components/ui/form";
-import { useATSStore } from "@/lib/ats-store";
 import { LOCATIONS } from "@/lib/types";
 import { toast } from "sonner";
+import { useJobs } from "@/hooks/useJobs";
+import { useStages } from "@/hooks/useStages";
+import { useUsers } from "@/hooks/useUsers";
+import { useCreateCandidate } from "@/hooks/useCandidates";
+import type { CandidateInsert } from "@/integrations/supabase/app-types";
 
 const SOURCES = [
   "LinkedIn", "Indeed", "Referral", "Company Website", "Job Board", "Recruiter", "Other",
@@ -54,7 +57,10 @@ interface Props {
 }
 
 const AddCandidateDialog = ({ open, onOpenChange }: Props) => {
-  const { jobs, stages, users, addCandidate } = useATSStore();
+  const { data: jobs = [] } = useJobs();
+  const { data: stages = [] } = useStages();
+  const { data: users = [] } = useUsers();
+  const createCandidate = useCreateCandidate();
   const [candidateType, setCandidateType] = useState<"candidate" | "prospect">("candidate");
 
   const form = useForm<FormValues>({
@@ -79,25 +85,26 @@ const AddCandidateDialog = ({ open, onOpenChange }: Props) => {
       return;
     }
 
-    const now = new Date().toISOString();
-    addCandidate({
-      id: `cand-${Date.now()}`,
-      firstName: values.firstName,
-      lastName: values.lastName,
+    createCandidate.mutate({
+      first_name: values.firstName,
+      last_name: values.lastName,
       email: values.email,
       phone: values.phone || "",
-      jobId: values.jobId,
-      currentStageId: stageId,
+      job_id: values.jobId,
+      current_stage_id: stageId,
       source: values.source,
       rating: 0,
-      appliedAt: now,
-      createdAt: now,
-      updatedAt: now,
+      applied_at: new Date().toISOString(),
+    } as CandidateInsert, {
+      onSuccess: () => {
+        toast.success(`${values.firstName} ${values.lastName} added as a candidate`);
+        form.reset();
+        onOpenChange(false);
+      },
+      onError: () => {
+        toast.error("Failed to add candidate. Please try again.");
+      },
     });
-
-    toast.success(`${values.firstName} ${values.lastName} added as a candidate`);
-    form.reset();
-    onOpenChange(false);
   };
 
   return (
@@ -298,7 +305,7 @@ const AddCandidateDialog = ({ open, onOpenChange }: Props) => {
 
             <div className="flex justify-end gap-3 pt-2">
               <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
-              <Button type="submit">Add this candidate</Button>
+              <Button type="submit" disabled={createCandidate.isPending}>Add this candidate</Button>
             </div>
           </form>
         </Form>

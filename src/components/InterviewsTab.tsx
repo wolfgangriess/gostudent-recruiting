@@ -1,12 +1,16 @@
 import { useState } from "react";
-import { format, isPast, isToday } from "date-fns";
-import { Calendar, Clock, Video, MapPin, Users, ExternalLink, X, RefreshCw, CheckCircle2, Plus } from "lucide-react";
+import { format, isToday } from "date-fns";
+import { Calendar, Clock, Video, MapPin, Users, ExternalLink, X, CheckCircle2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useATSStore } from "@/lib/ats-store";
 import { Candidate } from "@/lib/types";
 import ScheduleInterviewDialog from "./ScheduleInterviewDialog";
 import { toast } from "sonner";
+import { useInterviewsByCandidate, useCancelInterview } from "@/hooks/useInterviews";
+import { useStages } from "@/hooks/useStages";
+import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
+import { interviewKeys } from "@/hooks/useInterviews";
 
 interface InterviewsTabProps {
   candidate: Candidate;
@@ -19,24 +23,41 @@ const statusConfig = {
 };
 
 const InterviewsTab = ({ candidate }: InterviewsTabProps) => {
-  const { interviews, stages, updateInterviewStatus } = useATSStore();
+  const { data: candidateInterviews = [] } = useInterviewsByCandidate(candidate.id);
+  const { data: stages = [] } = useStages();
+  const { mutate: cancelInterview } = useCancelInterview();
+  const queryClient = useQueryClient();
   const [showSchedule, setShowSchedule] = useState(false);
 
-  const candidateInterviews = interviews
-    .filter((i) => i.candidateId === candidate.id)
-    .sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime());
+  const sorted = [...candidateInterviews].sort(
+    (a, b) => new Date(b.start_time).getTime() - new Date(a.start_time).getTime()
+  );
 
-  const upcoming = candidateInterviews.filter((i) => i.status === "scheduled");
-  const past = candidateInterviews.filter((i) => i.status !== "scheduled");
+  const upcoming = sorted.filter((i) => i.status === "scheduled");
+  const past = sorted.filter((i) => i.status !== "scheduled");
 
   const handleCancel = (id: string) => {
-    updateInterviewStatus(id, "cancelled");
-    toast.success("Interview cancelled");
+    cancelInterview(id, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: interviewKeys.byCandidate(candidate.id) });
+        toast.success("Interview cancelled");
+      },
+      onError: () => toast.error("Failed to cancel interview"),
+    });
   };
 
-  const handleComplete = (id: string) => {
-    updateInterviewStatus(id, "completed");
-    toast.success("Interview marked as completed");
+  const handleComplete = async (id: string) => {
+    const { error } = await supabase
+      .from("interviews")
+      .update({ status: "completed", updated_at: new Date().toISOString() })
+      .eq("id", id);
+    if (error) {
+      toast.error("Failed to mark interview as completed");
+    } else {
+      queryClient.invalidateQueries({ queryKey: interviewKeys.byCandidate(candidate.id) });
+      queryClient.invalidateQueries({ queryKey: interviewKeys.all });
+      toast.success("Interview marked as completed");
+    }
   };
 
   return (
@@ -50,7 +71,7 @@ const InterviewsTab = ({ candidate }: InterviewsTabProps) => {
           </Button>
         </div>
 
-        {candidateInterviews.length === 0 ? (
+        {sorted.length === 0 ? (
           <div className="rounded-xl border border-border bg-card p-12 text-center space-y-3">
             <Calendar className="h-10 w-10 text-muted-foreground/40 mx-auto" />
             <div className="space-y-1">
@@ -69,9 +90,9 @@ const InterviewsTab = ({ candidate }: InterviewsTabProps) => {
                 <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Upcoming</h4>
                 <div className="space-y-2">
                   {upcoming.map((interview) => {
-                    const stage = stages.find((s) => s.id === interview.stageId);
-                    const startDate = new Date(interview.startTime);
-                    const endDate = new Date(interview.endTime);
+                    const stage = stages.find((s) => s.id === interview.stage_id);
+                    const startDate = new Date(interview.start_time);
+                    const endDate = new Date(interview.end_time);
                     const today = isToday(startDate);
 
                     return (
@@ -114,9 +135,9 @@ const InterviewsTab = ({ candidate }: InterviewsTabProps) => {
                               {interview.location}
                             </span>
                           )}
-                          {interview.meetingLink && (
+                          {interview.meeting_link && (
                             <a
-                              href={interview.meetingLink}
+                              href={interview.meeting_link}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="flex items-center gap-1 text-primary hover:underline"
@@ -126,12 +147,6 @@ const InterviewsTab = ({ candidate }: InterviewsTabProps) => {
                               Join Meeting
                               <ExternalLink className="h-2.5 w-2.5" />
                             </a>
-                          )}
-                          {interview.attendees.length > 0 && (
-                            <span className="flex items-center gap-1">
-                              <Users className="h-3 w-3" />
-                              {interview.attendees.map((a) => a.name).join(", ")}
-                            </span>
                           )}
                         </div>
 
@@ -155,9 +170,9 @@ const InterviewsTab = ({ candidate }: InterviewsTabProps) => {
                             <X className="h-3 w-3" />
                             Cancel
                           </Button>
-                          {interview.googleEventId && (
+                          {interview.google_event_id && (
                             <a
-                              href={`https://calendar.google.com/calendar/event?eid=${interview.googleEventId}`}
+                              href={`https://calendar.google.com/calendar/event?eid=${interview.google_event_id}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="ml-auto"
@@ -182,8 +197,8 @@ const InterviewsTab = ({ candidate }: InterviewsTabProps) => {
                 <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Past</h4>
                 <div className="space-y-2">
                   {past.map((interview) => {
-                    const stage = stages.find((s) => s.id === interview.stageId);
-                    const config = statusConfig[interview.status];
+                    const stage = stages.find((s) => s.id === interview.stage_id);
+                    const config = statusConfig[interview.status as keyof typeof statusConfig] ?? statusConfig.cancelled;
 
                     return (
                       <div key={interview.id} className="rounded-lg border border-border bg-card p-4 opacity-75">
@@ -193,7 +208,7 @@ const InterviewsTab = ({ candidate }: InterviewsTabProps) => {
                             <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
                               <span className="flex items-center gap-1">
                                 <Calendar className="h-3 w-3" />
-                                {format(new Date(interview.startTime), "MMM d, yyyy · h:mm a")}
+                                {format(new Date(interview.start_time), "MMM d, yyyy · h:mm a")}
                               </span>
                               {stage && (
                                 <Badge variant="outline" className="text-[10px] px-1.5 py-0">{stage.name}</Badge>

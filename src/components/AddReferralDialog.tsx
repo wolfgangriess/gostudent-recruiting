@@ -15,7 +15,9 @@ import {
 import {
   Form, FormControl, FormField, FormItem, FormLabel, FormMessage,
 } from "@/components/ui/form";
-import { useATSStore } from "@/lib/ats-store";
+import { useJobs } from "@/hooks/useJobs";
+import { useStages } from "@/hooks/useStages";
+import { useCreateCandidate } from "@/hooks/useCandidates";
 import { DEPARTMENTS, LOCATIONS } from "@/lib/types";
 import { toast } from "sonner";
 
@@ -60,7 +62,9 @@ interface Props {
 }
 
 const AddReferralDialog = ({ open, onOpenChange }: Props) => {
-  const { jobs, stages, addCandidate } = useATSStore();
+  const { data: jobs = [] } = useJobs();
+  const { data: stages = [] } = useStages();
+  const createCandidate = useCreateCandidate();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -91,20 +95,16 @@ const AddReferralDialog = ({ open, onOpenChange }: Props) => {
       return;
     }
 
-    const now = new Date().toISOString();
-    addCandidate({
-      id: `cand-${Date.now()}`,
-      firstName: values.firstName,
-      lastName: values.lastName,
+    createCandidate.mutate({
+      first_name: values.firstName,
+      last_name: values.lastName,
       email: values.email,
       phone: values.phone || "",
-      jobId: values.jobId,
-      currentStageId: stageId,
+      job_id: values.jobId,
+      current_stage_id: stageId,
       source: "Referral",
       rating: 0,
-      appliedAt: now,
-      createdAt: now,
-      updatedAt: now,
+      applied_at: new Date().toISOString(),
     });
 
     toast.success(`Referral for ${values.firstName} ${values.lastName} submitted!`);

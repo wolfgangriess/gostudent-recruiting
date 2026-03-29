@@ -4,10 +4,11 @@ import {
   PointerSensor, useSensor, useSensors, closestCenter,
 } from "@dnd-kit/core";
 import { useState } from "react";
-import { useATSStore } from "@/lib/ats-store";
 import { PipelineStage, Candidate } from "@/lib/types";
 import PipelineColumn from "@/components/PipelineColumn";
 import CandidateCard from "@/components/CandidateCard";
+import { useAllCandidates } from "@/hooks/useCandidates";
+import { useUpdateCandidateStage } from "@/hooks/useCandidates";
 
 interface Props {
   stages: PipelineStage[];
@@ -15,7 +16,8 @@ interface Props {
 }
 
 const PipelineBoard = ({ stages, jobId }: Props) => {
-  const { candidates, moveCandidateToStage } = useATSStore();
+  const { data: allCandidates = [] } = useAllCandidates();
+  const { mutate: updateStage } = useUpdateCandidateStage();
   const [activeCandidate, setActiveCandidate] = useState<Candidate | null>(null);
 
   const sensors = useSensors(
@@ -24,10 +26,10 @@ const PipelineBoard = ({ stages, jobId }: Props) => {
 
   const handleDragStart = useCallback(
     (event: DragStartEvent) => {
-      const cand = candidates.find((c) => c.id === event.active.id);
+      const cand = allCandidates.find((c) => c.id === event.active.id);
       if (cand) setActiveCandidate(cand);
     },
-    [candidates]
+    [allCandidates]
   );
 
   const handleDragEnd = useCallback(
@@ -37,12 +39,12 @@ const PipelineBoard = ({ stages, jobId }: Props) => {
       if (!over) return;
       const candidateId = active.id as string;
       const targetStageId = over.id as string;
-      const candidate = candidates.find((c) => c.id === candidateId);
+      const candidate = allCandidates.find((c) => c.id === candidateId);
       if (candidate && candidate.currentStageId !== targetStageId) {
-        moveCandidateToStage(candidateId, targetStageId);
+        updateStage({ candidateId, newStageId: targetStageId });
       }
     },
-    [candidates, moveCandidateToStage]
+    [allCandidates, updateStage]
   );
 
   return (
@@ -54,7 +56,7 @@ const PipelineBoard = ({ stages, jobId }: Props) => {
     >
       <div className="flex gap-4 overflow-x-auto pb-4">
         {stages.map((stage) => {
-          const stageCandidates = candidates.filter(
+          const stageCandidates = allCandidates.filter(
             (c) => c.jobId === jobId && c.currentStageId === stage.id
           );
           return (

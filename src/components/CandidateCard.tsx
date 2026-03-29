@@ -1,6 +1,5 @@
 import { useDraggable } from "@dnd-kit/core";
 import { Candidate } from "@/lib/types";
-import { useATSStore } from "@/lib/ats-store";
 import { ClipboardList } from "lucide-react";
 
 interface Props {
@@ -13,10 +12,11 @@ const CandidateCard = ({ candidate, isDragging }: Props) => {
     id: candidate.id,
   });
 
-  const { getScorecardTemplate, getEvaluationsForCandidate } = useATSStore();
-  const template = getScorecardTemplate(candidate.currentStageId);
-  const evals = getEvaluationsForCandidate(candidate.id, candidate.currentStageId);
-  const hasScorecard = template && template.criteria.length > 0;
+  // TODO: Replace with useScorecardTemplate(candidate.currentStageId) from @/hooks/useScorecards
+  const template = undefined;
+  // TODO: Replace with useEvaluationsForCandidate(candidate.id, candidate.currentStageId) from @/hooks/useScorecards
+  const evals: unknown[] = [];
+  const hasScorecard = template !== undefined && (template as any)?.criteria?.length > 0;
 
   const daysInStage = Math.max(
     1,

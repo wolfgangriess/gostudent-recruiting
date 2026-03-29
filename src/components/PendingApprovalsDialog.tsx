@@ -4,7 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Candidate } from "@/lib/types";
-import { useATSStore } from "@/lib/ats-store";
+import { useJobs } from "@/hooks/useJobs";
+import { useUsers } from "@/hooks/useUsers";
 import { Bell } from "lucide-react";
 import { toast } from "sonner";
 
@@ -21,7 +22,8 @@ const APPROVAL_TYPES = [
 ];
 
 export const PendingApprovalsDialog = ({ open, onOpenChange, candidates }: Props) => {
-  const { jobs, users } = useATSStore();
+  const { data: jobs = [] } = useJobs();
+  const { data: users = [] } = useUsers();
   const [showOnlyMine, setShowOnlyMine] = useState(true);
   const [activeTypes, setActiveTypes] = useState<Set<string>>(
     new Set(APPROVAL_TYPES.map((t) => t.id))

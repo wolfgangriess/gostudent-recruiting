@@ -1,17 +1,18 @@
 import { useMemo, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import { HelpCircle, ArrowDown, ArrowUp } from "lucide-react";
-import { useATSStore } from "@/lib/ats-store";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  BarChart, Bar, Cell,
+  BarChart, Bar,
 } from "recharts";
 import {
   Tooltip as UITooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useAllCandidates } from "@/hooks/useCandidates";
+import { useJobs } from "@/hooks/useJobs";
+import { useStages } from "@/hooks/useStages";
 
 const FILTERS = [
   "All offices",
@@ -80,7 +81,9 @@ const MetricCard = ({
 );
 
 const ReportsPage = () => {
-  const { candidates, jobs, stages } = useATSStore();
+  const { data: candidates = [], isLoading, error } = useAllCandidates();
+  const { data: jobs = [] } = useJobs();
+  const { data: stages = [] } = useStages();
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
 
   const offersCreatedData = useMemo(() => generateTimeData(12, 5, 8), []);
@@ -92,7 +95,7 @@ const ReportsPage = () => {
     );
   };
 
-  // Compute some metrics from store data
+  // Compute some metrics from data
   const totalOffers = candidates.filter((c) => {
     const stage = stages.find((s) => s.id === c.currentStageId);
     return stage?.name === "Offer" || stage?.name === "Hired";
@@ -121,6 +124,9 @@ const ReportsPage = () => {
 
   const dateRange = `Dec 10, 2025 - Mar 10, 2026`;
   const compareRange = `Sep 11 - Dec 9, 2025`;
+
+  if (isLoading) return <div className="flex items-center justify-center p-8"><div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full" /></div>
+  if (error) return <div className="p-8 text-sm text-destructive">Something went wrong. Please refresh.</div>
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 space-y-6">

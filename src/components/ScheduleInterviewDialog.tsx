@@ -18,11 +18,14 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { useATSStore } from "@/lib/ats-store";
 import { Candidate } from "@/lib/types";
 import { useGoogleCalendarIntegration } from "@/hooks/useGoogleCalendarIntegration";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { useCreateInterview } from "@/hooks/useInterviews";
+import { useJobs } from "@/hooks/useJobs";
+import { useStages } from "@/hooks/useStages";
+import { useUsers } from "@/hooks/useUsers";
 
 const DURATION_OPTIONS = [
   { value: "30", label: "30 min" },
@@ -45,8 +48,12 @@ interface ScheduleInterviewDialogProps {
 }
 
 const ScheduleInterviewDialog = ({ open, onOpenChange, candidate }: ScheduleInterviewDialogProps) => {
-  const { jobs, stages, users, addInterview } = useATSStore();
+  const { data: jobs = [] } = useJobs();
+  const { data: stages = [] } = useStages();
+  const { data: users = [] } = useUsers();
+  const createInterview = useCreateInterview();
   const { connected: googleCalendarConnected } = useGoogleCalendarIntegration();
+
   const job = jobs.find((j) => j.id === candidate.jobId);
   const jobStages = stages.filter((s) => s.jobId === candidate.jobId).sort((a, b) => a.order - b.order);
   const currentStage = stages.find((s) => s.id === candidate.currentStageId);
@@ -140,30 +147,43 @@ const ScheduleInterviewDialog = ({ open, onOpenChange, candidate }: ScheduleInte
       }
     }
 
-    addInterview({
-      id: `interview-${Date.now()}`,
-      candidateId: candidate.id,
-      jobId: candidate.jobId,
-      stageId,
+    createInterview.mutate({
+      candidate_id: candidate.id,
+      job_id: candidate.jobId,
+      stage_id: stageId,
       title,
-      startTime: startDate.toISOString(),
-      endTime: endDate.toISOString(),
-      location,
-      meetingLink: finalMeetingLink,
-      description,
+      start_time: startDate.toISOString(),
+      end_time: endDate.toISOString(),
+      location: location || null,
+      meeting_link: finalMeetingLink || null,
+      description: description || null,
       status: "scheduled",
-      attendees: attendeesList,
-      googleEventId,
-      createdAt: new Date().toISOString(),
+      google_event_id: googleEventId ?? null,
+    }, {
+      onSuccess: async (newInterview) => {
+        // Insert attendees into interview_attendees table
+        if (attendeesList.length > 0) {
+          await supabase.from("interview_attendees").insert(
+            attendeesList.map((a) => ({
+              interview_id: newInterview.id,
+              user_email: a.email,
+              user_name: a.name || null,
+            }))
+          );
+        }
+        setSaving(false);
+        toast.success("Interview scheduled!", {
+          description: googleEventId
+            ? "Calendar event created and invites sent."
+            : undefined,
+        });
+        onOpenChange(false);
+      },
+      onError: () => {
+        setSaving(false);
+        toast.error("Failed to schedule interview. Please try again.");
+      },
     });
-
-    setSaving(false);
-    toast.success("Interview scheduled!", {
-      description: googleEventId
-        ? "Calendar event created and invites sent."
-        : undefined,
-    });
-    onOpenChange(false);
   };
 
   return (
@@ -344,8 +364,8 @@ const ScheduleInterviewDialog = ({ open, onOpenChange, candidate }: ScheduleInte
           <Button variant="outline" size="sm" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button size="sm" onClick={handleSubmit} disabled={saving || !date}>
-            {saving ? (
+          <Button size="sm" onClick={handleSubmit} disabled={saving || !date || createInterview.isPending}>
+            {saving || createInterview.isPending ? (
               <>
                 <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />
                 Scheduling…
