@@ -2,9 +2,21 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader2, Shield } from "lucide-react";
 import { toast } from "sonner";
-import { lovable } from "@/integrations/lovable/index";
+import { supabase } from "@/integrations/supabase/client";
 import goStudentLogo from "@/assets/gostudent-logo-full.png";
 import gostudentIcon from "@/assets/gostudent-pencil-icon.png";
+
+// Google Calendar + Gmail + Drive scopes requested at login so users
+// only need to authorise once for all integrations.
+const GOOGLE_SCOPES = [
+  "email",
+  "profile",
+  "https://www.googleapis.com/auth/calendar",
+  "https://www.googleapis.com/auth/gmail.send",
+  "https://www.googleapis.com/auth/drive.file",
+].join(" ");
+
+const REDIRECT_TO = `${window.location.origin}/auth/callback`;
 
 const GoogleIcon = () => (
   <svg viewBox="0 0 24 24" className="h-4 w-4">
@@ -19,25 +31,33 @@ const LoginPage = () => {
   const [ssoLoading, setSsoLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
 
+  // GoStudent employees — restrict to gostudent.org domain
   const handleGoStudentSSO = async () => {
     setSsoLoading(true);
-    const { error } = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
-      extraParams: {
-        hd: "gostudent.com",
-        prompt: "select_account",
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        hd: "gostudent.org",
+        redirectTo: REDIRECT_TO,
+        scopes: GOOGLE_SCOPES,
       },
     });
     if (error) {
       toast.error("Sign in failed. Please try again.");
       setSsoLoading(false);
     }
+    // On success the browser is redirected — loading stays true intentionally
   };
 
+  // External accounts — no domain restriction
   const handleGoogleSignIn = async () => {
     setGoogleLoading(true);
-    const { error } = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: REDIRECT_TO,
+        scopes: GOOGLE_SCOPES,
+      },
     });
     if (error) {
       toast.error("Sign in failed. Please try again.");
@@ -45,10 +65,11 @@ const LoginPage = () => {
     }
   };
 
+  const anyLoading = ssoLoading || googleLoading;
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="w-full max-w-sm">
-        {/* Card */}
         <div className="rounded-2xl border border-border bg-card shadow-lg overflow-hidden">
           {/* Header */}
           <div className="bg-primary px-8 py-8 flex flex-col items-center gap-3">
@@ -64,14 +85,14 @@ const LoginPage = () => {
               <Button
                 className="w-full gap-2.5 h-11 text-sm font-semibold"
                 onClick={handleGoStudentSSO}
-                disabled={ssoLoading || googleLoading}
+                disabled={anyLoading}
               >
                 {ssoLoading ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
                   <img src={gostudentIcon} alt="" className="h-4 w-4 brightness-0 invert" />
                 )}
-                {ssoLoading ? "Signing in…" : "Sign in with GoStudent SSO"}
+                {ssoLoading ? "Redirecting…" : "Sign in with GoStudent SSO"}
               </Button>
             </div>
 
@@ -82,14 +103,14 @@ const LoginPage = () => {
               <div className="flex-1 h-px bg-border" />
             </div>
 
-            {/* Secondary: Google */}
+            {/* Secondary: Google (external) */}
             <div className="space-y-1.5">
               <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">External Accounts</p>
               <Button
                 variant="outline"
                 className="w-full gap-2.5 h-11 text-sm font-medium"
                 onClick={handleGoogleSignIn}
-                disabled={ssoLoading || googleLoading}
+                disabled={anyLoading}
               >
                 {googleLoading ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -109,6 +130,15 @@ const LoginPage = () => {
             </div>
           </div>
         </div>
+
+        {/* Setup note — visible only in dev */}
+        {import.meta.env.DEV && (
+          <p className="mt-4 text-center text-[10px] text-muted-foreground/60 leading-relaxed px-4">
+            Before SSO works: enable Google provider in Supabase Dashboard → Auth → Providers,
+            add OAuth credentials from Google Cloud Console, and set the redirect URI to{" "}
+            <code className="font-mono">{REDIRECT_TO}</code>.
+          </p>
+        )}
       </div>
     </div>
   );
