@@ -174,7 +174,9 @@ const ScheduleInterviewDialog = ({ open, onOpenChange, candidate }: ScheduleInte
         setSaving(false);
         toast.success("Interview scheduled!", {
           description: googleEventId
-            ? "Calendar event created and invites sent."
+            ? finalMeetingLink
+              ? `Calendar event created — Meet: ${finalMeetingLink}`
+              : "Calendar event created and invites sent."
             : undefined,
         });
         onOpenChange(false);

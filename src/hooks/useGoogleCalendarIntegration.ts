@@ -110,6 +110,27 @@ export const useGoogleCalendarIntegration = () => {
     await refresh();
   }, [refresh, user]);
 
+  /** Create a Google Calendar event via the Edge Function */
+  const createCalendarEvent = useCallback(async (params: {
+    summary: string;
+    description?: string;
+    startTime: string;
+    endTime: string;
+    attendees?: { email: string; name?: string }[];
+    location?: string;
+    createMeetLink?: boolean;
+  }): Promise<{ googleEventId: string; meetingLink: string | null; htmlLink: string | null }> => {
+    const { data, error } = await supabase.functions.invoke("google-calendar-api", {
+      body: { action: "create_event", ...params },
+    });
+    if (error) throw error;
+    return {
+      googleEventId: data?.googleEventId ?? "",
+      meetingLink: data?.meetingLink ?? null,
+      htmlLink: data?.htmlLink ?? null,
+    };
+  }, []);
+
   return {
     integration,
     connected,
@@ -119,5 +140,6 @@ export const useGoogleCalendarIntegration = () => {
     connect,
     disconnect,
     refresh,
+    createCalendarEvent,
   };
 };
