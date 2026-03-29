@@ -36,8 +36,11 @@ async function getValidAccessToken(
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
   );
 
+  // Read from decrypted_integrations view (service_role only) so that
+  // access_token and refresh_token are returned as plaintext.
+  // The underlying integrations table stores them encrypted via pgp_sym_encrypt.
   const { data: integration, error } = await supabase
-    .from("integrations")
+    .from("decrypted_integrations")
     .select("*")
     .eq("user_id", userId)
     .eq("provider", "google_calendar")
