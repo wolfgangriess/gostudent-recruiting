@@ -38,6 +38,8 @@ export function mapCandidate(row: CandidateRow): Candidate {
     offeredSalary: row.offered_salary ?? undefined,
     stageChangedAt: row.stage_changed_at ?? undefined,
     scheduledAt: row.scheduled_at ?? undefined,
+    cvDriveId: row.cv_drive_id ?? undefined,
+    cvUrl: row.cv_url ?? undefined,
   };
 }
 

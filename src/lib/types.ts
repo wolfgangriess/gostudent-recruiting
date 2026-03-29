@@ -98,6 +98,10 @@ export interface Candidate {
    * interviews are stored in the Supabase interviews table.
    */
   scheduledAt?: string;
+  /** Google Drive file ID of the uploaded CV */
+  cvDriveId?: string;
+  /** Public view URL for the CV in Google Drive */
+  cvUrl?: string;
 }
 
 export interface PipelineStage {

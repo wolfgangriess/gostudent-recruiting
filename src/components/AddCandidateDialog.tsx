@@ -21,7 +21,8 @@ import { toast } from "sonner";
 import { useJobs } from "@/hooks/useJobs";
 import { useStages } from "@/hooks/useStages";
 import { useUsers } from "@/hooks/useUsers";
-import { useCreateCandidate } from "@/hooks/useCandidates";
+import { useCreateCandidate, useUpdateCandidate } from "@/hooks/useCandidates";
+import { useGoogleDrive } from "@/hooks/useGoogleDrive";
 import type { CandidateInsert } from "@/integrations/supabase/app-types";
 
 const SOURCES = [
@@ -61,7 +62,10 @@ const AddCandidateDialog = ({ open, onOpenChange }: Props) => {
   const { data: stages = [] } = useStages();
   const { data: users = [] } = useUsers();
   const createCandidate = useCreateCandidate();
+  const updateCandidate = useUpdateCandidate();
+  const { uploadCV } = useGoogleDrive();
   const [candidateType, setCandidateType] = useState<"candidate" | "prospect">("candidate");
+  const [cvFile, setCvFile] = useState<File | null>(null);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -96,9 +100,27 @@ const AddCandidateDialog = ({ open, onOpenChange }: Props) => {
       rating: 0,
       applied_at: new Date().toISOString(),
     } as CandidateInsert, {
-      onSuccess: () => {
+      onSuccess: async (newCandidate) => {
+        // Upload CV to Google Drive if a file was attached
+        if (cvFile) {
+          try {
+            const { driveFileId, viewUrl } = await uploadCV(
+              cvFile,
+              `${values.firstName} ${values.lastName}`
+            );
+            updateCandidate.mutate({
+              id: newCandidate.id,
+              updates: { cv_drive_id: driveFileId, cv_url: viewUrl },
+            });
+          } catch (err) {
+            // Non-fatal — candidate is created, just warn about Drive
+            console.warn("CV upload failed:", err);
+            toast.warning("Candidate added but CV upload to Drive failed.");
+          }
+        }
         toast.success(`${values.firstName} ${values.lastName} added as a candidate`);
         form.reset();
+        setCvFile(null);
         onOpenChange(false);
       },
       onError: () => {
@@ -252,6 +274,22 @@ const AddCandidateDialog = ({ open, onOpenChange }: Props) => {
                 <FormControl><Input type="tel" {...field} /></FormControl>
               </FormItem>
             )} />
+
+            {/* CV Upload */}
+            <div className="space-y-1.5">
+              <Label className="text-sm text-foreground">CV / Resume</Label>
+              <input
+                type="file"
+                accept=".pdf,.doc,.docx"
+                className="block w-full text-sm text-muted-foreground file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"
+                onChange={(e) => setCvFile(e.target.files?.[0] ?? null)}
+              />
+              {cvFile && (
+                <p className="text-[11px] text-muted-foreground">
+                  Will upload to Google Drive: {cvFile.name}
+                </p>
+              )}
+            </div>
 
             <Separator />
 
