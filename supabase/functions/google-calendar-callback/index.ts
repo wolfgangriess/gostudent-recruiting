@@ -7,9 +7,20 @@ Deno.serve(async (req) => {
     const stateParam = url.searchParams.get("state");
     const error = url.searchParams.get("error");
 
-    // Determine the app origin for redirects
-    const appOrigin =
+    // Default fallback origin (used only if state is missing/invalid)
+    const fallbackOrigin =
       Deno.env.get("APP_ORIGIN") || "https://id-preview--121fd063-a92f-4d86-8cfb-3dcc89c43dd6.lovable.app";
+
+    // Parse state early so we can use appOrigin for error redirects too
+    let userId: string | undefined;
+    let appOrigin = fallbackOrigin;
+    if (stateParam) {
+      try {
+        const state = JSON.parse(atob(stateParam));
+        userId = state.userId;
+        if (state.appOrigin) appOrigin = state.appOrigin;
+      } catch { /* handled below */ }
+    }
 
     if (error) {
       return Response.redirect(
@@ -25,11 +36,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    let userId: string;
-    try {
-      const state = JSON.parse(atob(stateParam));
-      userId = state.userId;
-    } catch {
+    if (!userId) {
       return Response.redirect(
         `${appOrigin}/settings?gcal_error=invalid_state`,
         302

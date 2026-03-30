@@ -37,6 +37,17 @@ Deno.serve(async (req) => {
 
     const userId = user.id;
 
+    // Read appOrigin from request body (sent by frontend so callback can redirect correctly)
+    let appOrigin = Deno.env.get("APP_ORIGIN") ?? "";
+    try {
+      const body = await req.json().catch(() => ({}));
+      if (body?.appOrigin) appOrigin = body.appOrigin;
+    } catch { /* ignore */ }
+    // Fallback: derive from request Origin header
+    if (!appOrigin) {
+      appOrigin = req.headers.get("origin") ?? req.headers.get("referer")?.replace(/\/$/, "") ?? "";
+    }
+
     const clientId = Deno.env.get("GOOGLE_CLIENT_ID");
     if (!clientId) {
       return new Response(
@@ -55,8 +66,8 @@ Deno.serve(async (req) => {
       "https://www.googleapis.com/auth/calendar.readonly",
     ].join(" ");
 
-    // Encode userId in state so we can associate the callback
-    const state = btoa(JSON.stringify({ userId }));
+    // Encode userId + appOrigin in state so the callback can redirect to the correct host
+    const state = btoa(JSON.stringify({ userId, appOrigin }));
 
     const params = new URLSearchParams({
       client_id: clientId,

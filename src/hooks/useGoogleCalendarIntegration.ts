@@ -59,7 +59,18 @@ export const useGoogleCalendarIntegration = () => {
     const gcalError = params.get("gcal_error");
     if (gcalError) {
       window.history.replaceState({}, "", window.location.pathname);
-      console.error("Google Calendar connection error:", gcalError);
+      const errorMessages: Record<string, string> = {
+        missing_params: "OAuth response was missing required parameters.",
+        invalid_state: "OAuth state was invalid. Please try again.",
+        token_exchange_failed: "Failed to exchange authorization code for tokens.",
+        save_failed: "Connected successfully but failed to save. Please try again.",
+        access_denied: "Access was denied. Please try again and grant the required permissions.",
+      };
+      const msg = errorMessages[gcalError] ?? `Google Calendar connection failed: ${gcalError}`;
+      // Delay slightly so the page has time to render
+      setTimeout(() => {
+        import("sonner").then(({ toast }) => toast.error(msg));
+      }, 300);
     }
   }, [refresh]);
 
@@ -78,15 +89,17 @@ export const useGoogleCalendarIntegration = () => {
     setMutating(true);
 
     try {
-      // Call edge function to get Google OAuth URL
-      const { data, error } = await supabase.functions.invoke("google-calendar-auth");
+      // Pass current origin so the callback can redirect back to the right host
+      const { data, error } = await supabase.functions.invoke("google-calendar-auth", {
+        body: { appOrigin: window.location.origin },
+      });
 
       if (error) throw error;
       if (data?.url) {
         // Redirect to Google OAuth consent screen
         window.location.href = data.url;
       } else {
-        throw new Error("No authorization URL returned");
+        throw new Error(data?.error ?? "No authorization URL returned");
       }
     } finally {
       setMutating(false);
