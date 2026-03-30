@@ -16,7 +16,9 @@ const GOOGLE_SCOPES = [
   "https://www.googleapis.com/auth/drive.file",
 ].join(" ");
 
-const REDIRECT_TO = `${window.location.origin}/auth/callback`;
+// TODO: Add to Google Cloud Console authorised redirect URIs:
+// https://id-preview--121fd063-a92f-4d86-8cfb-3dcc89c43dd6.lovable.app/auth/callback
+const REDIRECT_TO = "https://id-preview--121fd063-a92f-4d86-8cfb-3dcc89c43dd6.lovable.app/auth/callback";
 
 const GoogleIcon = () => (
   <svg viewBox="0 0 24 24" className="h-4 w-4">
