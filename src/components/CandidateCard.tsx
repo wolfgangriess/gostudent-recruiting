@@ -5,9 +5,10 @@ import { ClipboardList } from "lucide-react";
 interface Props {
   candidate: Candidate;
   isDragging?: boolean;
+  stageName?: string;
 }
 
-const CandidateCard = ({ candidate, isDragging }: Props) => {
+const CandidateCard = ({ candidate, isDragging, stageName }: Props) => {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: candidate.id,
   });
@@ -50,7 +51,9 @@ const CandidateCard = ({ candidate, isDragging }: Props) => {
             {candidate.firstName} {candidate.lastName}
           </p>
           <div className="flex items-center gap-2">
-            <p className="text-xs text-muted-foreground">{daysInStage}d in stage</p>
+            <p className="text-xs text-muted-foreground">
+              {daysInStage}T{stageName ? ` in ${stageName}` : " in Stage"}
+            </p>
             {hasScorecard && (
               <span className="flex items-center gap-0.5 text-[10px] text-primary">
                 <ClipboardList className="h-3 w-3" />

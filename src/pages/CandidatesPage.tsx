@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search } from "lucide-react";
+import { Search, Clock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -50,6 +50,21 @@ const CandidatesPage = () => {
 
   const getJobName = (jobId: string) => jobs.find((j) => j.id === jobId)?.name ?? "—";
   const getStageName = (stageId: string) => stages.find((s) => s.id === stageId)?.name ?? "—";
+
+  // Relative time in German: "vor X Tagen / Stunden / Minuten"
+  const relativeTime = (isoDate: string): string => {
+    const diff = Date.now() - new Date(isoDate).getTime();
+    const minutes = Math.floor(diff / 60_000);
+    const hours = Math.floor(diff / 3_600_000);
+    const days = Math.floor(diff / 86_400_000);
+    if (days >= 1) return `vor ${days} Tag${days !== 1 ? "en" : ""}`;
+    if (hours >= 1) return `vor ${hours} Std.`;
+    return `vor ${Math.max(1, minutes)} Min.`;
+  };
+
+  // Highlight if candidate has been in same stage for more than 7 days
+  const isStale = (updatedAt: string): boolean =>
+    Date.now() - new Date(updatedAt).getTime() > 7 * 86_400_000;
 
   if (isLoading) return <div className="flex items-center justify-center p-8"><div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full" /></div>
   if (error) return <div className="p-8 text-sm text-destructive">Something went wrong. Please refresh.</div>
@@ -115,13 +130,18 @@ const CandidatesPage = () => {
               <TableHead className="font-semibold">Job</TableHead>
               <TableHead className="font-semibold">Stage</TableHead>
               <TableHead className="font-semibold">Source</TableHead>
+              <TableHead className="font-semibold">Applied</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filtered.slice(0, visibleCount).map((c) => (
+            {filtered.slice(0, visibleCount).map((c) => {
+              const stale = isStale(c.updatedAt);
+              return (
               <TableRow
                 key={c.id}
-                className="cursor-pointer transition-colors hover:bg-primary/[0.03]"
+                className={`cursor-pointer transition-colors hover:bg-primary/[0.03] ${
+                  stale ? "bg-yellow-50/60 dark:bg-yellow-900/10" : ""
+                }`}
                 onClick={() => navigate(`/candidates/${c.id}`)}
               >
                 <TableCell>
@@ -129,7 +149,14 @@ const CandidatesPage = () => {
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
                       {c.firstName[0]}{c.lastName[0]}
                     </div>
-                    <span className="font-semibold text-foreground">{c.firstName} {c.lastName}</span>
+                    <div>
+                      <span className="font-semibold text-foreground">{c.firstName} {c.lastName}</span>
+                      {stale && (
+                        <p className="flex items-center gap-0.5 text-[10px] text-yellow-600 mt-0.5">
+                          <Clock className="h-2.5 w-2.5" /> Lange in dieser Stage
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </TableCell>
                 <TableCell className="text-muted-foreground text-sm">{c.email}</TableCell>
@@ -140,11 +167,13 @@ const CandidatesPage = () => {
                 </TableCell>
                 <TableCell className="text-sm">{getStageName(c.currentStageId)}</TableCell>
                 <TableCell className="text-sm text-muted-foreground">{c.source}</TableCell>
+                <TableCell className="text-xs text-muted-foreground whitespace-nowrap">{relativeTime(c.appliedAt)}</TableCell>
               </TableRow>
-            ))}
+              );
+            })}
             {filtered.length === 0 && (
               <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
                   No candidates found.
                 </TableCell>
               </TableRow>

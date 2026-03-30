@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Briefcase, Users, BarChart3, ChevronDown, UserPlus, Share2, LayoutDashboard, Settings, LogOut } from "lucide-react";
+import { Briefcase, Users, BarChart3, ChevronDown, UserPlus, Share2, LayoutDashboard, Settings, LogOut, Bell } from "lucide-react";
 import gostudentIcon from "@/assets/recruiting-logo.png";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
@@ -15,6 +15,9 @@ import { Button } from "@/components/ui/button";
 import AddJobDialog from "@/components/AddJobDialog";
 import AddCandidateDialog from "@/components/AddCandidateDialog";
 import AddReferralDialog from "@/components/AddReferralDialog";
+import { useAllCandidates } from "@/hooks/useCandidates";
+import { useJobs } from "@/hooks/useJobs";
+import { useStages } from "@/hooks/useStages";
 
 const navItems = [
   { to: "/overview", label: "My Overview", icon: LayoutDashboard },
@@ -30,6 +33,39 @@ const TopNav = () => {
   const [addJobOpen, setAddJobOpen] = useState(false);
   const [addCandidateOpen, setAddCandidateOpen] = useState(false);
   const [addReferralOpen, setAddReferralOpen] = useState(false);
+
+  const { data: candidates = [] } = useAllCandidates();
+  const { data: jobs = [] } = useJobs();
+  const { data: stages = [] } = useStages();
+
+  const notificationCount = useMemo(() => {
+    const userId = user?.id ?? "";
+    const myJobIds = jobs
+      .filter((j) => j.hiringManager === userId || j.recruiters.includes(userId))
+      .map((j) => j.id);
+    const myCandidates = candidates.filter((c) => myJobIds.includes(c.jobId));
+
+    const byStage = (name: string) =>
+      myCandidates.filter((c) => stages.find((s) => s.id === c.currentStageId)?.name === name);
+
+    // scorecards due = candidates in Interview stage
+    const scorecardsDue = byStage("Interview").length;
+    // needs decision = candidates in Interview stage whose interview was >2 days ago
+    const twoDaysAgo = Date.now() - 2 * 24 * 60 * 60 * 1000;
+    const needsDecision = byStage("Interview").filter((c) => {
+      const dt = c.scheduledAt ? new Date(c.scheduledAt).getTime() : new Date(c.updatedAt).getTime();
+      return dt < twoDaysAgo;
+    }).length;
+    // pending approvals = candidates in Offer stage for jobs where user is hiring manager
+    const hiringManagerJobIds = jobs.filter((j) => j.hiringManager === userId).map((j) => j.id);
+    const pendingApprovals = candidates.filter(
+      (c) =>
+        hiringManagerJobIds.includes(c.jobId) &&
+        stages.find((s) => s.id === c.currentStageId)?.name === "Offer"
+    ).length;
+
+    return scorecardsDue + needsDecision + pendingApprovals;
+  }, [candidates, jobs, stages, user]);
 
   const userMeta = user?.user_metadata;
   const avatarUrl = userMeta?.avatar_url || userMeta?.picture;
@@ -75,6 +111,21 @@ const TopNav = () => {
           </nav>
 
           <div className="ml-auto flex items-center gap-1">
+            {/* Notification bell */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative h-8 w-8 text-primary-foreground/65 hover:text-primary-foreground hover:bg-primary-foreground/10"
+              onClick={() => navigate("/overview")}
+              aria-label="Notifications"
+            >
+              <Bell className="h-4 w-4" />
+              {notificationCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[9px] font-bold text-white leading-none">
+                  {notificationCount > 99 ? "99+" : notificationCount}
+                </span>
+              )}
+            </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="secondary" size="sm" className="gap-1 rounded-lg font-medium text-[13px] h-8 px-3">

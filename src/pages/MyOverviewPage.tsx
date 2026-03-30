@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, CheckCircle2, ClipboardList, ChevronRight, TrendingUp, Clock } from "lucide-react";
@@ -62,6 +62,19 @@ const MyOverviewPage = () => {
   const [perfPeriod, setPerfPeriod] = useState("90");
   const [perfJob, setPerfJob] = useState("all");
 
+  // Greeting based on time of day
+  const greeting = useMemo(() => {
+    const hour = new Date().getHours();
+    const firstName =
+      currentUser?.firstName ||
+      user?.user_metadata?.given_name ||
+      user?.user_metadata?.name?.split(" ")[0] ||
+      "";
+    const salutation =
+      hour < 12 ? "Guten Morgen" : hour < 18 ? "Guten Tag" : "Guten Abend";
+    return firstName ? `${salutation}, ${firstName}!` : `${salutation}!`;
+  }, [currentUser, user]);
+
   const isRecruiter = jobs.some((j) => j.recruiters.includes(CURRENT_USER_ID));
 
   const myInterviews = useMemo(() => {
@@ -108,15 +121,16 @@ const MyOverviewPage = () => {
       return dt < twoDaysAgo;
     });
 
+    // priority: "red" = overdue/urgent, "yellow" = due today, "grey" = upcoming
     return [
-      { label: "Upcoming Interviews Today", candidates: upcomingInterviewsToday },
-      { label: "Scorecards Due", candidates: scorecardsDue },
-      { label: "New Applications to Review", candidates: appliedCandidates },
-      { label: "Needs Decision", candidates: needsDecision },
-      { label: "Candidates to Schedule", candidates: phoneScreenCandidates },
-      { label: "Offers", candidates: offerCandidates },
-      { label: "Pending Approvals", candidates: offerCandidates },
-    ];
+      { label: "Upcoming Interviews Today", candidates: upcomingInterviewsToday, priority: upcomingInterviewsToday.length > 0 ? "yellow" : "grey" },
+      { label: "Scorecards Due", candidates: scorecardsDue, priority: scorecardsDue.length > 0 ? "yellow" : "grey" },
+      { label: "New Applications to Review", candidates: appliedCandidates, priority: "grey" },
+      { label: "Needs Decision", candidates: needsDecision, priority: needsDecision.length > 0 ? "red" : "grey" },
+      { label: "Candidates to Schedule", candidates: phoneScreenCandidates, priority: "grey" },
+      { label: "Offers", candidates: offerCandidates, priority: "grey" },
+      { label: "Pending Approvals", candidates: offerCandidates, priority: offerCandidates.length > 0 ? "yellow" : "grey" },
+    ] as { label: string; candidates: typeof myCandidates; priority: "red" | "yellow" | "grey" }[];
   }, [candidates, jobs, stages, interviews, CURRENT_USER_ID]);
 
   const myRecruiterJobs = useMemo(
@@ -200,7 +214,8 @@ const MyOverviewPage = () => {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-      <h1 className="mb-6">My Dashboard</h1>
+      <h1 className="mb-1">{greeting}</h1>
+      <p className="text-sm text-muted-foreground mb-6">My Dashboard</p>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* My Interviews */}
@@ -270,49 +285,60 @@ const MyOverviewPage = () => {
               <h2>My Tasks</h2>
             </div>
             <div className="divide-y divide-border">
-              {taskItems.map((task) => (
-                <div
-                  key={task.label}
-                  onClick={() => {
-                    if (task.candidates.length > 0) {
-                      if (task.label === "Upcoming Interviews Today") {
-                        setInterviewDialogCandidates(task.candidates);
-                        setShowInterviewsDialog(true);
-                      } else if (task.label === "Scorecards Due") {
-                        setScorecardDialogCandidates(task.candidates);
-                        setShowScorecardsDialog(true);
-                      } else if (task.label === "New Applications to Review") {
-                        setApplicationDialogCandidates(task.candidates);
-                        setShowApplicationsDialog(true);
-                      } else if (task.label === "Needs Decision") {
-                        setDecisionDialogCandidates(task.candidates);
-                        setShowDecisionDialog(true);
-                      } else if (task.label === "Candidates to Schedule") {
-                        setScheduleDialogCandidates(task.candidates);
-                        setShowScheduleDialog(true);
-                      } else if (task.label === "Offers") {
-                        setOffersDialogCandidates(task.candidates);
-                        setShowOffersDialog(true);
-                      } else if (task.label === "Pending Approvals") {
-                        setPendingApprovalsDialogCandidates(task.candidates);
-                        setShowPendingApprovalsDialog(true);
-                      } else {
-                        setSelectedCandidate(task.candidates[0]);
+              {taskItems.map((task) => {
+                const borderColor =
+                  task.candidates.length === 0
+                    ? "border-l-muted-foreground/20"
+                    : task.priority === "red"
+                    ? "border-l-destructive"
+                    : task.priority === "yellow"
+                    ? "border-l-yellow-400"
+                    : "border-l-muted-foreground/30";
+
+                return (
+                  <div
+                    key={task.label}
+                    onClick={() => {
+                      if (task.candidates.length > 0) {
+                        if (task.label === "Upcoming Interviews Today") {
+                          setInterviewDialogCandidates(task.candidates);
+                          setShowInterviewsDialog(true);
+                        } else if (task.label === "Scorecards Due") {
+                          setScorecardDialogCandidates(task.candidates);
+                          setShowScorecardsDialog(true);
+                        } else if (task.label === "New Applications to Review") {
+                          setApplicationDialogCandidates(task.candidates);
+                          setShowApplicationsDialog(true);
+                        } else if (task.label === "Needs Decision") {
+                          setDecisionDialogCandidates(task.candidates);
+                          setShowDecisionDialog(true);
+                        } else if (task.label === "Candidates to Schedule") {
+                          setScheduleDialogCandidates(task.candidates);
+                          setShowScheduleDialog(true);
+                        } else if (task.label === "Offers") {
+                          setOffersDialogCandidates(task.candidates);
+                          setShowOffersDialog(true);
+                        } else if (task.label === "Pending Approvals") {
+                          setPendingApprovalsDialogCandidates(task.candidates);
+                          setShowPendingApprovalsDialog(true);
+                        } else {
+                          setSelectedCandidate(task.candidates[0]);
+                        }
                       }
-                    }
-                  }}
-                  className={`flex items-center justify-between px-5 py-2.5 ${
-                    task.candidates.length > 0 ? "cursor-pointer hover:bg-muted/50" : ""
-                  }`}
-                >
-                  <span className={`text-sm ${task.candidates.length > 0 ? "text-primary font-medium" : "text-foreground"}`}>
-                    {task.label}
-                  </span>
-                  <span className="text-sm text-muted-foreground">
-                    {task.candidates.length > 0 ? task.candidates.length : "-"}
-                  </span>
-                </div>
-              ))}
+                    }}
+                    className={`flex items-center justify-between pl-3 pr-5 py-2.5 border-l-2 ${borderColor} ${
+                      task.candidates.length > 0 ? "cursor-pointer hover:bg-muted/50" : ""
+                    }`}
+                  >
+                    <span className={`text-sm ${task.candidates.length > 0 ? "text-primary font-medium" : "text-foreground"}`}>
+                      {task.label}
+                    </span>
+                    <span className="text-sm text-muted-foreground">
+                      {task.candidates.length > 0 ? task.candidates.length : "-"}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           </CardContent>
         </Card>

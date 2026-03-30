@@ -57,7 +57,7 @@ const PipelineColumn = ({ stage, candidates }: Props) => {
       </div>
       <div className="flex flex-1 flex-col gap-2">
         {candidates.map((c) => (
-          <CandidateCard key={c.id} candidate={c} />
+          <CandidateCard key={c.id} candidate={c} stageName={stage.name} />
         ))}
       </div>
     </div>

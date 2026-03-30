@@ -22,6 +22,16 @@ import {
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useAllCandidates, useUpdateCandidateStage } from "@/hooks/useCandidates";
 import { useJobs } from "@/hooks/useJobs";
 import { useStages } from "@/hooks/useStages";
@@ -40,6 +50,7 @@ const CandidateDetailPage = () => {
   const [noteText, setNoteText] = useState("");
   const [showOfferDialog, setShowOfferDialog] = useState(false);
   const [showResumeDialog, setShowResumeDialog] = useState(false);
+  const [showRejectConfirm, setShowRejectConfirm] = useState(false);
 
   if (isLoading) {
     return (
@@ -82,7 +93,7 @@ const CandidateDetailPage = () => {
     }
   };
 
-  const handleReject = () => {
+  const handleRejectConfirmed = () => {
     const appliedStage = jobStages[0];
     if (appliedStage) {
       updateStage({ candidateId: candidate.id, newStageId: appliedStage.id });
@@ -146,7 +157,7 @@ const CandidateDetailPage = () => {
                       variant="outline"
                       size="sm"
                       className="border-destructive/40 text-destructive hover:bg-destructive/10 font-semibold text-xs h-9 px-4"
-                      onClick={handleReject}
+                      onClick={() => setShowRejectConfirm(true)}
                     >
                       Reject
                     </Button>
@@ -338,6 +349,32 @@ const CandidateDetailPage = () => {
           job={job}
         />
       )}
+
+      {/* Reject confirmation dialog */}
+      <AlertDialog open={showRejectConfirm} onOpenChange={setShowRejectConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Kandidat ablehnen?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {candidate && (
+                <>
+                  Bist du sicher, dass du <strong>{candidate.firstName} {candidate.lastName}</strong> ablehnen möchtest?
+                  Der Kandidat wird zurück in die erste Stage verschoben.
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+              onClick={handleRejectConfirmed}
+            >
+              Ablehnen
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
