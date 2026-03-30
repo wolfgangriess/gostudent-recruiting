@@ -17,6 +17,7 @@ import SettingsPage from "./pages/SettingsPage.tsx";
 
 import NotFound from "./pages/NotFound.tsx";
 import AuthCallbackPage from "./pages/AuthCallbackPage.tsx";
+import CareersPage from "./pages/CareersPage.tsx";
 
 const queryClient = new QueryClient();
 
@@ -95,8 +96,9 @@ const App = () => (
         <BrowserRouter>
           <AuthProvider>
             <Routes>
-              {/* Public route — must be outside ProtectedRoutes so OAuth redirect lands here */}
+              {/* Public routes — no auth required */}
               <Route path="/auth/callback" element={<AuthCallbackPage />} />
+              <Route path="/careers" element={<CareersPage />} />
               <Route path="*" element={<ProtectedRoutes />} />
             </Routes>
           </AuthProvider>
