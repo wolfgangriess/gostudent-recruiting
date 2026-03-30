@@ -47,6 +47,14 @@ const PipelineBoard = ({ stages, jobId }: Props) => {
     [allCandidates, updateStage]
   );
 
+  if (stages.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-48 rounded-2xl border border-dashed border-border bg-muted/30">
+        <p className="text-sm text-muted-foreground">No pipeline stages configured for this job.</p>
+      </div>
+    );
+  }
+
   return (
     <DndContext
       sensors={sensors}

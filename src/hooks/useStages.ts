@@ -16,13 +16,19 @@ export const stageKeys = {
 export const useStages = () =>
   useQuery({
     queryKey: stageKeys.all,
+    staleTime: 30000,
     queryFn: async (): Promise<PipelineStage[]> => {
-      const { data, error } = await supabase
-        .from("pipeline_stages")
-        .select("*")
-        .order("order", { ascending: true });
-      if (error) throw error;
-      return mapStages((data ?? []) as PipelineStageRow[]);
+      try {
+        const { data, error } = await supabase
+          .from("pipeline_stages")
+          .select("*")
+          .order("order", { ascending: true });
+        if (error) throw error;
+        return mapStages((data ?? []) as PipelineStageRow[]);
+      } catch (err) {
+        console.error("useStages error:", err);
+        return [];
+      }
     },
   });
 
@@ -30,14 +36,20 @@ export const useStages = () =>
 export const useStagesByJob = (jobId: string) =>
   useQuery({
     queryKey: stageKeys.byJob(jobId),
+    staleTime: 30000,
     queryFn: async (): Promise<PipelineStage[]> => {
-      const { data, error } = await supabase
-        .from("pipeline_stages")
-        .select("*")
-        .eq("job_id", jobId)
-        .order("order", { ascending: true });
-      if (error) throw error;
-      return mapStages((data ?? []) as PipelineStageRow[]);
+      try {
+        const { data, error } = await supabase
+          .from("pipeline_stages")
+          .select("*")
+          .eq("job_id", jobId)
+          .order("order", { ascending: true });
+        if (error) throw error;
+        return mapStages((data ?? []) as PipelineStageRow[]);
+      } catch (err) {
+        console.error("useStagesByJob error:", err);
+        return [];
+      }
     },
     enabled: !!jobId,
   });

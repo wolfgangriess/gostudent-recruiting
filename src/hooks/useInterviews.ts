@@ -18,13 +18,19 @@ export const interviewKeys = {
 export const useInterviews = () =>
   useQuery({
     queryKey: interviewKeys.all,
+    staleTime: 30000,
     queryFn: async (): Promise<InterviewRow[]> => {
-      const { data, error } = await supabase
-        .from("interviews")
-        .select("*")
-        .order("start_time", { ascending: false });
-      if (error) throw error;
-      return data ?? [];
+      try {
+        const { data, error } = await supabase
+          .from("interviews")
+          .select("*")
+          .order("start_time", { ascending: false });
+        if (error) throw error;
+        return data ?? [];
+      } catch (err) {
+        console.error("useInterviews error:", err);
+        return [];
+      }
     },
   });
 
@@ -32,14 +38,20 @@ export const useInterviews = () =>
 export const useInterviewsByCandidate = (candidateId: string) =>
   useQuery({
     queryKey: interviewKeys.byCandidate(candidateId),
+    staleTime: 30000,
     queryFn: async (): Promise<InterviewRow[]> => {
-      const { data, error } = await supabase
-        .from("interviews")
-        .select("*")
-        .eq("candidate_id", candidateId)
-        .order("start_time", { ascending: false });
-      if (error) throw error;
-      return data ?? [];
+      try {
+        const { data, error } = await supabase
+          .from("interviews")
+          .select("*")
+          .eq("candidate_id", candidateId)
+          .order("start_time", { ascending: false });
+        if (error) throw error;
+        return data ?? [];
+      } catch (err) {
+        console.error("useInterviewsByCandidate error:", err);
+        return [];
+      }
     },
     enabled: !!candidateId,
   });

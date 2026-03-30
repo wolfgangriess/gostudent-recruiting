@@ -14,14 +14,20 @@ export const offerKeys = {
 export const useOffersByCandidate = (candidateId: string) =>
   useQuery({
     queryKey: offerKeys.byCandidate(candidateId),
+    staleTime: 30000,
     queryFn: async (): Promise<OfferRow[]> => {
-      const { data, error } = await supabase
-        .from("offers")
-        .select("*")
-        .eq("candidate_id", candidateId)
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return (data ?? []) as OfferRow[];
+      try {
+        const { data, error } = await supabase
+          .from("offers")
+          .select("*")
+          .eq("candidate_id", candidateId)
+          .order("created_at", { ascending: false });
+        if (error) throw error;
+        return (data ?? []) as OfferRow[];
+      } catch (err) {
+        console.error("useOffersByCandidate error:", err);
+        return [];
+      }
     },
     enabled: !!candidateId,
   });

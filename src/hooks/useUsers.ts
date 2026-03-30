@@ -23,26 +23,32 @@ export const userKeys = {
 export const useUsers = () =>
   useQuery({
     queryKey: userKeys.all,
+    staleTime: 30000,
     queryFn: async (): Promise<User[]> => {
-      const { data: profiles, error: profilesError } = await supabase
-        .from("profiles")
-        .select("*")
-        .order("first_name", { ascending: true });
-      if (profilesError) throw profilesError;
+      try {
+        const { data: profiles, error: profilesError } = await supabase
+          .from("profiles")
+          .select("*")
+          .order("first_name", { ascending: true });
+        if (profilesError) throw profilesError;
 
-      const { data: roles, error: rolesError } = await supabase
-        .from("user_roles")
-        .select("user_id, role");
-      if (rolesError) throw rolesError;
+        const { data: roles, error: rolesError } = await supabase
+          .from("user_roles")
+          .select("user_id, role");
+        if (rolesError) throw rolesError;
 
-      const roleMap = new Map((roles ?? []).map((r) => [r.user_id, r.role]));
+        const roleMap = new Map((roles ?? []).map((r) => [r.user_id, r.role]));
 
-      const withRoles: ProfileWithRole[] = (profiles ?? []).map((p) => ({
-        ...p,
-        role: roleMap.get(p.id) ?? "employee",
-      }));
+        const withRoles: ProfileWithRole[] = (profiles ?? []).map((p) => ({
+          ...p,
+          role: roleMap.get(p.id) ?? "employee",
+        }));
 
-      return mapUsers(withRoles);
+        return mapUsers(withRoles);
+      } catch (err) {
+        console.error("useUsers error:", err);
+        return [];
+      }
     },
   });
 
@@ -51,24 +57,30 @@ export const useCurrentUser = () => {
   const { user } = useAuth();
   return useQuery({
     queryKey: userKeys.current,
+    staleTime: 30000,
     queryFn: async (): Promise<User | null> => {
-      if (!user) return null;
+      try {
+        if (!user) return null;
 
-      const { data: profile, error: profileError } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", user.id)
-        .maybeSingle();
-      if (profileError) throw profileError;
+        const { data: profile, error: profileError } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", user.id)
+          .maybeSingle();
+        if (profileError) throw profileError;
 
-      const { data: roleRow } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", user.id)
-        .maybeSingle();
+        const { data: roleRow } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", user.id)
+          .maybeSingle();
 
-      if (!profile) return null;
-      return mapUser({ ...profile, role: roleRow?.role ?? "employee" });
+        if (!profile) return null;
+        return mapUser({ ...profile, role: roleRow?.role ?? "employee" });
+      } catch (err) {
+        console.error("useCurrentUser error:", err);
+        return null;
+      }
     },
     enabled: !!user,
   });

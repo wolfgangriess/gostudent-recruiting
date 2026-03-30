@@ -20,14 +20,20 @@ export const scorecardKeys = {
 export const useScorecardsByCandidate = (candidateId: string) =>
   useQuery({
     queryKey: scorecardKeys.evaluationsByCandidate(candidateId),
+    staleTime: 30000,
     queryFn: async (): Promise<ScorecardEvaluationRow[]> => {
-      const { data, error } = await supabase
-        .from("scorecard_evaluations")
-        .select("*")
-        .eq("candidate_id", candidateId)
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return (data ?? []) as ScorecardEvaluationRow[];
+      try {
+        const { data, error } = await supabase
+          .from("scorecard_evaluations")
+          .select("*")
+          .eq("candidate_id", candidateId)
+          .order("created_at", { ascending: false });
+        if (error) throw error;
+        return (data ?? []) as ScorecardEvaluationRow[];
+      } catch (err) {
+        console.error("useScorecardsByCandidate error:", err);
+        return [];
+      }
     },
     enabled: !!candidateId,
   });
@@ -36,14 +42,20 @@ export const useScorecardsByCandidate = (candidateId: string) =>
 export const useScorecardTemplate = (stageId: string) =>
   useQuery({
     queryKey: scorecardKeys.templateByStage(stageId),
+    staleTime: 30000,
     queryFn: async (): Promise<ScorecardTemplateRow | null> => {
-      const { data, error } = await supabase
-        .from("scorecard_templates")
-        .select("*")
-        .eq("stage_id", stageId)
-        .maybeSingle();
-      if (error) throw error;
-      return (data as ScorecardTemplateRow | null) ?? null;
+      try {
+        const { data, error } = await supabase
+          .from("scorecard_templates")
+          .select("*")
+          .eq("stage_id", stageId)
+          .maybeSingle();
+        if (error) throw error;
+        return (data as ScorecardTemplateRow | null) ?? null;
+      } catch (err) {
+        console.error("useScorecardTemplate error:", err);
+        return null;
+      }
     },
     enabled: !!stageId,
   });
