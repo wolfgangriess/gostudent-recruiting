@@ -16,9 +16,14 @@ const GOOGLE_SCOPES = [
   "https://www.googleapis.com/auth/drive.file",
 ].join(" ");
 
-// TODO: Add to Google Cloud Console authorised redirect URIs:
-// https://id-preview--121fd063-a92f-4d86-8cfb-3dcc89c43dd6.lovable.app/auth/callback
-const REDIRECT_TO = "https://id-preview--121fd063-a92f-4d86-8cfb-3dcc89c43dd6.lovable.app/auth/callback";
+// window.location.origin adapts automatically:
+//   local dev  → http://localhost:8080/auth/callback
+//   Lovable    → https://id-preview--121fd063-a92f-4d86-8cfb-3dcc89c43dd6.lovable.app/auth/callback
+//
+// TODO: Both of the above must be added to:
+//   • Google Cloud Console → APIs & Services → Credentials → OAuth 2.0 Client → Authorised redirect URIs
+//   • Supabase Dashboard → Auth → URL Configuration → Redirect URLs
+const REDIRECT_TO = `${window.location.origin}/auth/callback`;
 
 const GoogleIcon = () => (
   <svg viewBox="0 0 24 24" className="h-4 w-4">
