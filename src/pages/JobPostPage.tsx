@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -19,6 +20,16 @@ import {
 import { LOCATIONS } from "@/lib/types";
 import { ArrowLeft, Sparkles, Info, Pencil, Trash2, Plus } from "lucide-react";
 import { toast } from "sonner";
+
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL ?? "https://nrbapwkuonkxzxuscgwv.supabase.co";
+const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ?? "sb_publishable_wdp8HcbyOFhxfYHG94YCAA_PFiW2J_2";
+
+const DISTRIBUTE_BOARDS = [
+  { id: "careers", label: "GoStudent Careers", description: "Your public careers page" },
+  { id: "linkedin", label: "LinkedIn", description: "LinkedIn Job Postings" },
+  { id: "indeed", label: "Indeed", description: "Indeed job listings" },
+  { id: "karriere", label: "karriere.at", description: "Austrian job board" },
+];
 
 const JOB_BOARDS = [
   { id: "mygostu", name: "MyGoStudentTA", enabled: true },
@@ -92,6 +103,31 @@ const JobPostPage = () => {
   ]);
   const [editingQuestionId, setEditingQuestionId] = useState<string | null>(null);
   const [editingQuestionText, setEditingQuestionText] = useState("");
+
+  // Distribute state — all OFF by default
+  const [distributeBoards, setDistributeBoards] = useState<Record<string, boolean>>({});
+  const [distributing, setDistributing] = useState<string | null>(null);
+
+  const handleDistributeToggle = async (boardId: string, enabled: boolean) => {
+    setDistributeBoards((prev) => ({ ...prev, [boardId]: enabled }));
+    if (!enabled) return;
+    // Call post-job stub when toggled ON
+    setDistributing(boardId);
+    try {
+      await fetch(`${SUPABASE_URL}/functions/v1/post-job`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", apikey: SUPABASE_KEY },
+        body: JSON.stringify({ job_id: jobId, board: boardId }),
+      });
+      const board = DISTRIBUTE_BOARDS.find((b) => b.id === boardId);
+      toast.success(`Job distributed to ${board?.label ?? boardId}`);
+    } catch {
+      toast.error("Distribution failed. Please try again.");
+      setDistributeBoards((prev) => ({ ...prev, [boardId]: false }));
+    } finally {
+      setDistributing(null);
+    }
+  };
 
   // Settings state
   const [sendConfirmationEmail, setSendConfirmationEmail] = useState(false);
@@ -449,6 +485,33 @@ const JobPostPage = () => {
 
           <Separator />
 
+        </CardContent>
+      </Card>
+
+      {/* Section 7: Distribute Job */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Distribute Job</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            When the job is published, toggle a channel ON to distribute it. All channels are OFF by default.
+          </p>
+          <div className="space-y-3">
+            {DISTRIBUTE_BOARDS.map((board) => (
+              <div key={board.id} className="flex items-center justify-between rounded-lg border border-border px-4 py-3">
+                <div>
+                  <p className="text-sm font-medium text-foreground">{board.label}</p>
+                  <p className="text-xs text-muted-foreground">{board.description}</p>
+                </div>
+                <Switch
+                  checked={distributeBoards[board.id] ?? false}
+                  disabled={distributing === board.id}
+                  onCheckedChange={(checked) => handleDistributeToggle(board.id, checked)}
+                />
+              </div>
+            ))}
+          </div>
         </CardContent>
       </Card>
 
