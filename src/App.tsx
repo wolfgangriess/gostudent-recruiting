@@ -42,7 +42,7 @@ class ErrorBoundary extends React.Component<
     if (this.state.hasError) {
       return (
         <div className="min-h-screen flex items-center justify-center bg-white">
-          <p className="text-sm text-gray-600">Something went wrong. Please refresh.</p>
+          <p className="text-sm text-gray-600">Something went wrong. Please refresh the page.</p>
         </div>
       );
     }
