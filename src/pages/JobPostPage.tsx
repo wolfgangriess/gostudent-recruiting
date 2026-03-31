@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useJobs } from "@/hooks/useJobs";
+import { useJobs, useUpdateJob } from "@/hooks/useJobs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { LOCATIONS } from "@/lib/types";
-import { ArrowLeft, Sparkles, Info, Pencil, Trash2, Plus } from "lucide-react";
+import { ArrowLeft, Sparkles, Info, Pencil, Trash2, Plus, Globe, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL ?? "https://nrbapwkuonkxzxuscgwv.supabase.co";
@@ -69,6 +69,9 @@ const JobPostPage = () => {
   const navigate = useNavigate();
   const { data: jobs = [], isLoading, error } = useJobs();
   const job = jobs.find((j) => j.id === jobId);
+  const { mutateAsync: updateJob, isPending: isUpdating } = useUpdateJob();
+  const isLive = job?.status === "open";
+  const careersUrl = `${window.location.origin}/careers`;
 
   const [postName, setPostName] = useState(job?.externalName || job?.name || "");
   const [postTo, setPostTo] = useState("GoStudentTA");
@@ -109,9 +112,27 @@ const JobPostPage = () => {
   const [distributing, setDistributing] = useState<string | null>(null);
 
   const handleDistributeToggle = async (boardId: string, enabled: boolean) => {
+    // "careers" toggle directly publishes / unpublishes the job in Supabase
+    if (boardId === "careers") {
+      setDistributing("careers");
+      try {
+        await updateJob({ id: jobId!, updates: { status: enabled ? "open" : "closed" } });
+        toast.success(
+          enabled
+            ? "Job is now live on the GoStudent Careers Page!"
+            : "Job has been taken offline."
+        );
+      } catch {
+        toast.error("Could not update job status. Please try again.");
+      } finally {
+        setDistributing(null);
+      }
+      return;
+    }
+
     setDistributeBoards((prev) => ({ ...prev, [boardId]: enabled }));
     if (!enabled) return;
-    // Call post-job stub when toggled ON
+    // Call post-job stub when toggled ON for external boards
     setDistributing(boardId);
     try {
       await fetch(`${SUPABASE_URL}/functions/v1/post-job`, {
@@ -197,11 +218,23 @@ const JobPostPage = () => {
     startEditQuestion(newQ);
   };
 
-  const handlePublish = () => {
-    toast.success(
-      `Job post published to ${selectedBoards.length} job board${selectedBoards.length !== 1 ? "s" : ""}!`
-    );
-    navigate(`/jobs/${jobId}`);
+  const handlePublish = async () => {
+    try {
+      await updateJob({ id: jobId!, updates: { status: "open" } });
+      toast.success("Job is now live on the GoStudent Careers Page!");
+      navigate(`/jobs/${jobId}`);
+    } catch {
+      toast.error("Could not publish the job. Please try again.");
+    }
+  };
+
+  const handleUnpublish = async () => {
+    try {
+      await updateJob({ id: jobId!, updates: { status: "closed" } });
+      toast.success("Job has been taken offline.");
+    } catch {
+      toast.error("Could not update job status. Please try again.");
+    }
   };
 
   const VisibilityRadio = ({
@@ -255,6 +288,31 @@ const JobPostPage = () => {
         <h1 className="text-2xl font-bold text-foreground">Job Post</h1>
         <p className="text-muted-foreground text-sm mt-1">Configure the job details and how candidates will apply.</p>
       </div>
+
+      {/* Live / Draft status banner */}
+      {isLive ? (
+        <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-2 text-green-800">
+            <Globe className="h-4 w-4" />
+            <span className="text-sm font-semibold">Live on GoStudent Careers Page</span>
+          </div>
+          <a
+            href={careersUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-green-700 underline flex items-center gap-1 hover:text-green-900"
+          >
+            View page <ExternalLink className="h-3.5 w-3.5" />
+          </a>
+        </div>
+      ) : (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 flex items-center gap-2 text-amber-800">
+          <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800 border border-amber-300">
+            Draft
+          </span>
+          <span className="text-sm">This job is not yet visible to candidates. Post it to the GoStudent Careers Page when ready.</span>
+        </div>
+      )}
 
       {/* Section 1: Post Details */}
       <Card>
@@ -498,27 +556,88 @@ const JobPostPage = () => {
             When the job is published, toggle a channel ON to distribute it. All channels are OFF by default.
           </p>
           <div className="space-y-3">
-            {DISTRIBUTE_BOARDS.map((board) => (
-              <div key={board.id} className="flex items-center justify-between rounded-lg border border-border px-4 py-3">
-                <div>
-                  <p className="text-sm font-medium text-foreground">{board.label}</p>
-                  <p className="text-xs text-muted-foreground">{board.description}</p>
+            {DISTRIBUTE_BOARDS.map((board) => {
+              const isCareers = board.id === "careers";
+              const isChecked = isCareers ? isLive : (distributeBoards[board.id] ?? false);
+              return (
+                <div
+                  key={board.id}
+                  className={`flex items-center justify-between rounded-lg border px-4 py-3 ${
+                    isCareers
+                      ? isLive
+                        ? "border-green-300 bg-green-50"
+                        : "border-primary/30 bg-primary/5"
+                      : "border-border"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    {isCareers && <Globe className="h-4 w-4 text-primary shrink-0" />}
+                    <div>
+                      <p className="text-sm font-medium text-foreground flex items-center gap-2">
+                        {board.label}
+                        {isCareers && isLive && (
+                          <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800 border border-green-300">
+                            Live
+                          </span>
+                        )}
+                      </p>
+                      <p className="text-xs text-muted-foreground">{board.description}</p>
+                      {isCareers && isLive && (
+                        <a
+                          href={careersUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-primary underline flex items-center gap-0.5 mt-0.5 hover:text-primary/80"
+                        >
+                          {careersUrl} <ExternalLink className="h-3 w-3" />
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                  <Switch
+                    checked={isChecked}
+                    disabled={distributing === board.id || isUpdating}
+                    onCheckedChange={(checked) => handleDistributeToggle(board.id, checked)}
+                  />
                 </div>
-                <Switch
-                  checked={distributeBoards[board.id] ?? false}
-                  disabled={distributing === board.id}
-                  onCheckedChange={(checked) => handleDistributeToggle(board.id, checked)}
-                />
-              </div>
-            ))}
+              );
+            })}
           </div>
         </CardContent>
       </Card>
 
       {/* Actions */}
       <div className="flex justify-end gap-3 pb-8">
-        <Button variant="outline" onClick={() => navigate(`/jobs/${jobId}`)}>Save as Draft</Button>
-        <Button onClick={handlePublish}>Publish Job Post</Button>
+        {isLive ? (
+          <>
+            <Button variant="outline" onClick={() => navigate(`/jobs/${jobId}`)}>Back to Job</Button>
+            <Button
+              variant="outline"
+              className="border-destructive text-destructive hover:bg-destructive/10"
+              onClick={handleUnpublish}
+              disabled={isUpdating}
+            >
+              Take Offline
+            </Button>
+            <Button onClick={() => navigate(`/jobs/${jobId}`)} disabled={isUpdating}>
+              Save Changes
+            </Button>
+          </>
+        ) : (
+          <>
+            <Button variant="outline" onClick={() => navigate(`/jobs/${jobId}`)} disabled={isUpdating}>
+              Save as Draft
+            </Button>
+            <Button
+              onClick={handlePublish}
+              disabled={isUpdating}
+              className="gap-1.5"
+            >
+              <Globe className="h-4 w-4" />
+              {isUpdating ? "Publishing…" : "Post to GoStudent Careers Page"}
+            </Button>
+          </>
+        )}
       </div>
     </div>
   );
