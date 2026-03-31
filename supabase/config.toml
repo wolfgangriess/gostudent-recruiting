@@ -2,3 +2,15 @@ project_id = "ovlxdqxxupgqomgegecy"
 
 [functions.google-calendar-callback]
 verify_jwt = false
+
+[functions.public-jobs]
+verify_jwt = false
+
+[functions.careers-apply]
+verify_jwt = false
+
+[functions.linkedin-webhook]
+verify_jwt = false
+
+[functions.stepstone-webhook]
+verify_jwt = false

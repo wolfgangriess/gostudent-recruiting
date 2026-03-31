@@ -62,7 +62,6 @@ serve(async (req) => {
       source: body.source ?? "External",
       current_stage_id: appliedStage?.id ?? null,
       applied_at: body.applied_at ?? new Date().toISOString(),
-      cover_letter: body.cover_letter ?? null,
       rating: 0,
     };
 
