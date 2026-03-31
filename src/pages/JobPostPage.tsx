@@ -31,17 +31,6 @@ const DISTRIBUTE_BOARDS = [
   { id: "karriere", label: "karriere.at", description: "Austrian job board" },
 ];
 
-const JOB_BOARDS = [
-  { id: "mygostu", name: "MyGoStudentTA", enabled: true },
-  { id: "appcast", name: "Appcast", enabled: true },
-  { id: "arbeitnow", name: "Arbeitnow", enabled: true },
-  { id: "indeed", name: "Indeed", enabled: false },
-  { id: "linkedin", name: "LinkedIn Limited", enabled: true },
-  { id: "monster", name: "Monster Organic", enabled: true },
-  { id: "ramped", name: "Ramped", enabled: true },
-  { id: "xhiring", name: "X Hiring", enabled: true },
-  { id: "ziprecruiter", name: "ZipRecruiter", enabled: true },
-];
 
 const LANGUAGES = [
   "English", "German", "French", "Spanish", "Portuguese", "Italian", "Dutch",
@@ -79,11 +68,6 @@ const JobPostPage = () => {
   const [appLanguage, setAppLanguage] = useState("English");
   const [workType, setWorkType] = useState(job?.workplaceType || "onsite") as [string, (v: string) => void];
   const [description, setDescription] = useState(job?.description || "");
-  const [selectedBoards, setSelectedBoards] = useState<string[]>(
-    JOB_BOARDS.filter((b) => b.enabled).map((b) => b.id)
-  );
-  const [boardLocation, setBoardLocation] = useState(job?.location || "");
-
   // Basic application info state
   const [personalFields, setPersonalFields] = useState<PersonalField[]>([
     { id: "first_name", label: "First name", visibility: "required", locked: true },
@@ -178,12 +162,6 @@ const JobPostPage = () => {
       </div>
     );
   }
-
-  const toggleBoard = (boardId: string) => {
-    setSelectedBoards((prev) =>
-      prev.includes(boardId) ? prev.filter((id) => id !== boardId) : [...prev, boardId]
-    );
-  };
 
   const updatePersonalField = (id: string, visibility: FieldVisibility) => {
     setPersonalFields((prev) => prev.map((f) => (f.id === id ? { ...f, visibility } : f)));
@@ -383,27 +361,6 @@ const JobPostPage = () => {
               <button className="px-2 py-1 hover:text-foreground">Tools</button>
             </div>
             <Textarea rows={12} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Write your job description here..." className="font-mono text-sm" />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Section 3: Publish to job boards */}
-      <Card>
-        <CardHeader><CardTitle className="text-lg">Publish to free job boards</CardTitle></CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground">It can take up to 48 hours for new posts or updates to appear on these boards. <span className="text-primary underline cursor-pointer">Learn more.</span></p>
-          <div className="space-y-3">
-            {JOB_BOARDS.map((board) => (
-              <div key={board.id} className="flex items-center gap-3">
-                <Checkbox id={board.id} checked={selectedBoards.includes(board.id)} onCheckedChange={() => toggleBoard(board.id)} />
-                <label htmlFor={board.id} className="text-sm font-medium cursor-pointer flex items-center gap-1.5">{board.name} <Info className="h-3.5 w-3.5 text-muted-foreground" /></label>
-              </div>
-            ))}
-          </div>
-          <Separator />
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">Location</label>
-            <Input value={boardLocation} onChange={(e) => setBoardLocation(e.target.value)} placeholder="Select location" />
           </div>
         </CardContent>
       </Card>
