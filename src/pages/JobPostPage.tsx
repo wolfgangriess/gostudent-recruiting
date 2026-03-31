@@ -25,7 +25,7 @@ const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL ?? "https://nrbapwkuonkxz
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ?? "sb_publishable_wdp8HcbyOFhxfYHG94YCAA_PFiW2J_2";
 
 const DISTRIBUTE_BOARDS = [
-  { id: "careers", label: "GoStudent Careers", description: "Your public careers page" },
+  { id: "careers", label: "GoStudent ATS Careers Page", description: "Internal careers page — visible at /careers within this app (not gostudent.org)" },
   { id: "linkedin", label: "LinkedIn", description: "LinkedIn Job Postings" },
   { id: "indeed", label: "Indeed", description: "Indeed job listings" },
   { id: "karriere", label: "karriere.at", description: "Austrian job board" },
@@ -272,7 +272,7 @@ const JobPostPage = () => {
         <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2 text-green-800">
             <Globe className="h-4 w-4" />
-            <span className="text-sm font-semibold">Live on GoStudent Careers Page</span>
+            <span className="text-sm font-semibold">Live on GoStudent ATS Careers Page</span>
           </div>
           <a
             href={careersUrl}
