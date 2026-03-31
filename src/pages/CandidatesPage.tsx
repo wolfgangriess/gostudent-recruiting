@@ -129,8 +129,8 @@ const CandidatesPage = () => {
               <TableHead className="font-semibold">Email</TableHead>
               <TableHead className="font-semibold">Job</TableHead>
               <TableHead className="font-semibold">Stage</TableHead>
+              <TableHead className="font-semibold">Beworben</TableHead>
               <TableHead className="font-semibold">Source</TableHead>
-              <TableHead className="font-semibold">Applied</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -140,7 +140,7 @@ const CandidatesPage = () => {
               <TableRow
                 key={c.id}
                 className={`cursor-pointer transition-colors hover:bg-primary/[0.03] ${
-                  stale ? "bg-yellow-50/60 dark:bg-yellow-900/10" : ""
+                  stale ? "bg-amber-50 dark:bg-amber-900/10" : ""
                 }`}
                 onClick={() => navigate(`/candidates/${c.id}`)}
               >
@@ -166,8 +166,8 @@ const CandidatesPage = () => {
                   </Badge>
                 </TableCell>
                 <TableCell className="text-sm">{getStageName(c.currentStageId)}</TableCell>
-                <TableCell className="text-sm text-muted-foreground">{c.source}</TableCell>
                 <TableCell className="text-xs text-muted-foreground whitespace-nowrap">{relativeTime(c.appliedAt)}</TableCell>
+                <TableCell className="text-sm text-muted-foreground">{c.source}</TableCell>
               </TableRow>
               );
             })}

@@ -1,4 +1,3 @@
-import React from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -14,42 +13,12 @@ import ReportsPage from "./pages/ReportsPage.tsx";
 import JobPostPage from "./pages/JobPostPage.tsx";
 import MyOverviewPage from "./pages/MyOverviewPage.tsx";
 import SettingsPage from "./pages/SettingsPage.tsx";
-
 import NotFound from "./pages/NotFound.tsx";
 import AuthCallbackPage from "./pages/AuthCallbackPage.tsx";
 import CareersPage from "./pages/CareersPage.tsx";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 const queryClient = new QueryClient();
-
-// ── Error Boundary ────────────────────────────────────────────────────────────
-class ErrorBoundary extends React.Component<
-  { children: React.ReactNode },
-  { hasError: boolean }
-> {
-  constructor(props: { children: React.ReactNode }) {
-    super(props);
-    this.state = { hasError: false };
-  }
-
-  static getDerivedStateFromError() {
-    return { hasError: true };
-  }
-
-  componentDidCatch(error: Error, info: React.ErrorInfo) {
-    console.error("App error boundary caught:", error, info);
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div className="min-h-screen flex items-center justify-center bg-white">
-          <p className="text-sm text-gray-600">Something went wrong. Please refresh the page.</p>
-        </div>
-      );
-    }
-    return this.props.children;
-  }
-}
 
 // ── Protected Routes ──────────────────────────────────────────────────────────
 const ProtectedRoutes = () => {

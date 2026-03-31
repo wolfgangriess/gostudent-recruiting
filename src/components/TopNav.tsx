@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Briefcase, Users, BarChart3, ChevronDown, UserPlus, Share2, LayoutDashboard, Settings, LogOut, Bell } from "lucide-react";
+import { Briefcase, Users, BarChart3, ChevronDown, UserPlus, Share2, LayoutDashboard, Settings, LogOut, Bell, ClipboardList, AlertCircle, CheckCircle2 } from "lucide-react";
 import gostudentIcon from "@/assets/recruiting-logo.png";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
@@ -38,7 +38,7 @@ const TopNav = () => {
   const { data: jobs = [] } = useJobs();
   const { data: stages = [] } = useStages();
 
-  const notificationCount = useMemo(() => {
+  const notifications = useMemo(() => {
     const userId = user?.id ?? "";
     const myJobIds = jobs
       .filter((j) => j.hiringManager === userId || j.recruiters.includes(userId))
@@ -48,15 +48,14 @@ const TopNav = () => {
     const byStage = (name: string) =>
       myCandidates.filter((c) => stages.find((s) => s.id === c.currentStageId)?.name === name);
 
-    // scorecards due = candidates in Interview stage
     const scorecardsDue = byStage("Interview").length;
-    // needs decision = candidates in Interview stage whose interview was >2 days ago
+
     const twoDaysAgo = Date.now() - 2 * 24 * 60 * 60 * 1000;
     const needsDecision = byStage("Interview").filter((c) => {
       const dt = c.scheduledAt ? new Date(c.scheduledAt).getTime() : new Date(c.updatedAt).getTime();
       return dt < twoDaysAgo;
     }).length;
-    // pending approvals = candidates in Offer stage for jobs where user is hiring manager
+
     const hiringManagerJobIds = jobs.filter((j) => j.hiringManager === userId).map((j) => j.id);
     const pendingApprovals = candidates.filter(
       (c) =>
@@ -64,8 +63,16 @@ const TopNav = () => {
         stages.find((s) => s.id === c.currentStageId)?.name === "Offer"
     ).length;
 
-    return scorecardsDue + needsDecision + pendingApprovals;
+    const items = [
+      { label: "Scorecards offen", count: scorecardsDue, icon: ClipboardList },
+      { label: "Entscheidung ausstehend", count: needsDecision, icon: AlertCircle },
+      { label: "Genehmigungen ausstehend", count: pendingApprovals, icon: CheckCircle2 },
+    ].filter((i) => i.count > 0).slice(0, 5);
+
+    return { items, total: scorecardsDue + needsDecision + pendingApprovals };
   }, [candidates, jobs, stages, user]);
+
+  const notificationCount = notifications.total;
 
   const userMeta = user?.user_metadata;
   const avatarUrl = userMeta?.avatar_url || userMeta?.picture;
@@ -112,20 +119,52 @@ const TopNav = () => {
 
           <div className="ml-auto flex items-center gap-1">
             {/* Notification bell */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="relative h-8 w-8 text-primary-foreground/65 hover:text-primary-foreground hover:bg-primary-foreground/10"
-              onClick={() => navigate("/overview")}
-              aria-label="Notifications"
-            >
-              <Bell className="h-4 w-4" />
-              {notificationCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[9px] font-bold text-white leading-none">
-                  {notificationCount > 99 ? "99+" : notificationCount}
-                </span>
-              )}
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="relative h-8 w-8 text-primary-foreground/65 hover:text-primary-foreground hover:bg-primary-foreground/10"
+                  aria-label="Notifications"
+                >
+                  <Bell className="h-4 w-4" />
+                  {notificationCount > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[9px] font-bold text-white leading-none">
+                      {notificationCount > 99 ? "99+" : notificationCount}
+                    </span>
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-64">
+                <div className="px-3 py-2 border-b border-border">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Benachrichtigungen</p>
+                </div>
+                {notifications.items.length === 0 ? (
+                  <div className="px-3 py-4 text-center text-sm text-muted-foreground">
+                    Keine offenen Aufgaben 🎉
+                  </div>
+                ) : (
+                  notifications.items.map((item) => (
+                    <DropdownMenuItem
+                      key={item.label}
+                      className="gap-2.5 cursor-pointer px-3 py-2.5"
+                      onClick={() => navigate("/overview")}
+                    >
+                      <item.icon className="h-4 w-4 text-muted-foreground shrink-0" />
+                      <span className="flex-1 text-sm">{item.label}</span>
+                      <span className="text-xs font-bold text-destructive bg-destructive/10 rounded-full px-1.5 py-0.5">
+                        {item.count}
+                      </span>
+                    </DropdownMenuItem>
+                  ))
+                )}
+                <div className="border-t border-border">
+                  <DropdownMenuItem className="text-xs text-primary justify-center cursor-pointer" onClick={() => navigate("/overview")}>
+                    Alle ansehen →
+                  </DropdownMenuItem>
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="secondary" size="sm" className="gap-1 rounded-lg font-medium text-[13px] h-8 px-3">

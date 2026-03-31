@@ -51,7 +51,13 @@ const CandidateCard = ({ candidate, isDragging, stageName }: Props) => {
             {candidate.firstName} {candidate.lastName}
           </p>
           <div className="flex items-center gap-2">
-            <p className="text-xs text-muted-foreground">
+            <p className={`text-xs ${
+              daysInStage > 14
+                ? "text-destructive font-medium"
+                : daysInStage > 7
+                ? "text-yellow-600 font-medium"
+                : "text-muted-foreground"
+            }`}>
               {daysInStage}T{stageName ? ` in ${stageName}` : " in Stage"}
             </p>
             {hasScorecard && (

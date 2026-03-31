@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx tsc:*)",
+      "Bash(node_modules/.bin/tsc --noEmit)",
+      "Bash(cmd.exe /c \"cd \"\"C:\\\\Users\\\\WolfgangRiess\\\\GoStudent Recruiting\\\\.claude\\\\worktrees\\\\serene-poitras\"\" && npx tsc --noEmit 2>&1\")",
+      "Bash(cmd.exe /c \"cd \"\"C:\\\\Users\\\\WolfgangRiess\\\\GoStudent Recruiting\\\\.claude\\\\worktrees\\\\serene-poitras\"\" && git status && git diff HEAD\")",
+      "Bash(cmd.exe /c \"cd \"\"C:\\\\Users\\\\WolfgangRiess\\\\GoStudent Recruiting\\\\.claude\\\\worktrees\\\\serene-poitras\"\" && git status\")",
+      "Bash(git -C \"C:/Users/WolfgangRiess/GoStudent Recruiting/.claude/worktrees/serene-poitras\" status)",
+      "Bash(git -C \"C:/Users/WolfgangRiess/GoStudent Recruiting/.claude/worktrees/serene-poitras\" diff src/App.tsx)",
+      "Bash(git -C \"C:/Users/WolfgangRiess/GoStudent Recruiting/.claude/worktrees/serene-poitras\" add src/App.tsx)",
+      "Bash(git -C \"C:/Users/WolfgangRiess/GoStudent Recruiting/.claude/worktrees/serene-poitras\" commit -m \"fix: error boundary, safe hooks, empty states, Supabase fallback config:*)",
+      "Bash(git -C \"C:/Users/WolfgangRiess/GoStudent Recruiting/.claude/worktrees/serene-poitras\" push origin claude/serene-poitras)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(where npm:*)",
+      "Bash(where node:*)",
+      "Bash(cmd.exe /c \"where npm && where node\")",
+      "Bash(cmd.exe /c \"where npm\")",
+      "Bash(echo \"exit: $?\")",
+      "Bash(\"C:/Users/WolfgangRiess/node-portable/node-v20.18.3-win-x64/npm.cmd\" --version)",
+      "Bash(PATH=\"/c/Users/WolfgangRiess/node-portable/node-v20.18.3-win-x64:$PATH\")",
+      "Bash(export PATH=\"/c/Users/WolfgangRiess/node-portable/node-v20.18.3-win-x64:$PATH\")",
+      "Bash(npm install:*)",
+      "Bash(ls \"C:/Users/WolfgangRiess/GoStudent Recruiting/.claude/worktrees/serene-poitras/node_modules/.bin/vite\"*)",
+      "Bash(netstat -ano)",
+      "Bash(python3 -c \"import sys,json; lines=sys.stdin.read\\(\\).strip\\(\\).split\\(''''\\\\n''''\\); [print\\(json.loads\\(l\\).get\\(''''role'''',''''?''''\\), '''':'''', str\\(json.loads\\(l\\).get\\(''''content'''',''''''''\\)\\)[:200]\\) for l in lines[-20:] if l.strip\\(\\)]\")",
+      "Bash(PATH=\"/c/Users/WolfgangRiess/node-portable/node-v20.18.3-win-x64:$PATH\" npx tsc --noEmit)",
+      "Bash(cmd /c \"npx tsc --noEmit 2>&1\")",
+      "Bash(xargs grep:*)",
+      "Bash(find 'C:/Users/WolfgangRiess/GoStudent Recruiting' -maxdepth 2 -type f -not -path */node_modules/*)",
+      "Bash(xargs -I{} grep -l \"verification\\\\|preview\\\\|callback\" {})",
+      "Bash(cmd /c \"npm run build 2>&1\")"
+    ]
+  }
+}

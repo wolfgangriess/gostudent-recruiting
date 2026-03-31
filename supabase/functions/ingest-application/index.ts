@@ -78,6 +78,18 @@ serve(async (req) => {
 
     if (error) throw error;
 
+    // Fire-and-forget Slack notification — never block the response on this
+    const slackUrl = Deno.env.get("SLACK_WEBHOOK_URL");
+    if (slackUrl) {
+      fetch(slackUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          text: `🎯 Neue Bewerbung: ${body.first_name} ${body.last_name} für Job via ${body.source ?? "External"}`,
+        }),
+      }).catch(() => {});
+    }
+
     return new Response(
       JSON.stringify({ success: true, candidate_id: data?.id }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }

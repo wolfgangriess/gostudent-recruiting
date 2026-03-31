@@ -157,8 +157,9 @@ const CareersPage = () => {
       {/* Job listings */}
       <main className="mx-auto max-w-4xl px-6 py-10">
         {isLoading && (
-          <div className="flex items-center justify-center py-16">
-            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+          <div className="flex items-center justify-center gap-2 py-16 text-muted-foreground">
+            <Loader2 className="h-5 w-5 animate-spin" />
+            <span className="text-sm">Wird geladen...</span>
           </div>
         )}
 
@@ -171,7 +172,7 @@ const CareersPage = () => {
         {!isLoading && !error && jobs.length === 0 && (
           <div className="text-center py-16">
             <Briefcase className="h-10 w-10 text-muted-foreground/40 mx-auto mb-3" />
-            <p className="text-muted-foreground">Aktuell sind keine offenen Stellen verfügbar.</p>
+            <p className="text-muted-foreground">Aktuell sind keine offenen Stellen ausgeschrieben.</p>
             <p className="text-sm text-muted-foreground/70 mt-1">Schau bald wieder vorbei!</p>
           </div>
         )}
@@ -228,7 +229,7 @@ const CareersPage = () => {
           {submitted ? (
             <div className="flex flex-col items-center gap-4 py-8 text-center">
               <CheckCircle2 className="h-12 w-12 text-primary" />
-              <p className="text-lg font-semibold text-foreground">Vielen Dank! Wir melden uns bald.</p>
+              <p className="text-lg font-semibold text-foreground">Vielen Dank! Wir melden uns bald bei dir.</p>
               <p className="text-sm text-muted-foreground">
                 Deine Bewerbung für <strong>{selectedJob?.name}</strong> wurde erfolgreich übermittelt.
               </p>
@@ -279,7 +280,7 @@ const CareersPage = () => {
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="coverLetter">Anschreiben</Label>
+                <Label htmlFor="coverLetter">Motivationsschreiben</Label>
                 <Textarea
                   id="coverLetter"
                   rows={4}

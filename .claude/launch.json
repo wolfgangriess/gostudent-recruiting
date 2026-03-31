@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "dev",
+      "runtimeExecutable": "C:\\Users\\WolfgangRiess\\GoStudent Recruiting\\.claude\\worktrees\\serene-poitras\\start-dev.cmd",
+      "runtimeArgs": [],
+      "port": 8080
+    }
+  ]
+}
