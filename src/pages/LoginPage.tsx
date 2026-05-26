@@ -6,15 +6,10 @@ import { supabase } from "@/integrations/supabase/client";
 import goStudentLogo from "@/assets/gostudent-logo-full.png";
 import gostudentIcon from "@/assets/gostudent-pencil-icon.png";
 
-// Google Calendar + Gmail + Drive scopes requested at login so users
-// only need to authorise once for all integrations.
-const GOOGLE_SCOPES = [
-  "email",
-  "profile",
-  "https://www.googleapis.com/auth/calendar",
-  "https://www.googleapis.com/auth/gmail.send",
-  "https://www.googleapis.com/auth/drive.file",
-].join(" ");
+// Only request basic scopes at login to avoid Google verification requirements.
+// Calendar / Gmail / Drive scopes are requested separately when those
+// features are first used (incremental authorisation).
+const GOOGLE_SCOPES = ["email", "profile"].join(" ");
 
 const REDIRECT_TO = `${window.location.origin}/auth/callback`;
 
