@@ -2,9 +2,21 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader2, Shield } from "lucide-react";
 import { toast } from "sonner";
-import { lovable } from "@/integrations/lovable";
+import { supabase } from "@/integrations/supabase/client";
 import goStudentLogo from "@/assets/gostudent-logo-full.png";
 import gostudentIcon from "@/assets/gostudent-pencil-icon.png";
+
+// Google Calendar + Gmail + Drive scopes requested at login so users
+// only need to authorise once for all integrations.
+const GOOGLE_SCOPES = [
+  "email",
+  "profile",
+  "https://www.googleapis.com/auth/calendar",
+  "https://www.googleapis.com/auth/gmail.send",
+  "https://www.googleapis.com/auth/drive.file",
+].join(" ");
+
+const REDIRECT_TO = `${window.location.origin}/auth/callback`;
 
 const GoogleIcon = () => (
   <svg viewBox="0 0 24 24" className="h-4 w-4">
@@ -19,27 +31,35 @@ const LoginPage = () => {
   const [ssoLoading, setSsoLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
 
-  // GoStudent employees — routes through Lovable cloud auth (not direct Supabase OAuth)
+  // GoStudent employees — restrict to gostudent.org domain via hd param
   const handleGoStudentSSO = async () => {
     setSsoLoading(true);
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: `${window.location.origin}/auth/callback`,
-      extraParams: { hd: "gostudent.org" },
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: REDIRECT_TO,
+        scopes: GOOGLE_SCOPES,
+        queryParams: { hd: "gostudent.org" },
+      },
     });
-    if (result.error) {
+    if (error) {
       toast.error("Sign in failed. Please try again.");
       setSsoLoading(false);
     }
-    // If redirected, browser navigates away — loading stays true intentionally
+    // On success the browser is redirected — loading stays true intentionally
   };
 
   // External accounts — no domain restriction
   const handleGoogleSignIn = async () => {
     setGoogleLoading(true);
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: `${window.location.origin}/auth/callback`,
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: REDIRECT_TO,
+        scopes: GOOGLE_SCOPES,
+      },
     });
-    if (result.error) {
+    if (error) {
       toast.error("Sign in failed. Please try again.");
       setGoogleLoading(false);
     }
