@@ -20,3 +20,4 @@ Read this before changing anything. The project is built in Lovable and synced t
 ## Status
 - Working: Google sign-in, ATS database tables (start out empty), Google Calendar connect (needs the Google Cloud consent screen to be published or the user added as a test user).
 - `CLAUDE_CODE_BRIEFING.md` is an older plan and partly outdated (e.g. the mock store notes); this file takes precedence.
+- `.env` must stay committed and must not be listed in `.gitignore` — it only holds public keys, and removing it breaks the app with "supabaseUrl is required".
