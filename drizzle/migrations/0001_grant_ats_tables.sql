@@ -1,0 +1,2 @@
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.jobs, public.pipeline_stages, public.candidates, public.scorecard_templates, public.scorecard_evaluations, public.offers TO authenticated;
+GRANT ALL ON public.jobs, public.pipeline_stages, public.candidates, public.scorecard_templates, public.scorecard_evaluations, public.offers TO service_role;

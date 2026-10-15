@@ -8,6 +8,13 @@
       "when": 1792059571642,
       "tag": "0000_add_ats_tables",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792059580949,
+      "tag": "0001_grant_ats_tables",
+      "breakpoints": true
     }
   ]
 }
