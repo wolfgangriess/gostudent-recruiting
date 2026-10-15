@@ -35,7 +35,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { UserAvatar } from "@/components/UserPicker";
 import ScorecardBuilder from "@/components/ScorecardBuilder";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/supabase/untyped-client";
 import { useQueryClient } from "@tanstack/react-query";
 import { stageKeys } from "@/hooks/useStages";
 

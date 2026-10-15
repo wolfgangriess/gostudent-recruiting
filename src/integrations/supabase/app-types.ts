@@ -45,7 +45,7 @@ export interface JobRow {
   updated_at: string;
 }
 
-export type JobInsert = Omit<JobRow, "id" | "created_at" | "updated_at"> & {
+export type JobInsert = Partial<Omit<JobRow, "id" | "created_at" | "updated_at">> & {
   id?: string;
   created_at?: string;
   updated_at?: string;
@@ -64,7 +64,7 @@ export interface PipelineStageRow {
   created_at: string;
 }
 
-export type PipelineStageInsert = Omit<PipelineStageRow, "id" | "created_at"> & {
+export type PipelineStageInsert = Partial<Omit<PipelineStageRow, "id" | "created_at">> & {
   id?: string;
   created_at?: string;
 };
@@ -92,7 +92,7 @@ export interface CandidateRow {
   updated_at: string;
 }
 
-export type CandidateInsert = Omit<CandidateRow, "id" | "created_at" | "updated_at"> & {
+export type CandidateInsert = Partial<Omit<CandidateRow, "id" | "created_at" | "updated_at">> & {
   id?: string;
   created_at?: string;
   updated_at?: string;
@@ -123,7 +123,7 @@ export interface ScorecardTemplateRow {
   updated_at: string;
 }
 
-export type ScorecardTemplateInsert = Omit<ScorecardTemplateRow, "id" | "created_at" | "updated_at"> & {
+export type ScorecardTemplateInsert = Partial<Omit<ScorecardTemplateRow, "id" | "created_at" | "updated_at">> & {
   id?: string;
 };
 
@@ -140,7 +140,7 @@ export interface ScorecardEvaluationRow {
   created_at: string;
 }
 
-export type ScorecardEvaluationInsert = Omit<ScorecardEvaluationRow, "id" | "created_at"> & {
+export type ScorecardEvaluationInsert = Partial<Omit<ScorecardEvaluationRow, "id" | "created_at">> & {
   id?: string;
   created_at?: string;
 };
@@ -159,7 +159,7 @@ export interface OfferRow {
   updated_at: string;
 }
 
-export type OfferInsert = Omit<OfferRow, "id" | "created_at" | "updated_at"> & {
+export type OfferInsert = Partial<Omit<OfferRow, "id" | "created_at" | "updated_at">> & {
   id?: string;
   created_at?: string;
   updated_at?: string;

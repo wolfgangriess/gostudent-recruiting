@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/supabase/untyped-client";
 import type { PipelineStageRow, PipelineStageInsert } from "@/integrations/supabase/app-types";
 import { mapStage, mapStages } from "@/lib/mappers";
 import type { PipelineStage } from "@/lib/types";

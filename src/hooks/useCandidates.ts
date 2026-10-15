@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/supabase/untyped-client";
 import type { CandidateRow, CandidateInsert, CandidateUpdate } from "@/integrations/supabase/app-types";
 import { mapCandidate, mapCandidates } from "@/lib/mappers";
 import type { Candidate } from "@/lib/types";

@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/supabase/untyped-client";
 import type { JobRow, JobInsert, JobUpdate } from "@/integrations/supabase/app-types";
 import { mapJob, mapJobs } from "@/lib/mappers";
 import type { Job } from "@/lib/types";
