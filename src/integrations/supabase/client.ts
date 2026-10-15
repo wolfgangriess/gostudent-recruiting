@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
+import { brokeredPreviewStorage } from './previewAuthStorage';
 
 // ── Canonical project values (source of truth) ───────────────────────────────
 // Project: ovlxdqxxupgqomgegecy  ← NEVER change this to nrbapwkuonkxzxuscgwv
@@ -26,7 +27,7 @@ if (!SUPABASE_URL.includes(CORRECT_PROJECT_ID)) {
 
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
-    storage: localStorage,
+    storage: brokeredPreviewStorage(),
     persistSession: true,
     autoRefreshToken: true,
     detectSessionInUrl: true,
