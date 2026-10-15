@@ -2,16 +2,9 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader2, Shield } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable/index";
 import goStudentLogo from "@/assets/gostudent-logo-full.png";
 import gostudentIcon from "@/assets/gostudent-pencil-icon.png";
-
-// Only request basic scopes at login to avoid Google verification requirements.
-// Calendar / Gmail / Drive scopes are requested separately when those
-// features are first used (incremental authorisation).
-const GOOGLE_SCOPES = ["email", "profile"].join(" ");
-
-const REDIRECT_TO = `${window.location.origin}/auth/callback`;
 
 const GoogleIcon = () => (
   <svg viewBox="0 0 24 24" className="h-4 w-4">
@@ -26,39 +19,27 @@ const LoginPage = () => {
   const [ssoLoading, setSsoLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
 
-  // GoStudent employees — restrict to gostudent.org domain via hd param
-  const handleGoStudentSSO = async () => {
-    setSsoLoading(true);
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: REDIRECT_TO,
-        scopes: GOOGLE_SCOPES,
-        queryParams: { hd: "gostudent.org" },
-      },
+  const signIn = async (setLoading: (v: boolean) => void, extraParams?: Record<string, string>) => {
+    setLoading(true);
+    const result = await lovable.auth.signInWithOAuth("google", {
+      redirect_uri: window.location.origin,
+      extraParams: { prompt: "select_account", ...extraParams },
     });
-    if (error) {
+    if (result.error) {
       toast.error("Sign in failed. Please try again.");
-      setSsoLoading(false);
+      setLoading(false);
+      return;
     }
-    // On success the browser is redirected — loading stays true intentionally
+    if (result.redirected) return;
+    // Session set — reload into the app
+    window.location.assign("/overview");
   };
 
+  // GoStudent employees — restrict to gostudent.org domain
+  const handleGoStudentSSO = () => signIn(setSsoLoading, { hd: "gostudent.org" });
+
   // External accounts — no domain restriction
-  const handleGoogleSignIn = async () => {
-    setGoogleLoading(true);
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: REDIRECT_TO,
-        scopes: GOOGLE_SCOPES,
-      },
-    });
-    if (error) {
-      toast.error("Sign in failed. Please try again.");
-      setGoogleLoading(false);
-    }
-  };
+  const handleGoogleSignIn = () => signIn(setGoogleLoading);
 
   const anyLoading = ssoLoading || googleLoading;
 
@@ -126,14 +107,6 @@ const LoginPage = () => {
           </div>
         </div>
 
-        {/* Setup note — visible only in dev */}
-        {import.meta.env.DEV && (
-          <p className="mt-4 text-center text-[10px] text-muted-foreground/60 leading-relaxed px-4">
-            Before SSO works: enable Google provider in Supabase Dashboard → Auth → Providers,
-            add OAuth credentials from Google Cloud Console, and set the redirect URI to{" "}
-            <code className="font-mono">{REDIRECT_TO}</code>.
-          </p>
-        )}
       </div>
     </div>
   );
